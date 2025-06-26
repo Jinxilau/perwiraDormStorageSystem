@@ -22,6 +22,13 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role_id',
+        'account_status',
+        'application_status',
+        'phone_number',
+        'gender',
+        'year_of_study',
+        'semester',
     ];
 
     /**
@@ -58,4 +65,19 @@ class User extends Authenticatable
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
     }
+
+    // Eloquent Model Relationship
+    public function userRole()
+    {
+        return $this->belongsTo(UserRole::class);
+    }
+    public function applyStorage()
+    {
+        return $this->hasOne(StorageApplication::class);
+    }
+    public function reviewApplications()
+    {
+        return $this->hasMany(StorageApplication::class);
+    }
+
 }

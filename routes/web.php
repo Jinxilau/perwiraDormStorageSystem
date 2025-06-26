@@ -8,4 +8,5 @@ Route::view('dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('d
 
 Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
 
+
 require __DIR__.'/auth.php';

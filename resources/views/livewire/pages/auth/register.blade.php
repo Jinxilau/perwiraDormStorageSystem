@@ -28,11 +28,18 @@ new #[Layout('layouts.guest')] class extends Component
 
         $validated['password'] = Hash::make($validated['password']);
 
-        event(new Registered($user = User::create($validated)));
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role_id' => '3', // TODO
+        ]);
 
-        Auth::login($user);
+        // event(new Registered($user = User::create($validated))); # Dispatch event 
 
-        $this->redirect(route('dashboard', absolute: false), navigate: true);
+        // Auth::login($user); # Prevent login 
+
+        // $this->redirect(route('dashboard', absolute: false), navigate: true);
     }
 }; ?>
 
