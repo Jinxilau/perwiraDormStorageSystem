@@ -16,9 +16,9 @@ class EnsureUserIsApproved
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check() && Auth::user()->status !== 'approved') {
+        if (Auth::check() && Auth::user()->application_status !== 'approved' && Auth::user()->account_status !== 'inactive') {
             Auth::logout();
-            return redirect('/login')->withErrors(['account' => 'Your account is not approved yet.']);
+            return redirect('/login')->withErrors(['account' => 'Your account is not approved or is inactive yet.']);
         }
         
         return $next($request);

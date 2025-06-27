@@ -23,7 +23,7 @@ class CheckRole
 
         $user = Auth::user();
 
-        $userRole = $user->role->role_name;
+        $userRole = $user->userRole->role_name;
 
         if (!in_array($userRole, $roles)) {
             Log::warning('Unauthorized access attempt', [

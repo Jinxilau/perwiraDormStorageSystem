@@ -70,7 +70,7 @@ class User extends Authenticatable
     // Eloquent Model Relationship
     public function userRole()
     {
-        return $this->belongsTo(UserRole::class);
+        return $this->belongsTo(UserRole::class, 'role_id');
     }
     public function applyStorage()
     {

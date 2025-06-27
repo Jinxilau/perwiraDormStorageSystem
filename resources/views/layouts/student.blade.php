@@ -38,7 +38,7 @@
                         <li><h6 class="dropdown-header">{{ auth()->user()->email }}</h6></li>
                         <li><hr class="dropdown-divider"></li>
                         {{-- <li><a class="dropdown-item" href="{{ route('dashboard') }}">Dashboard</a></li> --}}
-                        @if(Auth::user()->role === 'admin')
+                        @if(Auth::user()->role === 1 || Auth::user()->role === 2)
                         <li><a class="dropdown-item" href="">Admin Panel</a></li>
                         @endif
                         <li><a class="dropdown-item" href="">Profile</a></li>
