@@ -29,6 +29,7 @@ class User extends Authenticatable
         'gender',
         'year_of_study',
         'semester',
+        'matric_no',
     ];
 
     /**

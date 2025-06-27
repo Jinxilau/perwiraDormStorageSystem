@@ -1,0 +1,131 @@
+<?php
+
+namespace App\Livewire;
+
+use App\Models\User;
+use App\Models\UserRole;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
+use Livewire\Component;
+
+class AccountApplication extends Component
+{
+    public $first_name = '';
+    public $last_name = '';
+    public $matric_no = '';
+    public $gender = '';
+    public $year_of_study = '';
+    public $semester = '';
+    public $phone_number = '';
+    public $email = '';
+    public $password = '';
+    public $password_confirmation = '';
+    public $agree_terms = false;
+
+    public $years = [];
+    public $semesters = [];
+    public $genders = [];
+
+    public function mount()
+    {
+        $this->years = [
+            1 => 'Year 1',
+            2 => 'Year 2', 
+            3 => 'Year 3',
+            4 => 'Year 4',
+            5 => 'Year 5',
+        ];
+
+        $this->semesters = [
+            1 => 'Semester 1',
+            2 => 'Semester 2',
+        ];
+
+        $this->genders = [
+            'male' => 'Male',
+            'female' => 'Female',
+            'other' => 'Other',
+        ];
+    }
+
+    protected function rules()
+    {
+        return [
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'matric_no' => 'required|string|max:255|unique:users,matric_no',
+            'gender' => 'required|in:male,female,other',
+            'year_of_study' => 'required|integer|between:1,5',
+            'semester' => 'required|integer|between:1,2',
+            'phone_number' => 'required|string|max:20|unique:users,phone_number',
+            'email' => 'required|email|unique:users,email',
+            'password' => ['required', 'confirmed', Password::min(8)],
+            'agree_terms' => 'accepted',
+        ];
+    }
+
+    protected function messages()
+    {
+        return [
+            'first_name.required' => 'First name is required.',
+            'last_name.required' => 'Last name is required.',
+            'matric_no.required' => 'Matric number is required.',
+            'matric_no.unique' => 'This matric number is already registered.',
+            'gender.required' => 'Please select your gender.',
+            'year_of_study.required' => 'Please select your year of study.',
+            'semester.required' => 'Please select your semester.',
+            'phone_number.required' => 'Phone number is required.',
+            'phone_number.unique' => 'This phone number is already registered.',
+            'email.required' => 'Email address is required.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.unique' => 'This email is already registered.',
+            'password.required' => 'Password is required.',
+            'password.confirmed' => 'Password confirmation does not match.',
+            'agree_terms.accepted' => 'You must agree to the Terms of Service and Privacy Policy.',
+        ];
+    }
+
+    public function clearForm()
+    {
+        $this->reset();
+        $this->resetValidation();
+        session()->flash('message', 'Form cleared successfully.');
+    }
+
+    public function submit()
+    {
+        $this->validate();
+
+        try {
+            $studentRole = UserRole::where('role_name', 'student')->first();
+            if (!$studentRole) {
+                $studentRole = UserRole::find(3); 
+            }
+
+            User::create([
+                'name' => $this->first_name . ' ' . $this->last_name,
+                'role_id' => $studentRole->id,
+                'email' => $this->email,
+                'password' => Hash::make($this->password),
+                'matric_no' => $this->matric_no,
+                'phone_number' => $this->phone_number,
+                'gender' => $this->gender,
+                'year_of_study' => $this->year_of_study,
+                'semester' => $this->semester,
+            ]);
+
+            session()->flash('success', 'Account application submitted successfully! Please wait for admin approval.');
+            $this->reset();
+            $this->resetValidation();
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'An error occurred while submitting your application. Please try again.');
+        }
+    }
+
+    
+    public function render()
+    {
+        return view('livewire.account-application');
+    }
+}

@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             
-            $table->foreignId('role_id')->constrained('user_roles')->onDelete('restrict')->after('id'); // TODO
-            
+            $table->foreignId('role_id')->constrained('user_roles')->onDelete('restrict')->after('id')->default(3); // TODO
+
+            $table->string('matric_no')->unique()->after('role_id');
+            $table->enum('gender', ['male', 'female', 'other'])->nullable();
             $table->enum('account_status', ['active', 'inactive'])->default('inactive');
             $table->enum('application_status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->string('phone_number')->unique()->nullable();
-            $table->enum('gender', ['male', 'female', 'other'])->nullable();
             $table->tinyInteger('year_of_study')->unsigned()->nullable();
             $table->tinyInteger('semester')->unsigned()->nullable();
         });

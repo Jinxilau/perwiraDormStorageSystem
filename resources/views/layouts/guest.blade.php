@@ -1,30 +1,57 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <a href="/" wire:navigate>
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-                </a>
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    {{-- Boostrap --}}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body class="font-sans text-body bg-light" style="padding-top: 0;">
+    <nav id="navbar" class="" style="z-index: 1051; padding: 24px 10px; background-color: aqua">
+        <div class="d-flex align-items-center justify-content-center gap-4">
+            <img src="{{ asset('images\icons\perwira_logo.png') }}" alt="Logo" class="img-fluid" style="width: 200px; height: auto; object-fit: cover;">
+            <div class="text-dark text-center">
+                <h1 class="" style="font-weight: bold; font-size: clamp(12px, 2.3vw, 40px);">Perwira Dorm Storage System</h1>
+                <p class="text-muted fs-5">Universiti Tun Hussein Onn Malaysia</p>
             </div>
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-                {{ $slot }}
-            </div>
+            {{-- <x-application-logo class="w-20 h-20 text-secondary" /> --}}
         </div>
-    </body>
+
+    </nav>
+
+    <div class=" d-flex flex-column justify-content-sm-center align-items-center pt-5 pt-sm-0" style="min-height: 80vh;">
+
+    {{ $slot }}
+    </div>
+    
+    <!-- Footer -->
+    <footer class="bg-dark py-4 rounded">
+        <div class="container">
+            <div class="d-flex justify-content-center gap-4 mb-3">
+                <div class="rounded-circle bg-secondary" style="width: 0.8rem; height: 0.8rem;"></div>
+                <div class="rounded-circle bg-secondary" style="width: 0.8rem; height: 0.8rem;"></div>
+                <div class="rounded-circle bg-secondary" style="width: 0.8rem; height: 0.8rem;"></div>
+                <div class="rounded-circle bg-secondary" style="width: 0.8rem; height: 0.8rem;"></div>
+            </div>
+            <p class="text-center text-white mb-0">© 2024 Universiti Tun Hussein Onn Malaysia | Perwira Dorm Storage System</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+</body>
 </html>
