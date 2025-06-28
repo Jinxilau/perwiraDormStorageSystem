@@ -21,12 +21,12 @@ class OpenArea extends Model
     // Eloquent Model Relationship
     public function storageRoom()
     {
-        return $this->belongsTo(StorageRoom::class);
+        return $this->belongsTo(StorageRoom::class, 'storage_room_id');
     }
 
     public function storageApplications()
     {
-        return $this->hasMany(StorageApplication::class);
+        return $this->hasMany(StorageApplication::class, 'open_area_id');
     }
 
 }

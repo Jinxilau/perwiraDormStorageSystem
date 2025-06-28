@@ -74,11 +74,11 @@ class User extends Authenticatable
     }
     public function applyStorage()
     {
-        return $this->hasOne(StorageApplication::class);
+        return $this->hasOne(StorageApplication::class, 'applicant_id');
     }
     public function reviewApplications()
     {
-        return $this->hasMany(StorageApplication::class);
+        return $this->hasMany(StorageApplication::class, 'approver_id');
     }
 
 }

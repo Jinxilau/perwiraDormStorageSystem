@@ -17,11 +17,11 @@ class StoredItem extends Model
 
     public function storageApplication()
     {
-        return $this->belongsTo(StorageApplication::class);
+        return $this->belongsTo(StorageApplication::class, 'storage_application_id');
     }
     public function missingReport()
     {
-        return $this->belongsTo(MissingReport::class, 'missing_report');
+        return $this->belongsTo(MissingReport::class, 'missing_report_id');
     }
 
 }

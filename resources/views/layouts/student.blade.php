@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Document')</title>
-    @vite('resources\css\home.css', 'resources\js\app.js')
+    @vite('resources\css\app.css')
     @yield('assets')
     {{-- Bootstrap CDN --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
@@ -13,13 +13,49 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     {{-- Livewire Style --}}
     @livewireStyles
+
+    <style>
+		#sidebarcontent:hover {
+			background-color: rgba(0, 179, 255, 0.571);
+		}
+
+		#sidebar.close {
+			padding: 5px;
+			width: 60px;
+			text-wrap: nowrap;
+		}
+
+		.rotate {
+			rotate: -180deg;
+		}
+
+		@media(min-width: 768px) {
+			.custom-vh-100 {
+				height: 100vh;
+			}
+		}
+
+		.text-outline {
+			color: white;
+			/* Set the text color */
+			text-shadow:
+				-0.3px -0.3px 0 black,
+				/* Top-left shadow */
+				0.3px -0.3px 0 black,
+				/* Top-right shadow */
+				-0.3px 0.3px 0 black,
+				/* Bottom-left shadow */
+				0.3px 0.3px 0 black;
+			/* Bottom-right shadow */
+		}
+	</style>
 </head>
 
 <body class="d-flex flex-column min-vh-100">
     <!-- Navigation -->
     <nav id="navbar" class="" style="z-index: 1051; max-height: 90px; padding: 24px 10px">
         <div class="container-fluid d-flex justify-content-between align-items-center">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+            <button id="toggle-btn" class="navbar-toggler" type="button" onclick="toggleSidebar()" style="transition: rotate 150ms ease;">
                 <i class="bi bi-list h2 text-white" id="hambur"></i>
             </button>
             
@@ -62,56 +98,102 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
-    @yield('content')
+    <div class="row">
+        <!-- Sidebar -->
+        <div id="sidebar" class="col-md-3 p-0 mb-4 mb-md-0 custom-vh-100 shadow-lg" style="background-color: rgb(255, 255, 255); position: sticky; top: 0; z-index: 10; transition: 300ms ease-in-out; overflow: hidden;">
+            <div>
+                <div class="list-group ms-2">
+                    <a href="#" class="list-group-item list-group-item-action active">
+                        <i class="bi bi-speedometer h4"></i> 
+                        <span class="ms-2">Dashboard</span>
+                    </a>
+                    <a id="sidebarcontent" href="{{ route('storage_application') }}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-calendar-week h4"></i>
+                        <span class="ms-2">Storage Application</span> 
+                    </a>
+                    <a id="sidebarcontent" href="admin_manage_retrieval.html" class="list-group-item list-group-item-action">
+                        <i class="bi bi-box-seam h4"></i> 
+                        <span class="ms-2">Notification</span>
+                    </a>
+                    <a id="sidebarcontent" href="admin_manage_user.html" class="list-group-item list-group-item-action">
+                        <i class="bi bi-person-gear h4"></i> 
+                        <span class="ms-2">My Storage</span>
+                    </a>
+                    <a id="sidebarcontent" href="admin_manage_storage.html" class="list-group-item list-group-item-action">
+                        <i class="bi bi-house-gear h4"></i>
+                        <span class="ms-2">Report Missing Item</span> 
+                    </a>
+                    <a id="sidebarcontent" href="admin_manage_storage.html" class="list-group-item list-group-item-action">
+                        <i class="bi bi-house-gear h4"></i>
+                        <span class="ms-2">Missing Items</span> 
+                    </a>
+                    <a id="sidebarcontent" href="admin_manage_storage.html" class="list-group-item list-group-item-action">
+                        <i class="bi bi-house-gear h4"></i>
+                        <span class="ms-2">Help & Support</span> 
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <div class="col-md p-4">
+            @yield('content')
+        </div>
+    </div>
+
     
     <!-- Footer -->
-    <footer class="mt-auto">
-        <div class="container">
-            <div class="footer-content flex-grow-1 container">
-                <div class="footer-section">
-                    <h3>Calystra Studio</h3>
-                    <p>Professional photography services in Malaysia, specializing in weddings, corporate events, and family portraits.</p>
-                </div>
-                <div class="footer-section">
-                    <h3>Services</h3>
-                    <p><a href="#services">Wedding Photography</a></p>
-                    <p><a href="#services">Corporate Events</a></p>
-                    <p><a href="#services">Family Portraits</a></p>
-                    <p><a href="#services">Event Photography</a></p>
-                </div>
-                <div class="footer-section">
-                    <h3>Contact</h3>
-                    <p>Email: hello@calystrastudio.com</p>
-                    <p>Phone: +60 17-255 1905</p>
-                    <p>Location: Kuala Lumpur, Malaysia</p>
-                </div>
-                <div class="footer-section">
-                    <h3>Quick Links</h3>
-                    <p><a href="#booking">Book Now</a></p>
-                    <p><a href="">About Us</a></p>
-                    <p><a href="">Contact</a></p>
-                    <p><a href="#services">Portfolio</a></p>
-                    {{-- <p><a href="#">FAQ</a></p> --}}
+    <footer class="footer">
+        <div class="container-fluid mx-2">
+            <!-- Logo Button -->
+            <div class="mb-4">
+                <img src="{{ asset('images\icons\perwira_logo.png') }}" alt="Logo" id="logo-icon" class="logo-icon" style="object-fit: cover; overflow: visible; width: 130px; height: 30px; position: relative; z-index: 1050; top: 5px;">
+            </div>
+            
+            <!-- Social Icons -->
+            <div>
+                <div class="social-icons">
+                    <a href="#" class="social-icon" aria-label="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
                 </div>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 Calystra Studio. All rights reserved.</p>
+            
+            <!-- Footer Links -->
+            <div class="d-flex justify-content-between">
+                <div class="">
+                    <p class="copyright">
+                        © 2024 Universiti Tun Hussein Onn Malaysia | Perwira Dorm Storage System
+                    </p>
+                </div>
+                <div class="footer-links" style="width: fit-content">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms & Conditions</a>
+                    <a href="#">Cookie Policy</a>
+                    <a href="#">Contact</a>
+                </div>
             </div>
+        
         </div>
     </footer>
 
     <!-- Scripts -->
     <script>
-        const logo_icon = document.getElementById('logo-icon');
+		function toggleSidebar() {
+			const sidebar = document.getElementById('sidebar');
+			const toggleButton = document.getElementById('toggle-btn');
 
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 100) {
-                logo_icon.src = "{{ asset('images/icon/icon_black.png') }}"; // Change logo link on scroll
-            } else {
-                logo_icon.src = "{{ asset('images/icon/icon_white.png')}}"; // Change logo link on scroll
-            }
-        });
+			sidebar.classList.toggle('close'); // Adds or removes the 'close' class to/from the sidebar
+			toggleButton.classList.toggle('rotate'); // Adds or removes the 'rotate' class to/from the button
+		}
     </script>
 
     @vite('resources\js\app.js')

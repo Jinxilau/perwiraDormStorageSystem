@@ -20,7 +20,7 @@ return new class extends Migration
 
             $table->enum('storage_application_status', ['pending', 'approved', 'denied']);
             $table->datetime('expected_check_in')->nullable();
-            $table->text('purpose');
+            $table->text('purpose')->nullable();
 
             $table->timestamps();
         });

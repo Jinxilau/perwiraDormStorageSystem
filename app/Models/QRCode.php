@@ -23,13 +23,13 @@ class QRCode extends Model
     // Eloquent Relationship Model
     public function storageApplication()
     {
-        return $this->belongsTo(StorageApplication::class);
+        return $this->belongsTo(StorageApplication::class, 'storage_application_id');
     }
     public function missingReports()
     {
-        return $this->hasMany(MissingReport::class);
+        return $this->hasMany(MissingReport::class, 'qr_code_id');
     }
     public function scanLogs() {
-        return $this->hasMany(ScanLog::class);
+        return $this->hasMany(ScanLog::class, 'qr_code_id');
     }
 }

@@ -24,26 +24,26 @@ class StorageApplication extends Model
     // Eloquent Model Relationship
     public function applicant()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'applicant_id');
     }
     public function approvers()
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class, 'approver_id');
     }
     public function openArea()
     {
-        return $this->belongsTo(OpenArea::class);
+        return $this->belongsTo(OpenArea::class, 'open_area_id');
     }
     public function locker()
     {
-        return $this->belongsTo(Locker::class);
+        return $this->belongsTo(Locker::class, 'locker_id');
     }
     public function storedItems()
     {
-        return $this->hasMany(StoredItem::class);
+        return $this->hasMany(StoredItem::class, 'storage_application_id');
     }
     public function qrCode() 
     {
-        return $this->hasOne(QRCode::class);
+        return $this->hasOne(QRCode::class, 'storage_application_id');
     }
 }
