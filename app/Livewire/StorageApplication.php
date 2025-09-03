@@ -13,9 +13,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 
+#[Layout('layouts.student')]
+#[Title('Student - Storage')]
 class StorageApplication extends Component
 {
     use WithFileUploads;
@@ -120,9 +124,7 @@ class StorageApplication extends Component
             $totalLockers = $room->lockers->count();
             
             $openArea = $room->openAreas->first();
-            $hasOpenAreaSpace = $openArea && 
-                $openArea->area_status === 'available' && 
-                $openArea->occupied_storage_capacity < $openArea->estimated_storage_capacity;
+            $hasOpenAreaSpace = $openArea && $openArea->area_status === 'available' && $openArea->occupied_storage_capacity < $openArea->estimated_storage_capacity;
 
             return [
                 'id' => $room->id,
@@ -507,11 +509,11 @@ class StorageApplication extends Component
         } catch (\Exception $e) {
             DB::rollback();
             
-            // Log::error('Storage application submission failed', [
-            //     'user_id' => Auth::id(),
-            //     'error' => $e->getMessage(),
-            //     'items_count' => count($this->items)
-            // ]);
+            Log::error('Storage application submission failed', [
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+                'items_count' => count($this->items)
+            ]);
             
             session()->flash('error', 'An error occurred while submitting your application. Please try again.');
         }

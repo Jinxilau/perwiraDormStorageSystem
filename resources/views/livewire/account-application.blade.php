@@ -138,19 +138,27 @@
                     </div>
                 </div>
 
-                <!-- Terms and Conditions -->
-                <div class="form-check mb-4">
-                    <input type="checkbox" id="agree_terms" wire:model="agree_terms" class="border border-dark form-check-input @error('agree_terms') is-invalid @enderror">
-                    <label for="agree_terms" class="form-check-label">
-                        I agree to the 
-                        <a href="#" class="text-primary">Terms of Service</a> 
-                        and 
-                        <a href="#" class="text-primary">Privacy Policy</a>
-                    </label>
-                    @error('agree_terms') 
-                        <div class="invalid-feedback d-block">{{ $message }}</div> 
-                    @enderror
+                <!-- Login Link -->
+                <div class="d-flex flex-column justify-content-center align-items-center">
+                    <p class="text-muted"> 
+                        {{ __('Already have an account?') }}
+                        <a href="{{ route('login') }}" wire:navigate >{{ __('Log in') }}</a>
+                    </p>
+                    <!-- Terms and Conditions -->
+                    <div class="form-check mb-4">
+                        <input type="checkbox" id="agree_terms" wire:model="agree_terms" class="border border-dark form-check-input @error('agree_terms') is-invalid @enderror">
+                        <label for="agree_terms" class="form-check-label">
+                            I agree to the 
+                            <a href="#" class="text-primary">Terms of Service</a> 
+                            and 
+                            <a href="#" class="text-primary">Privacy Policy</a>
+                        </label>
+                        @error('agree_terms') 
+                            <div class="invalid-feedback d-block">{{ $message }}</div> 
+                        @enderror
+                    </div>
                 </div>
+
 
                 <!-- Form Buttons -->
                 <div class="d-flex justify-content-center gap-3 pt-4">
