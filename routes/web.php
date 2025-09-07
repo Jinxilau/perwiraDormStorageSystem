@@ -6,6 +6,7 @@ use App\Livewire\ManageStorageApplication;
 use App\Livewire\StaffDashboard;
 use App\Livewire\StorageApplication;
 use App\Livewire\StorageApplicationActive;
+use App\Livewire\StorageApplicationReject;
 use App\Livewire\StudentDashboard;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -25,7 +26,7 @@ Route::middleware(['auth', CheckRole::class . ':staff'])->group(function () {
     Route::get('/staff/dashboard', StaffDashboard::class)->name('staff_dashboard');
     Route::get('/staff/storage/pending', ManageStorageApplication::class)->name('manage_storage_pending');
     Route::get('/staff/storage/active', StorageApplicationActive::class)->name('manage_storage_active');
-    // Route::get('/staff/storage/rejected', )->name('manage_storage_rejected');
+    Route::get('/staff/storage/rejected', StorageApplicationReject::class)->name('manage_storage_rejected');
 });
 
 Route::middleware(['auth', CheckRole::class . ':administrator'])->group(function () {

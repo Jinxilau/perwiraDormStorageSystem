@@ -15,10 +15,11 @@ class StorageApplicationActive extends Component
 {
     use WithPagination;
 
-
+    public $selectedApplications = [];
+    public $selectAll = false;
     
     #[Computed()]
-    public function approvedStorageApplication() {
+    public function approvedStorageApplications() {
         return StorageApplication::with(['applicant', 'items', 'openArea.storageRoom', 'locker.storageRoom'])->where('storage_application_status', 'approved')->paginate(10);
     }
 

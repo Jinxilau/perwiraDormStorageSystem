@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('open_area_id')->nullable()->constrained('open_areas')->onDelete('set null');
             $table->foreignId('locker_id')->nullable()->constrained('lockers')->onDelete('set null');
 
-            $table->enum('storage_application_status', ['pending', 'approved', 'denied']);
+            $table->enum('storage_application_status', ['pending', 'approved', 'rejected']);
             $table->datetime('expected_check_in')->nullable();
             $table->text('purpose')->nullable();
 
