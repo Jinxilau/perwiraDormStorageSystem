@@ -22,7 +22,7 @@
 <body class="font-sans text-body bg-light" style="padding-top: 0;">
     <nav id="navbar" class="" style="z-index: 1051; padding: 24px 10px; background-color: aqua">
         <div class="d-flex align-items-center justify-content-center gap-4">
-            <img src="{{ asset('images\icons\perwira_logo.png') }}" alt="Logo" class="img-fluid" style="width: 200px; height: auto; object-fit: cover;">
+            <img src="{{ Vite::asset('resources\images\icons\perwira_logo.png') }}" alt="Logo" class="img-fluid" style="width: 200px; height: auto; object-fit: cover;">
             <div class="text-dark text-center">
                 <h1 class="" style="font-weight: bold; font-size: clamp(12px, 2.3vw, 40px);">Perwira Dorm Storage System</h1>
                 <p class="text-muted fs-5">Universiti Tun Hussein Onn Malaysia</p>

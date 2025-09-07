@@ -38,7 +38,7 @@ class StorageApplication extends Model
     {
         return $this->belongsTo(Locker::class, 'locker_id');
     }
-    public function storedItems()
+    public function items()
     {
         return $this->hasMany(StoredItem::class, 'storage_application_id');
     }

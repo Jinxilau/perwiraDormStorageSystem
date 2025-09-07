@@ -62,7 +62,8 @@
             </button>
 
             <div class="d-flex align-items-center gap-2">
-                <img src="{{ asset('images\icons\perwira_logo.png') }}" alt="Logo" id="logo-icon" class="logo-icon"
+                <img src="{{ Vite::asset('resources\images\icons\perwira_logo.png') }}" alt="Logo" id="logo-icon"
+                    class="logo-icon"
                     style="object-fit: cover; overflow: visible; width: 130px; height: 30px; position: relative; z-index: 1050; top: 5px;">
                 <div class="logo" id="logo" style="font-size: clamp(12px, 2.3vw, 28px)">Perwira Dorm Storage
                     System</div>
@@ -151,7 +152,8 @@
         <div class="container-fluid mx-2">
             <!-- Logo Button -->
             <div class="mb-4">
-                <img src="{{ asset('images\icons\perwira_logo.png') }}" alt="Logo" id="logo-icon" class="logo-icon"
+                <img src="{{ Vite::asset('resources\images\icons\perwira_logo.png') }}" alt="Logo" id="logo-icon"
+                    class="logo-icon"
                     style="object-fit: cover; overflow: visible; width: 130px; height: 30px; position: relative; z-index: 1050; top: 5px;">
             </div>
 

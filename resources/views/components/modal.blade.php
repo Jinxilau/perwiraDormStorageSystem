@@ -5,23 +5,22 @@
 ])
 
 @php
-$maxWidth = [
-    'sm' => 'sm:max-w-sm',
-    'md' => 'sm:max-w-md',
-    'lg' => 'sm:max-w-lg',
-    'xl' => 'sm:max-w-xl',
-    '2xl' => 'sm:max-w-2xl',
-][$maxWidth];
+    // Map the Tailwind $maxWidth values into our custom class names
+    $maxWidth = [
+        'sm' => 'sm-max-w-sm',
+        'md' => 'sm-max-w-md',
+        'lg' => 'sm-max-w-lg',
+        'xl' => 'sm-max-w-xl',
+        '2xl' => 'sm-max-w-2xl',
+    ][$maxWidth];
 @endphp
 
 <div
     x-data="{
         show: @js($show),
         focusables() {
-            // All focusable element types...
             let selector = 'a, button, input:not([type=\'hidden\']), textarea, select, details, [tabindex]:not([tabindex=\'-1\'])'
             return [...$el.querySelectorAll(selector)]
-                // All non-disabled elements...
                 .filter(el => ! el.hasAttribute('disabled'))
         },
         firstFocusable() { return this.focusables()[0] },
@@ -46,12 +45,14 @@ $maxWidth = [
     x-on:keydown.tab.prevent="$event.shiftKey || nextFocusable().focus()"
     x-on:keydown.shift.tab.prevent="prevFocusable().focus()"
     x-show="show"
-    class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
-    style="display: {{ $show ? 'block' : 'none' }};"
+    class="position-fixed px-4"
+    style="display: {{ $show ? 'block' : 'none' }}; top:0; right:0; bottom:0; left:0; overflow-y:auto; padding-top:1.5rem; padding-bottom:1.5rem;"
 >
+    <!-- Overlay -->
     <div
         x-show="show"
-        class="fixed inset-0 transform transition-all"
+        class="position-fixed"
+        style="top:0; right:0; bottom:0; left:0; transition: all 0.15s ease-in-out; transform: none;"
         x-on:click="show = false"
         x-transition:enter="ease-out duration-300"
         x-transition:enter-start="opacity-0"
@@ -60,18 +61,20 @@ $maxWidth = [
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0"
     >
-        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        <div class="position-absolute opacity-75" style="top:0; right:0; bottom:0; left:0; background-color:#6b7280; z-index: 9001"></div>
     </div>
 
+    <!-- Modal Content -->
     <div
         x-show="show"
-        class="mb-6 bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:w-full {{ $maxWidth }} sm:mx-auto"
+        class="bg-light rounded shadow-lg mb-4 sm-w-100 sm-mx-auto {{ $maxWidth }}"
+        style="margin-bottom:1.5rem; border-radius:0.5rem; overflow:hidden; transition:all 0.15s ease-in-out; transform:none; z-index: 9002;"
         x-transition:enter="ease-out duration-300"
-        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+        x-transition:enter-start="opacity-0 translate-y-4 sm-translate-y-0 sm-scale-95"
+        x-transition:enter-end="opacity-100 translate-y-0 sm-scale-100"
         x-transition:leave="ease-in duration-200"
-        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        x-transition:leave-start="opacity-100 translate-y-0 sm-scale-100"
+        x-transition:leave-end="opacity-0 translate-y-4 sm-translate-y-0 sm-scale-95"
     >
         {{ $slot }}
     </div>

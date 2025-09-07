@@ -12,14 +12,12 @@ class CheckRole
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Please login to access this resource.');
-        }
+        // if (!Auth::check()) {
+        //     return redirect()->route('login')->with('error', 'Please login to access this resource.');
+        // }
 
         $user = Auth::user();
 
@@ -35,9 +33,9 @@ class CheckRole
             ]);
 
             // Log unauthorized access attempt
-            return redirect()->route('dashboard')->with('error', 'You do not have permission to access this resource.');
+            return redirect()->route('student_dashboard')->with('error', 'You do not have permission to access this resource.');
         }
-        
+
         return $next($request);
     }
 }
