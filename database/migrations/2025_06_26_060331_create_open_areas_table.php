@@ -16,8 +16,8 @@ return new class extends Migration // TODO
             $table->foreignId('storage_room_id')->constrained('storage_rooms')->onDelete('cascade');
             // $table->foreignId('application_id')->constrained('storage_applications')->nullable(); //TODO
 
-            $table->decimal('estimated_storage_capacity', 10, 2); 
-            $table->decimal('occupied_storage_capacity', 10, 2)->default(0);
+            // $table->decimal('estimated_storage_capacity', 10, 2); 
+            // $table->decimal('occupied_storage_capacity', 10, 2)->default(0);
             $table->enum('area_status', ['available', 'occupied', 'under_maintenance'])->default('available');
             
             $table->timestamps();

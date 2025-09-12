@@ -112,17 +112,18 @@
         <div id="sidebar" class="col-md-3 p-0 mb-4 mb-md-0 custom-vh-100 shadow-lg"
             style="background-color: rgb(255, 255, 255); position: sticky; top: 0; z-index: 10; transition: 300ms ease-in-out; overflow: hidden;">
             <div class="list-group ms-2">
-                <a href="{{ route('student_dashboard') }}"
+                <a href="{{ route('staff_dashboard') }}" wire:navigate
                     class="sidebarcontent list-group-item list-group-item-action {{ request()->is('staff/dashboard') ? 'active' : '' }}">
                     <i class="bi bi-speedometer h4"></i>
                     <span class="ms-2">Dashboard</span>
                 </a>
-                <a href="{{ route('manage_storage_pending') }}"
+                <a href="{{ route('manage_storage_pending') }}" wire:navigate
                     class="sidebarcontent list-group-item list-group-item-action {{ request()->is('staff/storage/*') ? 'active' : '' }}">
                     <i class="bi bi-calendar-week h4"></i>
                     <span class="ms-2">Manage Storage Application</span>
                 </a>
-                <a href="admin_manage_retrieval.html" class="sidebarcontent list-group-item list-group-item-action">
+                <a href="{{ route('storage_room') }}" wire:navigate
+                    class="sidebarcontent list-group-item list-group-item-action {{ request()->is('staff/room/*') ? 'active' : '' }}">
                     <i class="bi bi-box-seam h4"></i>
                     <span class="ms-2">Manage Storage Room</span>
                 </a>

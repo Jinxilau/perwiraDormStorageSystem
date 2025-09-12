@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id();
 
             $table->string('room_name', 100);
-            $table->string('storage_location', 100);
-            $table->string('room_status', 50)->default('active');
+            $table->enum('room_status', ['open', 'closed', 'maintaining'])->default('open');
             
             $table->timestamps();
         });
