@@ -20,7 +20,6 @@ class CheckRole
         // }
 
         $user = Auth::user();
-
         $userRole = $user->userRole->role_name;
 
         if (!in_array($userRole, $roles)) {
@@ -33,7 +32,7 @@ class CheckRole
             ]);
 
             // Log unauthorized access attempt
-            return redirect()->route('student_dashboard')->with('error', 'You do not have permission to access this resource.');
+            return redirect()->route('role_error')->with('error', 'You do not have permission to access this resource.');
         }
 
         return $next($request);

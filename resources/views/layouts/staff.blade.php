@@ -118,12 +118,12 @@
                     <span class="ms-2">Dashboard</span>
                 </a>
                 <a href="{{ route('manage_storage_pending') }}" wire:navigate
-                    class="sidebarcontent list-group-item list-group-item-action {{ request()->is('staff/storage/*') ? 'active' : '' }}">
+                    class="sidebarcontent list-group-item list-group-item-action {{ request()->is('storage/*') ? 'active' : '' }}">
                     <i class="bi bi-calendar-week h4"></i>
                     <span class="ms-2">Manage Storage Application</span>
                 </a>
                 <a href="{{ route('storage_room') }}" wire:navigate
-                    class="sidebarcontent list-group-item list-group-item-action {{ request()->is('staff/room/*') ? 'active' : '' }}">
+                    class="sidebarcontent list-group-item list-group-item-action {{ request()->is('room/*') ? 'active' : '' }}">
                     <i class="bi bi-box-seam h4"></i>
                     <span class="ms-2">Manage Storage Room</span>
                 </a>
@@ -146,7 +146,7 @@
             </div>
         </div>
         <!-- Main Content -->
-        <div class="col-md p-4">
+        <div class="col-md-9 p-4">
             {{ $slot }}
         </div>
     </div>

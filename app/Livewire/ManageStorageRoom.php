@@ -6,6 +6,7 @@ use App\Models\OpenArea;
 use App\Models\StorageRoom;
 use App\Models\StoredItem;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
@@ -14,8 +15,6 @@ use Livewire\Attributes\Title;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
-#[Layout('layouts.staff')]
-#[Title('Staff - Storage Room')]
 class ManageStorageRoom extends Component
 {
     public $roomId;
@@ -132,6 +131,11 @@ class ManageStorageRoom extends Component
 
     public function render()
     {
-        return view('livewire.manage-storage-room');
+        $layout = Auth::user()->role_id === 1 ? 'layouts.admin' : 'layouts.staff';
+        $title = Auth::user()->role_id === 1 ? 'Admin' : 'Staff';
+
+        return view('livewire.manage-storage-room')
+            ->layout($layout)
+            ->title($title . ' - Storage Room');;
     }
 }

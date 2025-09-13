@@ -3,14 +3,13 @@
 namespace App\Livewire;
 
 use App\Models\StorageApplication;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Layout('layouts.staff')]
-#[Title('Staff - Storage Application')]
 class StorageApplicationActive extends Component
 {
     use WithPagination;
@@ -25,6 +24,11 @@ class StorageApplicationActive extends Component
 
     public function render()
     {
-        return view('livewire.storage-application-active');
+        $layout = Auth::user()->role_id === 1 ? 'layouts.admin' : 'layouts.staff';
+        $title = Auth::user()->role_id === 1 ? 'Admin' : 'Staff';
+
+        return view('livewire.storage-application-active')
+            ->layout($layout)
+            ->title($title . ' - Storage Application');
     }
 }

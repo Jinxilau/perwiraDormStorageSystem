@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\StorageApplication;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
@@ -10,8 +11,6 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Layout('layouts.staff')]
-#[Title('Staff - Storage Application')]
 class ManageStorageApplication extends Component
 {
     use WithPagination;
@@ -41,7 +40,7 @@ class ManageStorageApplication extends Component
             $this->dispatch('application-updated', message: 'Application approved successfully!', type: 'success');
             $this->reset();
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            $this->dispatch('application-updated', message: 'Application not found.', type:'fail');
+            $this->dispatch('application-updated', message: 'Application not found.', type: 'fail');
         } catch (\Exception $e) {
             $this->dispatch('application-updated', message: 'Something went wrong. Please try again.', type: 'fail');
             Log::error($e->getMessage());
@@ -56,7 +55,7 @@ class ManageStorageApplication extends Component
             $this->dispatch('application-updated', message: 'Application approved successfully!', type: 'success');
             $this->reset();
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            $this->dispatch('application-updated', message: 'Application not found.', type:'fail');
+            $this->dispatch('application-updated', message: 'Application not found.', type: 'fail');
         } catch (\Exception $e) {
             $this->dispatch('application-updated', message: 'Something went wrong. Please try again.', type: 'fail');
             Log::error($e->getMessage());
@@ -71,6 +70,11 @@ class ManageStorageApplication extends Component
 
     public function render()
     {
-        return view('livewire.manage-storage-application');
+        $layout = Auth::user()->role_id === 1 ? 'layouts.admin' : 'layouts.staff';
+        $title = Auth::user()->role_id === 1 ? 'Admin' : 'Staff';
+
+        return view('livewire.manage-storage-application')
+            ->layout($layout)
+            ->title($title . ' - Storage Application');
     }
 }

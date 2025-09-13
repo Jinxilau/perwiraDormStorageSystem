@@ -2,8 +2,10 @@
 
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\EnsureUserIsApproved;
+use App\Livewire\AdminDashboard;
 use App\Livewire\ManageStorageApplication;
 use App\Livewire\ManageStorageRoom;
+use App\Livewire\ManageUser;
 use App\Livewire\StaffDashboard;
 use App\Livewire\StorageApplication;
 use App\Livewire\StorageApplicationActive;
@@ -18,6 +20,8 @@ Route::view('dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('d
 
 Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
 
+Route::view('/role-error', 'role_error')->name('role_error');
+
 Route::middleware(['auth', EnsureUserIsApproved::class, CheckRole::class . ':student'])->group(function () {
     Route::get('/student/dashboard', StudentDashboard::class)->name('student_dashboard');
     Route::get('/student/storage', StorageApplication::class)->name('storage');
@@ -25,14 +29,18 @@ Route::middleware(['auth', EnsureUserIsApproved::class, CheckRole::class . ':stu
 
 Route::middleware(['auth', CheckRole::class . ':staff'])->group(function () {
     Route::get('/staff/dashboard', StaffDashboard::class)->name('staff_dashboard');
-    Route::get('/staff/storage/pending', ManageStorageApplication::class)->name('manage_storage_pending');
-    Route::get('/staff/storage/active', StorageApplicationActive::class)->name('manage_storage_active');
-    Route::get('/staff/storage/rejected', StorageApplicationReject::class)->name('manage_storage_rejected');
-    Route::get('/staff/room/{room?}', ManageStorageRoom::class)->name('storage_room');
 });
 
 Route::middleware(['auth', CheckRole::class . ':administrator'])->group(function () {
-    Route::get('/administrator')->name('administrator_dashboard');
+    Route::get('/admin/dashboard', AdminDashboard::class)->name('admin_dashboard');
+    Route::get('/admin/user', ManageUser::class)->name('manage_user');
+});
+
+Route::middleware(['auth', CheckRole::class . ':staff,administrator'])->group(function () {
+    Route::get('/storage/pending', ManageStorageApplication::class)->name('manage_storage_pending');
+    Route::get('/storage/active', StorageApplicationActive::class)->name('manage_storage_active');
+    Route::get('/storage/rejected', StorageApplicationReject::class)->name('manage_storage_rejected');
+    Route::get('/room/{room?}', ManageStorageRoom::class)->name('storage_room');
 });
 
 require __DIR__ . '/auth.php';
