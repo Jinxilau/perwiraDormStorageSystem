@@ -15,10 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('storage_application_id')->constrained('storage_applications')->onDelete('cascade');
 
-            $table->text('qr_content');
-            $table->enum('qr_status', ['active', 'expired', 'disabled', 'scanned'])->default('active');
+            $table->text('qr_token');
             $table->unsignedInteger('scanned_count')->default(0);
-            $table->string('qrcode_url')->nullable();
             
             $table->timestamp('qr_expires_at')->nullable();
             $table->timestamps();

@@ -7,10 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class QRCode extends Model
 {
     protected $fillable = [
-        'qr_content',
-        'qr_status',
+        'qr_token',
         'scanned_count',
-        'qrcode_url',
         'storage_application_id',
         'qr_expires_at',
     ];

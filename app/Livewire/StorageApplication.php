@@ -119,7 +119,7 @@ class StorageApplication extends Component
 
     public function loadStorageRooms()
     {
-        $this->storageRooms = StorageRoom::with(['lockers', 'openAreas'])->where('room_status', 'active')->get()->map(function ($room) {
+        $this->storageRooms = StorageRoom::with(['lockers', 'openAreas'])->where('room_status', 'open')->get()->map(function ($room) {
             $availableLockers = $room->lockers->where('status', 'available')->count();
             $totalLockers = $room->lockers->count();
             

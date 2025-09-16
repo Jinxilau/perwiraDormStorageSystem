@@ -192,7 +192,7 @@
 
                 {{-- {{ dd($this->storageRooms) }} --}}
                 <div class="row g-4 justify-content-center align-items-center gap-5">
-                    @foreach ($storageRooms as $room)
+                    @foreach ($this->storageRooms as $room)
                         <div class="col-md-6 col-lg-4">
                             <div class="card h-100 border-2 {{ $selectedRoom == $room['id'] ? 'border-primary bg-light' : 'border-secondary' }} cursor-pointer"
                                 wire:click="selectRoom({{ $room['id'] }})" style="cursor: pointer;">

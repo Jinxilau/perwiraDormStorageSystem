@@ -1,5 +1,26 @@
 <div>
     {{-- Close your eyes. Count to one. That is how long forever feels. --}}
+
+    {{-- Modal --}}
+    <div tabindex="-1" :class="{ 'd-flex align-items-center justify-content-center': show }"
+        style="display: none; z-index: 9000; inset: 0;" class="position-fixed" id="lockerModal" x-data="{ show: false }"
+        @display_modal.window="show = true" x-show='show' x-effect="document.body.style.overflow = show ? 'hidden': ''">
+
+        <div class="position-fixed" style="background-color: rgba(0, 0, 0, 0.5); inset:0;" @click="show = false"></div>
+
+        @if ($this->application)
+            <div class="card" x-transition>
+                <div class="card-header">
+                    Application - {{ $this->application->id }}
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">QR Code</h5>
+                    {!! QrCode::size(200)->generate($this->application->qrCode->qr_token) !!}
+                </div>
+            </div>
+        @endif
+    </div>
+
     <div class="bg-white shadow-sm rounded-lg overflow-hidden container-fluid">
         <!-- Table -->
         <div class="table-responsive">
@@ -112,14 +133,13 @@
                             </td>
                             <td class="align-middle">
                                 <div class="flex items-center space-x-2" style="white-space: nowrap">
-                                    <button @click="$dispatch('view-application', {{ $application->id }})"
+                                    <button @click="$dispatch('view_modal', {id: {{ $application->id }}})"
                                         title="View Details" class="btn btn-sm border border-secondary"
-                                        style="padding: 0;" type="button" data-bs-toggle="modal"
-                                        data-bs-target="#viewModal">
+                                        style="padding: 0;" type="button">
                                         <i class="bi bi-eye"></i>
                                     </button>
-
-                                    <button wire:click="approveApplication({{ $application->id }})"
+                                    
+                                    {{-- <button wire:click="approveApplication({{ $application->id }})"
                                         wire:confirm="Are you sure you want to approve this application?"
                                         class="text-success btn btn-sm border border-success" style="padding: 0;"
                                         title="Approve">
@@ -131,7 +151,7 @@
                                         class="text-danger btn btn-sm border border-danger" style="padding: 0;"
                                         title="Reject">
                                         <i class="bi bi-x"></i>
-                                    </button>
+                                    </button> --}}
                                 </div>
                             </td>
                         </tr>
