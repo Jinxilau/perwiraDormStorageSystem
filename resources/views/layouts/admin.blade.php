@@ -140,11 +140,12 @@
                     <i class="bi bi-house-gear h4"></i>
                     <span class="ms-2">System Activity Log</span>
                 </a>
-                <a href="admin_manage_storage.html" class="sidebarcontent list-group-item list-group-item-action">
+                <a href="{{ route('scan_qr') }}" wire:navigate
+                    class="sidebarcontent list-group-item list-group-item-action {{ request()->is('scanqr') ? 'active' : '' }}">
                     <i class="bi bi-house-gear h4"></i>
                     <span class="ms-2">Notifications</span>
                 </a>
-                <a href="admin_manage_storage.html" class="sidebarcontent list-group-item list-group-item-action">
+                <a href="{{ route('scan_qr') }}" class="sidebarcontent list-group-item list-group-item-action {{ request()->is('scanqr') ? 'active' : '' }}">
                     <i class="bi bi-house-gear h4"></i>
                     <span class="ms-2">Scan QR Code</span>
                 </a>
@@ -174,8 +175,8 @@
         <div class="container-fluid mx-2">
             <!-- Logo Button -->
             <div class="mb-4">
-                <img src="{{ Vite::asset('resources\images\icons\perwira_logo.png') }}" alt="Logo" id="logo-icon"
-                    class="logo-icon"
+                <img src="{{ Vite::asset('resources\images\icons\perwira_logo.png') }}" alt="Logo"
+                    id="logo-icon" class="logo-icon"
                     style="object-fit: cover; overflow: visible; width: 130px; height: 30px; position: relative; z-index: 1050; top: 5px;">
             </div>
 
@@ -226,14 +227,14 @@
         }
     </script>
 
+    {{-- Livewire --}}
+    @livewireScripts
     @vite(['resources\js\app.js'])
     {{-- Bootstrap --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous">
     </script>
     @stack('scripts')
-    {{-- Livewire --}}
-    @livewireScripts
 </body>
 
 </html>
