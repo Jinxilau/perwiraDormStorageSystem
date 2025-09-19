@@ -6,6 +6,7 @@ use App\Livewire\AdminDashboard;
 use App\Livewire\ManageStorageApplication;
 use App\Livewire\ManageStorageRoom;
 use App\Livewire\ManageUser;
+use App\Livewire\ScanLog;
 use App\Livewire\ScanQr;
 use App\Livewire\StaffDashboard;
 use App\Livewire\StorageApplication;
@@ -48,6 +49,7 @@ Route::middleware(['auth', CheckRole::class . ':staff,administrator'])->group(fu
     Route::get('/storage/rejected', StorageApplicationReject::class)->name('manage_storage_rejected');
     Route::get('/room/{room?}', ManageStorageRoom::class)->name('storage_room');
     Route::get('/scanqr', ScanQr::class)->name('scan_qr');
+    Route::get('/scan_log', ScanLog::class)->name('scan_log');
 });
 
 require __DIR__ . '/auth.php';

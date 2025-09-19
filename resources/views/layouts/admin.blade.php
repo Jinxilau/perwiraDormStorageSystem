@@ -132,7 +132,7 @@
                     <i class="bi bi-box-seam h4"></i>
                     <span class="ms-2">Manage User Account</span>
                 </a>
-                <a href="admin_manage_user.html" class="sidebarcontent list-group-item list-group-item-action">
+                <a href="{{ route('scan_log') }}" class="sidebarcontent list-group-item list-group-item-action {{ request()->is('scan_log') ? 'active' : '' }}">
                     <i class="bi bi-person-gear h4"></i>
                     <span class="ms-2">Scan Logs</span>
                 </a>
