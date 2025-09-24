@@ -13,16 +13,17 @@ return new class extends Migration
     {
         Schema::create('storage_applications', function (Blueprint $table) {
             $table->id();
+            
+            $table->enum('storage_application_status', ['pending', 'approved', 'rejected']);
+            $table->datetime('expected_check_in')->nullable();
+            $table->text('purpose')->nullable(); # TODO
+            
+            $table->timestamps();
+
             $table->foreignId('applicant_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('approver_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('open_area_id')->nullable()->constrained('open_areas')->onDelete('set null');
             $table->foreignId('locker_id')->nullable()->constrained('lockers')->onDelete('set null');
-
-            $table->enum('storage_application_status', ['pending', 'approved', 'rejected']);
-            $table->datetime('expected_check_in')->nullable();
-            $table->text('purpose')->nullable();
-
-            $table->timestamps();
         });
     }
 

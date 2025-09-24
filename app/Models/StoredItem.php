@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class StoredItem extends Model
 {
     protected $fillable = [
+        'item_name',
         'item_type',
         'item_description',
         'estimated_size',

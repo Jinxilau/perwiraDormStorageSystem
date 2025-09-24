@@ -3,22 +3,22 @@
         <!-- Step 1: Item Details -->
         @if ($currentStep == 1)
             {{-- Item Tabs (if more than one item) --}}
-            @if (count($items) > 1)
+            @if (count($this->itemForm->items) > 1)
                 <div class="mb-4">
                     <ul class="nav nav-tabs" role="tablist">
-                        @foreach ($items as $index => $item)
+                        @foreach ($this->itemForm->items as $index => $item)
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link d-flex {{ $currentItemIndex == $index ? 'active' : '' }}"
-                                    wire:click="switchToItem({{ $index }})" type="button">
+                                <button
+                                    class="nav-link d-flex {{ $this->itemForm->currentItemIndex == $index ? 'active' : '' }}"
+                                    type="button" wire:click="switchToItem({{ $index }})">
                                     <span>
                                         Item {{ $index + 1 }}
-                                        @if (count($items) > 1)
-                                            <button class="btn-close btn-close-sm d-inline"
-                                                onclick="event.stopPropagation();" type="button"
+                                        @if (count($this->itemForm->items) > 1)
+                                            <button class="btn-close btn-close-sm d-inline" type="button"
+                                                onclick="event.stopPropagation();"
                                                 wire:click="removeItem({{ $index }})"></button>
                                         @endif
                                     </span>
-
                                 </button>
                             </li>
                         @endforeach
@@ -26,37 +26,40 @@
                 </div>
             @endif
 
-            {{-- Current Item Form --}}
+            {{-- Add/Remove Buttons --}}
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2 class="text-dark mb-0">
                     Item Details
-                    {{ count($items) > 1 ? '(' . ($currentItemIndex + 1) . ' of ' . count($items) . ')' : '' }}
+                    {{ count($this->itemForm->items) > 1 ? '(' . ($this->itemForm->currentItemIndex + 1) . ' of ' . count($this->itemForm->items) . ')' : '' }}
                 </h2>
                 <div class="d-flex">
-                    @if (count($items) > 1)
-                        <button type="button" wire:click="removeItem({{ $currentItemIndex }})"
-                            class="btn btn-sm d-flex align-items-center justify-content-center btn-outline-danger py-2">
+                    @if (count($this->itemForm->items) > 1)
+                        <button type="button"
+                            class="btn btn-sm d-flex align-items-center justify-content-center btn-outline-danger py-2"
+                            wire:click="removeItem({{ $this->itemForm->currentItemIndex }})">
                             <i class="bi bi-trash"></i>
                             Remove This Item
                         </button>
                     @endif
-                    <!-- Add Item Button -->
-                    <button type="button" wire:click="addItem"
+                    <button type="button"
                         class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center py-2"
-                        style="border: 1.5px rgb(108, 117, 125) dashed;">
+                        style="border: 1.5px rgb(108, 117, 125) dashed;" wire:click="addItem">
                         <i class="bi bi-plus-lg"></i>
                         Add Another Item
                     </button>
                 </div>
             </div>
 
+            {{-- Current Item Form --}}
             <div class="row mb-4">
                 <!-- Item Name -->
                 <div class="col-md-6 mb-3">
                     <label for="item_name" class="form-label">Item Name <span class="text-danger">*</span></label>
-                    <input type="text" id="item_name" wire:model.live="item_name"
-                        class="border border-dark form-control @error('item_name') is-invalid @enderror">
-                    @error('item_name')
+                    <input type="text" id="item_name"
+                        class="border border-dark form-control @error('itemForm.item_name') is-invalid @enderror"
+                        wire:model="itemForm.item_name">
+
+                    @error('itemForm.item_name')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
@@ -64,14 +67,16 @@
                 <!-- Item Category -->
                 <div class="col-md-6 mb-3">
                     <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
-                    <select id="category" wire:model.live="category"
-                        class="border border-dark form-select @error('category') is-invalid @enderror">
+                    <select id="category"
+                        class="border border-dark form-select @error('itemForm.category') is-invalid @enderror"
+                        wire:model="itemForm.category">
                         <option value="">Select Category</option>
-                        @foreach ($categories as $key => $label)
+                        @foreach ($this->categories as $key => $label)
                             <option value="{{ $key }}">{{ $label }}</option>
                         @endforeach
+
                     </select>
-                    @error('category')
+                    @error('itemForm.category')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
@@ -79,12 +84,14 @@
 
             <!-- Item Description -->
             <div class="mb-4">
-                <label for="item_description" class="form-label">Item Description <span
-                        class="text-muted">(Optional)</span></label>
-                <textarea id="item_description" wire:model.live="item_description" rows="3"
-                    class="border border-dark form-control @error('item_description') is-invalid @enderror"
-                    placeholder="Provide additional details, brand, model, condition, etc..."></textarea>
-                @error('item_description')
+                <label for="item_description" class="form-label">
+                    Item Description <span class="text-muted">(Optional)</span>
+                </label>
+                <textarea id="item_description" rows="3"
+                    class="border border-dark form-control @error('itemForm.item_description') is-invalid @enderror"
+                    placeholder="Provide additional details, brand, model, condition, etc..." wire:model="itemForm.item_description"></textarea>
+
+                @error('itemForm.item_description')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
@@ -97,21 +104,21 @@
                         <div class="col-md-4">
                             <div class="form-check m-0">
                                 <input type="radio" id="{{ $size_key }}" name="estimated_size"
-                                    value="{{ $size_key }}" wire:model.live="estimated_size"
-                                    class="form-check-input position-absolute opacity-0">
-                                <label for="{{ $size_key }}"
-                                    class="border border-dark d-block p-4 h-100 border rounded-3 transition-all border-light hover-border-primary @if ($estimated_size == $size_key) 'border-primary bg-primary bg-opacity-10 shadow-sm' @else '' @endif">
-                                    <div class="text-center">
+                                    value="{{ $size_key }}" class="form-check-input position-absolute opacity-0"
+                                    wire:model.live="itemForm.estimated_size">
+                                <label for="{{ $size_key }}" id='estimated'
+                                    class="border border-dark d-block p-4 h-100 border rounded-3 transition-all border-light hover-border-primary">
+                                    <div class="text-center" id='estimated'>
                                         <div
-                                            class="w-16 h-16 rounded-circle mb-3 d-flex align-items-center justify-content-center fs-3 bg-secondary @if ($estimated_size == $size_key) 'bg-primary bg-opacity-25' @else '' @endif">
+                                            class="w-16 h-16 rounded-circle mb-3 d-flex align-items-center justify-content-center fs-3 bg-secondary">
                                             {{ $size_info['icon'] }}
                                         </div>
                                         <h3
-                                            class="h4 mb-2 {{ $estimated_size == $size_key ? 'text-primary' : 'text-dark' }}">
+                                            class="h4 mb-2 text-dark">
                                             {{ $size_info['name'] }}
                                         </h3>
                                         <p
-                                            class="small {{ $estimated_size == $size_key ? 'text-primary' : 'text-muted' }}">
+                                            class="small text-muted">
                                             {{ $size_info['description'] }}
                                         </p>
                                     </div>
@@ -120,7 +127,7 @@
                         </div>
                     @endforeach
                 </div>
-                @error('estimated_size')
+                @error('itemForm.estimated_size')
                     <div class="invalid-feedback d-block">{{ $message }}</div>
                 @enderror
             </div>
@@ -128,38 +135,39 @@
             <!-- Item Photo -->
             <div class="mb-4">
                 <p class="form-label mb-2">Item Photo <span class="text-muted">(Optional)</span></p>
-                @if ($item_photo)
+                @if ($this->itemForm->item_photo)
+                    {{-- Photo Preview --}}
                     <div class="d-flex flex-column align-items-center justify-content-center mb-3">
                         <div class="position-relative d-inline-block">
                             <div style="width: 128px; height: 128px;">
-                                <img src="{{ $item_photo->temporaryUrl() }}" alt="Preview" class="img-thumbnail"
-                                    style="width: 128px; height: 128px;">
-                                <button type="button" wire:click="removePhoto"
+                                <img src="{{ $this->itemForm->item_photo->temporaryUrl() }}" alt="Preview"
+                                    class="img-thumbnail" style="width: 128px; height: 128px;">
+                                <button type="button"
                                     class="position-absolute top-0 end-0 bg-danger text-white rounded-circle d-flex align-items-center justify-content-center fs-6"
-                                    style="width: 23px; height: 23px">
+                                    style="width: 23px; height: 23px" wire:click="removePhoto">
                                     X
                                 </button>
                             </div>
                             <p class="text-success small fw-medium mb-1">
-                                {{ $item_photo->getClientOriginalName() }}</p>
+                                {{ $this->itemForm->item_photo->getClientOriginalName() }}</p>
                         </div>
                     </div>
                 @endif
                 <label for="item_photo"
                     class="d-flex flex-column align-items-center justify-content-center w-100 rounded-3 bg-light hover-bg-light p-0"
                     style="cursor: pointer; border: 1.5px rgb(52, 63, 75) dashed;">
-                    <input type="file" id="item_photo" wire:model="item_photo" accept=".jpg,.jpeg,.png,.svg"
-                        class="d-none">
+                    <input type="file" id="item_photo" accept=".jpg,.jpeg,.png,.svg" class="d-none"
+                        wire:model="itemForm.item_photo">
                     <i class="bi bi-cloud-arrow-up text-muted fs-3"></i>
                     <p class="text-muted mb-0">Drag your file(s) to start uploading</p>
                     <p class="text-muted mb-0">OR</p>
                     <span class="btn btn-primary px-4 py-2 rounded-pill">Browse files</span>
                     <p class="small text-muted mt-0">Only support .jpg, .png and .svg files (Max: 2MB)</p>
                 </label>
-                @error('item_photo')
+                @error('itemForm.item_photo')
                     <div class="invalid-feedback d-block">{{ $message }}</div>
                 @enderror
-                <div wire:loading wire:target="item_photo" class="mt-2">
+                <div wire:loading wire:target="itemForm.item_photo" class="mt-2">
                     <div class="d-flex align-items-center">
                         <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
                         </div>
@@ -178,10 +186,10 @@
                         <div class="spinner-border spinner-border-sm me-2" role="status"></div>
                     </span>
                     Proceed
-                    {{ count($items) > 1 ? 'with ' . count($items) . ' Items' : 'with ' . count($items) . ' ' . 'Item' }}
+                    {{ count($this->itemForm->items) > 1 ? 'with ' . count($this->itemForm->items) . ' Items' : 'with ' . count($this->itemForm->items) . ' ' . 'Item' }}
                 </span>
             </button>
-        @endif
+        @endif {{-- End Step 1 --}}
 
         @if ($currentStep == 2)
             <h2 class="mb-3 text-dark">Storage Selection</h2>
@@ -190,11 +198,11 @@
             <div class="mb-5">
                 <h4 class="fw-semibold text-dark mb-4 text-center">Room Selection</h4>
 
-                {{-- {{ dd($this->storageRooms) }} --}}
                 <div class="row g-4 justify-content-center align-items-center gap-5">
+                    {{-- Storage Room Card --}}
                     @foreach ($this->storageRooms as $room)
                         <div class="col-md-6 col-lg-4">
-                            <div class="card h-100 border-2 {{ $selectedRoom == $room['id'] ? 'border-primary bg-light' : 'border-secondary' }} cursor-pointer"
+                            <div class="card h-100 border-2 {{ $this->roomForm->selectedRoom == $room['id'] ? 'border-primary bg-light' : 'border-secondary' }} cursor-pointer"
                                 wire:click="selectRoom({{ $room['id'] }})" style="cursor: pointer;">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-start">
@@ -205,11 +213,13 @@
                                     </div>
                                     <p class="card-text text-muted">{{ $room['storage_location'] }}</p>
                                     <hr>
-                                    <p class="mb-2 text-muted"><strong>Locker:</strong>
-                                        {{ $room['available_lockers'] }} Available</p>
+                                    <p class="mb-2 text-muted">
+                                        <strong>Locker:</strong> {{ $room['available_lockers'] }} Available
+                                    </p>
                                     <p class="mb-0 text-muted"><strong>Operating Hours:</strong></p>
-                                    <p class="mb-0 text-muted">Morning: 9:00 AM - 11:00 AM</p>
-                                    <p class="mb-0 text-muted">Evening: 9:00 PM - 11:00 PM</p>
+                                    @foreach ($this->operatingHour as $key => $value)
+                                        <p class="mb-0 text-muted">{{ $value }}</p>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
@@ -217,46 +227,51 @@
                 </div>
             </div>
 
-            @if ($selectedRoom)
+            @if ($this->roomForm->selectedRoom)
                 <hr>
 
                 <!-- Storage Type Selection -->
                 <div class="mb-4">
 
                     <h4 class="mb-4 text-center">
-                        {{ collect($storageRooms)->firstWhere('id', $selectedRoom)['room_name'] ?? 'Selected Room' }}
+                        {{ collect($this->storageRooms)->firstWhere('id', $this->roomForm->selectedRoom)['room_name'] ?? 'Selected Room' }}
                     </h4>
 
                     <div class="alert alert-secondary mb-4">
                         <small>
-                            <strong>Note:</strong> Lockers are recommended for electronics, documents, and
-                            valuable items.<br>
-                            <strong>Size of Locker:</strong> 45×90×55cm (120-150 liters)
+                            <strong>Note:</strong>
+                            Lockers are recommended for electronics, documents, and valuable items.
+                            <br>
+                            <strong>Size of Locker:</strong>
+                            {{ $this->lockerSize }}
                         </small>
                     </div>
 
                     <fieldset>
+                        {{-- Select Locker/OpenArea --}}
                         <legend>Select Storage Type (Multiple)</legend>
                         <div class="border border-dark p-2">
                             <h5>Open Area</h5>
                             <div class="form-check mb-3 ms-4">
-                                <input class="form-check-input" type="checkbox" wire:model.live="selectedStorageType"
-                                    value="open_area" id="openAreaOption">
-                                <label class="form-check-label" for="openAreaOption">Use open space for
-                                    storage (non-locker)</label>
+                                <input id="openAreaOption" class="form-check-input" type="checkbox"
+                                    value="open_area" wire:model.live="roomForm.selectedStorageType">
+                                <label for="openAreaOption" class="form-check-label">
+                                    Use open space for storage (non-locker)
+                                </label>
                             </div>
                         </div>
 
                         <div class="border border-dark p-2">
                             <h5>Locker</h5>
                             <div class="form-check mb-3 ms-4">
-                                <input class="form-check-input" type="checkbox" wire:model.live="selectedStorageType"
-                                    value="locker" id="lockerOption">
-                                <label class="form-check-label" for="lockerOption">I want to use a secure
-                                    locker for valuable items</label>
+                                <input class="form-check-input" type="checkbox" value="locker" id="lockerOption"
+                                    wire:model.live="roomForm.selectedStorageType">
+                                <label class="form-check-label" for="lockerOption">
+                                    I want to use a secure locker for valuable items
+                                </label>
                             </div>
-                            @if (in_array('locker', $selectedStorageType ?? []))
-                                <!-- Locker Status Legend -->
+                            @if (in_array('locker', $this->roomForm->selectedStorageType ?? []))
+                                <!-- Legend of Locker Status -->
                                 <div class="mb-3 small d-flex gap-3">
                                     <div class="d-flex align-items-center">
                                         <div class="me-2 rounded-circle bg-success"
@@ -277,11 +292,11 @@
 
                                 <!-- Locker Grid -->
                                 <div class="row row-cols-10 g-2">
-                                    @foreach (collect($availableLockers)->chunk(10) as $row)
+                                    @foreach (collect($this->roomForm->availableLockers)->chunk(10) as $row)
                                         @foreach ($row as $locker)
                                             <div class="col-1">
                                                 <div class="d-flex align-items-center justify-content-center border rounded text-white text-center fw-bold"
-                                                    style="aspect-ratio: 1 / 1; background-color:{{ $locker['status'] === 'available' ? '#198754' : ($locker['status'] === 'under_maintenance' ? '#6c757d' : '#dc3545') }}; {{ $locker['status'] === 'available' ? 'cursor: pointer;' : 'pointer-events: none; opacity: 0.7;' }} {{ $selectedLockerId == $locker['id'] ? 'outline: 3px solid #0d6efd;' : '' }}"
+                                                    style="aspect-ratio: 1 / 1; background-color:{{ $locker['status'] === 'available' ? '#198754' : ($locker['status'] === 'under_maintenance' ? '#6c757d' : '#dc3545') }}; {{ $locker['status'] === 'available' ? 'cursor: pointer;' : 'pointer-events: none; opacity: 0.7;' }} {{ $this->roomForm->selectedLockerId == $locker['id'] ? 'outline: 3px solid #0d6efd;' : '' }}"
                                                     @if ($locker['status'] === 'available') wire:click="selectLocker({{ $locker['id'] }})" @endif>
                                                     {{ $locker['locker_number'] }}
                                                 </div>
@@ -294,20 +309,19 @@
                     </fieldset>
                 </div>
 
-                <!-- Submit Button -->
+                {{-- Back/Submit Button --}}
                 <div class="d-flex justify-content-between pt-4 border-top mt-4">
-                    <!-- Back Button -->
                     <button wire:click.prevent="previousStep" type="button" class="btn btn-outline-secondary px-4">
                         Back
                     </button>
 
                     <button type="button" wire:click.prevent="nextStep" class="btn btn-primary px-4 py-2"
-                        {{ !$selectedStorageType || ($selectedStorageType === 'locker' && !$selectedLockerId) ? 'disabled' : '' }}>
+                        {{ !$this->roomForm->selectedStorageType || ($this->roomForm->selectedStorageType === 'locker' && !$this->roomForm->selectedLockerId) ? 'disabled' : '' }}>
                         Confirm Selection
                     </button>
                 </div>
             @endif
-        @endif
+        @endif {{-- Step 2 End --}}
 
         @if ($currentStep == 3)
             <div class="container py-4">
@@ -357,7 +371,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($items as $item)
+                                @foreach ($this->itemForm->items as $item)
                                     <tr>
                                         <td>{{ $item['item_name'] }}</td>
                                         <td>{{ $item['category'] }}</td>
@@ -378,21 +392,20 @@
                         <div class="col-md-6 mb-3">
                             <div>
                                 <strong>Selected Room:</strong>
-                                <span class="ms-2">{{ $selectedRoom }}</span>
+                                <span class="ms-2">{{ $this->roomForm->selectedRoom }}</span>
                             </div>
-                            @if (in_array('locker', $selectedStorageType))
+                            @if (in_array('locker', $this->roomForm->selectedStorageType))
                                 <div>
                                     <strong>Selected Locker:</strong>
-                                    <span class="ms-2">{{ $selectedLockerId }}</span>
+                                    <span class="ms-2">{{ $this->roomForm->selectedLockerId }}</span>
                                 </div>
                             @endif
                         </div>
                         <div class="col-md-6">
                             <strong>Operating Hours for Access:</strong>
-                            <div class="text-muted small mt-1">
-                                <div>Morning: 9:00 AM - 11:00 AM</div>
-                                <div>Evening: 9:00 PM - 11:00 PM</div>
-                            </div>
+                            @foreach ($this->operatingHour as $key => $value)
+                                <p class="mb-0 text-muted">{{ $value }}</p>
+                            @endforeach
                         </div>
                     </div>
                 </div>
@@ -457,17 +470,25 @@
                 </button>
             </div>
         @endif
-        @if (session()->has('success'))
-            <div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if (session()->has('error'))
-            <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-                {{ session('error') }}
-            </div>
-        @endif
-
     </div>
 </form>
+
+
+@push('styles')
+    <style>
+        input[type='radio']:checked+#estimated {
+            border: 1px solid #0d6efd;
+            /* bootstrap primary */
+            background: rgba(13, 110, 253, 0.1);
+            box-shadow: 0 0.5rem 1rem rgba(13, 110, 253, 0.2);
+        }
+
+        input[type='radio']:checked+#estimated div#estimated div {
+            background-color: rgba(13, 110, 253, 0.25) !important;
+        }
+        input[type='radio']:checked+#estimated div#estimated h3, 
+        input[type='radio']:checked+#estimated div#estimated p {
+            color: #0d6efd !important;
+        }
+    </style>
+@endpush

@@ -3,9 +3,6 @@
         style="width: 80px; height: 80px;">
         <i class="fas fa-check text-success fs-3"></i>
     </div>
-    <h2 class="h3 fw-bold mb-3">Booking Submitted Successfully!</h2>
-    <p class="text-muted mb-4">Thank you for choosing Calystra Studio. We'll contact you within 24 hours to
-        confirm your booking.</p>
-    <button wire:click="resetForm" class="btn px-4 text-light"
-        style="background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%)">Make Another Booking</button>
+    <h2 class="h3 fw-bold mb-3">Application Submitted Successfully!</h2>
+    <p class="text-muted mb-4">You'll get a notification after the storage application has been reviewed.</p>
 </div>

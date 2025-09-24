@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('missing_reports', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('qr_code_id')->constrained('q_r_codes')->onDelete('cascade');
 
             $table->enum('status', ['reported', 'investigating', 'found', 'closed'])->default('reported');
 
@@ -30,6 +29,8 @@ return new class extends Migration
             $table->text('witnesses_and_info')->nullable();
             
             $table->timestamps();
+            
+            $table->foreignId('qr_code_id')->constrained('q_r_codes')->onDelete('cascade');
             // $table->text('additional_information')->nullable();
         });
     }

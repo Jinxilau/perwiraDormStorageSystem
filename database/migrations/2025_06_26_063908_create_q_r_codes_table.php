@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::create('q_r_codes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('storage_application_id')->constrained('storage_applications')->onDelete('cascade');
-
+            
             $table->text('qr_token');
             $table->unsignedInteger('scanned_count')->default(0);
             
             $table->timestamp('qr_expires_at')->nullable();
             $table->timestamps();
+            
+            $table->foreignId('storage_application_id')->constrained('storage_applications')->onDelete('cascade');
         });
     }
 

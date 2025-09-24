@@ -17,7 +17,7 @@ return new class extends Migration
 
             $table->string('matric_no')->unique()->after('role_id');
             $table->enum('gender', ['male', 'female', 'other'])->nullable();
-            $table->enum('account_status', ['active', 'inactive'])->default('inactive');
+            $table->enum('account_status', ['active', 'inactive'])->default('inactive'); # used for soft delete
             $table->enum('application_status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->string('phone_number')->unique()->nullable();
             $table->tinyInteger('year_of_study')->unsigned()->nullable();
