@@ -10,10 +10,10 @@ class MissingReport extends Model
         'status',
         'last_seen_type',
         'last_seen_date',
-        'last_seen_other',
+        'last_seen_range',
         'discovered_missing_type',
         'discovered_missing_date',
-        'discovered_missing_other',
+        'discovered_missing_range',
         'witnesses_and_info',
         'qr_code_id',
     ];

@@ -111,7 +111,7 @@ class ManageStorageApplication extends Component
     #[Computed()]
     public function pendingStorageApplications()
     {
-        return StorageApplication::with(['applicant', 'items', 'openArea.storageRoom', 'locker.storageRoom'])->where('storage_application_status', 'pending')->paginate(10);
+        return StorageApplication::with(['applicant', 'storedItems', 'openArea.storageRoom', 'locker.storageRoom'])->where('storage_application_status', 'pending')->paginate(10);
     }
 
     public function render()

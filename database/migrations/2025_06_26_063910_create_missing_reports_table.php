@@ -17,14 +17,14 @@ return new class extends Migration
             $table->enum('status', ['reported', 'investigating', 'found', 'closed'])->default('reported');
 
             // Last see the item?
-            $table->enum('last_seen_type', ['specific_date', 'dont_remember', 'other']);
+            $table->enum('last_seen_type', ['specific_date', 'dont_remember', 'range']);
             $table->date('last_seen_date')->nullable();
-            $table->string('last_seen_other')->nullable();
+            $table->string('last_seen_range')->nullable();
 
             // When did you discover it was missing?
-            $table->enum('discovered_missing_type', ['when_stored', 'specific_date', 'dont_remember', 'other']);
+            $table->enum('discovered_missing_type', ['specific_date', 'dont_remember', 'range']);
             $table->date('discovered_missing_date')->nullable();
-            $table->string('discovered_missing_other')->nullable();
+            $table->string('discovered_missing_range')->nullable();
             
             $table->text('witnesses_and_info')->nullable();
             

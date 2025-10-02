@@ -3,14 +3,24 @@
 namespace App\Livewire;
 
 use App\Livewire\Forms\MissingItemForm;
+use App\Models\MissingReport as ModelsMissingReport;
+use App\Models\QRCode;
 use App\Models\StorageApplication;
+use App\Models\StoredItem;
+use App\Models\User;
+use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\WithFileUploads;
 
 class MissingReport extends Component
 {
-    public $totalSteps = 3;
+    use WithFileUploads;
+
+    public $totalSteps = 4;
     public $currentStep = 1;
     public $showSuccessMessage = false;
 
@@ -18,14 +28,164 @@ class MissingReport extends Component
 
     public function mount()
     {
-        // Initialize form
-        $this->form->storageApplicationId = $this->studentApplications->first()->id;
+        // Initialize form with default value
+        if ($this->studentApplications->isNotEmpty()) {
+            $this->form->storageApplicationId = $this->studentApplications->first()->id;
+        }
+
+        $this->form->items = [
+            0 => [
+                'id' => null,
+                'photo' => null
+            ]
+        ];
+
+        $this->form->userEmail = Auth::user()->email;
+        $this->form->userPhone = Auth::user()->phone_number;
+    }
+
+    // Step 1 : Select Application
+    public function selectApplication($id)
+    {
+        $this->form->storageApplicationId = $id;
+        $this->form->itemId = null;
+    }
+
+    public function removePhoto()
+    {
+        $this->form->photo = null;
+        $this->dispatch('show_toast', message: 'Photo remove successfully!', type: 'success');
+    }
+
+    public function addItem()
+    {
+        // Save current item to arr
+        try {
+            $this->form->validateCurrentItem();
+            $this->form->storeArr();
+
+            // Setup new item
+            $newIdx = count($this->form->items);
+
+            $this->form->items[$newIdx] = [
+                'id' => null,
+                'photo' => null,
+            ];
+
+            $this->form->reset('itemId', 'photo');
+            $this->form->itemIdx = $newIdx;
+            $this->form->loadItem();
+
+            $this->dispatch('show_toast', message: 'New item added successfully!', type: 'success');
+        } catch (ValidationException $e) {
+            $this->dispatch('show_toast', message: "Item cannot be added.", type: "fail");
+            $this->addError('form.itemId', "Please select an item.");
+        }
+    }
+    public function switchToItem($itemIdx)
+    {
+        $this->form->storeArr();
+        $this->form->itemIdx = $itemIdx;
+        $this->form->loadItem();
+    }
+    public function removeItem($itemIdx)
+    {
+        $this->form->itemId = null;
+        $this->form->photo = null;
+        unset($this->form->items[$itemIdx]);
+        // Reset index of array
+        $this->form->items = array_values($this->form->items);
+
+
+        // Adjust index
+        if ($this->form->itemIdx >= count($this->form->items)) {
+            $this->form->itemIdx = count($this->form->items) - 1;
+        }
+
+        $this->form->loadItem();
+        $this->dispatch('show_toast', message: "Item removed successfully!", type: "success");
+    }
+
+    // PROCEED 
+    public function nextStep()
+    {
+        $this->validateCurrentStep();
+
+        if ($this->currentStep < $this->totalSteps) {
+            $this->currentStep++;
+        }
+    }
+    public function previousStep()
+    {
+        if ($this->currentStep > 1) {
+            $this->currentStep--;
+        }
+    }
+    public function goToStep($step)
+    {
+        if ($step <= $this->currentStep || $step == 1) {
+            $this->currentStep = $step;
+        }
+    }
+    private function validateCurrentStep()
+    { // TODO
+        switch ($this->currentStep) {
+            case 1:
+                $this->form->validateStorage();
+                break;
+            case 2:
+                $this->form->validateCurrentItem();
+                $this->form->storeArr();
+                $this->form->validateAllItems();
+                break;
+            case 3:
+                $this->form->validateTime();
+                break;
+            case 4:
+                $this->form->validateContact();
+                $this->submitForm(); // Submit the form if validation passes
+                break;
+        }
+    }
+
+    public function submitForm()
+    {
+        try {
+            $report = ModelsMissingReport::create([
+                'last_seen_type' => $this->form->seeTime ?? null,
+                'last_seen_date' => $this->form->seeDate,
+                'last_seen_range' => $this->form->seeRange,
+                'discovered_missing_type' => $this->form->discoverTime,
+                'discovered_missing_date' => $this->form->discoverDate,
+                'discovered_missing_range' => $this->form->discoverRange,
+                'witnesses_and_info' => $this->form->addInfo,
+                'qr_code_id' => $this->selectedApplication->qrCode->value('id'),
+            ]);
+
+            // Associate selected Item to the report 
+            StoredItem::whereIn('id', collect($this->form->items)->pluck('id'))
+                ->update(['missing_report_id' => $report->id]);
+
+            // Update the user's contact info
+            Auth::user()->update([
+                'email' => $this->form->userEmail,
+                'phone_number' => $this->form->userPhone,
+            ]);
+
+            $this->showSuccessMessage = true;
+            $this->dispatch('show_toast', message: "Report submitted successfully!", type: "success");
+        } catch (\Exception $e) {
+            Log::error('Report submission failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            $this->dispatch('show_toast', message: "Something went wrong! Please try again later.", type: 'fail');
+        }
     }
 
     #[Computed()]
     public function studentApplications()
     {
-        return StorageApplication::with(['locker.storageRoom', 'openArea.StorageRoom', 'items'])
+        return StorageApplication::with(['locker.storageRoom', 'openArea.storageRoom', 'storedItems', 'qrCode'])
             ->where('applicant_id', Auth::user()->id)
             ->where('storage_application_status', 'approved') # only the approved storage can report missing item
             ->get();
@@ -38,11 +198,11 @@ class MissingReport extends Component
     }
 
     #[Computed()]
-    public function selectedItems() 
+    public function selectedItem()
     {
-        return $this->selectedApplication;
+        return $this->selectedApplication->storedItems->where('id', $this->form->itemId)->first();
     }
-    
+
     public function render()
     {
         return view('livewire.missing-report')->layout('layouts.student')->title('Student - Missing Item Report');

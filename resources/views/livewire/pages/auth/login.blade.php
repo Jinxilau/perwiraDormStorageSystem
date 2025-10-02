@@ -29,7 +29,7 @@ new #[Layout('layouts.guest')] class extends Component
         };
 
         // dd($page);
-        $this->redirectIntended(default: route($page, absolute: false), navigate: true);
+        $this->redirectIntended(default: route($page, absolute: false), navigate: false);
     }
 };
 ?>

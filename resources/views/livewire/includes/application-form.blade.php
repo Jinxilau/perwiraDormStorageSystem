@@ -8,18 +8,12 @@
                     <ul class="nav nav-tabs" role="tablist">
                         @foreach ($this->itemForm->items as $index => $item)
                             <li class="nav-item" role="presentation">
-                                <button
-                                    class="nav-link d-flex {{ $this->itemForm->currentItemIndex == $index ? 'active' : '' }}"
-                                    type="button" wire:click="switchToItem({{ $index }})">
-                                    <span>
-                                        Item {{ $index + 1 }}
-                                        @if (count($this->itemForm->items) > 1)
-                                            <button class="btn-close btn-close-sm d-inline" type="button"
-                                                onclick="event.stopPropagation();"
-                                                wire:click="removeItem({{ $index }})"></button>
-                                        @endif
-                                    </span>
-                                </button>
+                                <span wire:click.prevent="switchToItem({{ $index }})" style="cursor: pointer"
+                                    class="nav-link {{ $this->itemForm->currentItemIndex == $index ? 'active' : '' }}">
+                                    Item {{ $index + 1 }}
+                                    <button type="button" wire:click.stop="removeItem({{ $index }})"
+                                        class="btn-close btn-close-sm d-inline"></button>
+                                </span>
                             </li>
                         @endforeach
                     </ul>
@@ -113,12 +107,10 @@
                                             class="w-16 h-16 rounded-circle mb-3 d-flex align-items-center justify-content-center fs-3 bg-secondary">
                                             {{ $size_info['icon'] }}
                                         </div>
-                                        <h3
-                                            class="h4 mb-2 text-dark">
+                                        <h3 class="h4 mb-2 text-dark">
                                             {{ $size_info['name'] }}
                                         </h3>
-                                        <p
-                                            class="small text-muted">
+                                        <p class="small text-muted">
                                             {{ $size_info['description'] }}
                                         </p>
                                     </div>
@@ -200,7 +192,7 @@
 
                 <div class="row g-4 justify-content-center align-items-center gap-5">
                     {{-- Storage Room Card --}}
-                    @foreach ($this->storageRooms as $room)
+                    @forelse ($this->storageRooms as $room)
                         <div class="col-md-6 col-lg-4">
                             <div class="card h-100 border-2 {{ $this->roomForm->selectedRoom == $room['id'] ? 'border-primary bg-light' : 'border-secondary' }} cursor-pointer"
                                 wire:click="selectRoom({{ $room['id'] }})" style="cursor: pointer;">
@@ -223,7 +215,9 @@
                                 </div>
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <h4 class="text-center h2"><i class="bi bi-x-octagon-fill d-block text-danger"></i>No Storage Room Available</h4>
+                    @endforelse
                 </div>
             </div>
 
@@ -486,7 +480,8 @@
         input[type='radio']:checked+#estimated div#estimated div {
             background-color: rgba(13, 110, 253, 0.25) !important;
         }
-        input[type='radio']:checked+#estimated div#estimated h3, 
+
+        input[type='radio']:checked+#estimated div#estimated h3,
         input[type='radio']:checked+#estimated div#estimated p {
             color: #0d6efd !important;
         }

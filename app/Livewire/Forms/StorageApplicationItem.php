@@ -80,8 +80,6 @@ class StorageApplicationItem extends Form
             'item_photo' => $this->item_photo,
             'temp_photo_url' => $this->item_photo ? $this->item_photo->temporaryUrl() : null,
         ];
-
-        $this->resetCurrentForm();
     }
 
     public function loadCurrentItem() # Switch to the item
@@ -92,17 +90,6 @@ class StorageApplicationItem extends Form
         $this->item_description = $currentItem['item_description'];
         $this->estimated_size = $currentItem['estimated_size'];
         $this->item_photo = $currentItem['item_photo'];
-    }
-
-    private function buildItemDescription($item)
-    {
-        $description = "Item: " . $item['item_name'];
-
-        if (!empty($item['item_description'])) {
-            $description .= "\n\nDescription: " . $item['item_description'];
-        }
-
-        return $description;
     }
 
     public function createAllItem($storageApplicationId) # Create item in the arr
@@ -119,7 +106,7 @@ class StorageApplicationItem extends Form
                 'item_name' => $item['item_name'],
                 'estimated_size' => $item['estimated_size'],
                 'item_type' => $item['category'],
-                'item_description' => $this->buildItemDescription($item),
+                'item_description' => $item['item_description'],
                 'item_photo_path' => $photoPath,
                 'storage_application_id' => $storageApplicationId,
                 'missing_report_id' => null,

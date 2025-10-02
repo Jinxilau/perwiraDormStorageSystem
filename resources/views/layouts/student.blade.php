@@ -146,7 +146,7 @@
             </div>
         </div>
         <!-- Main Content -->
-        <div class="col-md p-4">
+        <div class="col-md-9 p-4">
             {{ $slot }}
         </div>
     </div>

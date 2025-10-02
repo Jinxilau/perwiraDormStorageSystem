@@ -9,14 +9,17 @@
         <div class="container mb-4">
             <div class="row justify-content-center">
                 <div class="col-lg-8 d-flex justify-content-center">
-                    <ul
+                    <ul x-data="{ current: $wire.entangle('currentStep') }"
                         class="steper-step list-unstyled p-0 m-0 position-relative stepper-vertical d-inline-flex justify-content-center">
                         @for ($i = 1; $i <= $totalSteps; $i++)
-                            <li
-                                class="stepper position-relative pb-1 {{ $currentStep >= $i ? 'actived' : '' }} {{ $i < $currentStep ? 'completed' : '' }} d-inline-flex">
+                            <li class="stepper position-relative pb-1 d-inline-flex"
+                                :class="{
+                                    'actived': current == {{ $i }},
+                                    'completed': current > {{ $i }},
+                                }">
                                 {{-- Stepper Head --}}
                                 <div class="d-flex flex-column align-items-center justify-content-center align-items-center position-relative text-center"
-                                    style="width: 12vw; min-width: 70px;">
+                                    style="min-width: 70px;">
                                     {{-- Stepper Icon --}}
                                     <span
                                         class="stepper-head-icon d-flex align-items-center justify-content-center fw-bold rounded-circle">
@@ -25,11 +28,13 @@
                                     <div class="stepper-content py-0">
                                         <p class="text-muted small mb-0">
                                             @if ($i == 1)
-                                                Storage & Item
+                                                Storage
                                             @elseif($i == 2)
+                                                Item
+                                            @elseif($i == 3)
                                                 Additional Information
                                             @else
-                                                Verify Contact Information
+                                                Contact Information
                                             @endif
                                         </p>
                                     </div>
@@ -49,6 +54,7 @@
         @include('livewire.includes.report-form')
     @endif {{-- Show Success Message --}}
 
+    <x-toast-message></x-toast-message>
 </div>
 @push('styles')
     @vite('resources\css\storage_application.css')

@@ -252,10 +252,10 @@ class StorageApplication extends Component
 
     public function submit()
     {
-        // if (!$this->termsAccepted) {
-        //     session()->flash('error', 'Please accept the terms and conditions to proceed.');
-        //     return;
-        // }
+        if (!$this->termsAccepted) {
+            session()->flash('error', 'Please accept the terms and conditions to proceed.');
+            return;
+        }
 
         $openAreaId = in_array('open_area', $this->roomForm->selectedStorageType) ? $this->roomForm->openArea->id : null;
 

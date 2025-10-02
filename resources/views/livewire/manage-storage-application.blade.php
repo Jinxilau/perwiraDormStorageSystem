@@ -118,7 +118,7 @@
                                 </div>
                             </td>
                             <td>
-                                @foreach ($application->items as $item)
+                                @foreach ($application->storedItems as $item)
                                     <div wire:key="item-{{ $item->id }}">
                                         {{ ucfirst($item->item_type) }}
                                     </div>

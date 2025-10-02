@@ -8,11 +8,14 @@
         <div class="container mb-2">
             <div class="row justify-content-center">
                 <div class="col-lg-8 d-flex justify-content-center">
-                    <ul
+                    <ul x-data="{current: $wire.entangle('currentStep')}"
                         class="steper-step list-unstyled p-0 m-0 position-relative stepper-vertical d-inline-flex justify-content-center">
                         @for ($i = 1; $i <= $totalSteps; $i++)
-                            <li
-                                class="stepper position-relative pb-1 {{ $currentStep >= $i ? 'actived' : '' }} {{ $i < $currentStep ? 'completed' : '' }} d-inline-flex">
+                            <li class="stepper position-relative pb-1 d-inline-flex"
+                                :class="{
+                                    'actived': current == {{ $i }},
+                                    'completed': current > {{ $i }},
+                                }">
                                 {{-- Stepper Head --}}
                                 <div class="d-flex flex-column align-items-center justify-content-center align-items-center position-relative text-center"
                                     style="width: 12vw; min-width: 70px;">
@@ -76,38 +79,7 @@
             @include('livewire.includes.application-form')
         </div>
     @endif
-    <!-- Toast Notifications -->
-    <div x-data="{ show: false, message: '', type: 'success' }"
-        @show_toast.window="
-            show = true;
-            message = $event.detail.message;
-            type = $event.detail.type;
-            setTimeout(() => show = false, 4000);
-        "
-        x-show="show" x-transition:enter="fade-in" x-transition:leave="fade-out"
-        class="position-fixed bottom-0 start-0 p-3" style="z-index: 1050; display: none;">
-        <div class="toast show" role="alert">
-            <div class="toast-header"
-                :class="{
-                    'bg-success': type === 'success',
-                    'bg-danger': type === 'fail'
-                }">
-                <!-- Change color based on type -->
-                <div :class="{
-                    'bg-success': type === 'success',
-                    'bg-danger': type === 'fail'
-                }"
-                    class="rounded me-2" style="width: 20px; height: 20px;">
-                </div>
-
-                <!-- Change title based on type -->
-                <strong class="me-auto" x-text="type === 'success' ? 'Success' : 'Error'"></strong>
-
-                <button type="button" class="btn-close" @click="show = false"></button>
-            </div>
-            <div class="toast-body" x-text="message"></div>
-        </div>
-    </div>
+    <x-toast-message></x-toast-message>
 </div>
 
 @push('styles')

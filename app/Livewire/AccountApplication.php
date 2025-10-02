@@ -57,7 +57,7 @@ class AccountApplication extends Component
             'gender' => 'required|in:male,female,other',
             'year_of_study' => 'required|integer|between:1,5',
             'semester' => 'required|integer|between:1,2',
-            'phone_number' => 'required|string|max:20|unique:users,phone_number',
+            'phone_number' => 'required|string|regex:/^01[0-9]-[0-9]{7,8}$/|unique:users,phone_number',
             'email' => 'required|email|unique:users,email',
             'password' => ['required', 'confirmed', Password::min(8)],
             'agree_terms' => 'accepted',
