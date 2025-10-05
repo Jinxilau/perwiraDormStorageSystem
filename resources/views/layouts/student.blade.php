@@ -123,7 +123,7 @@
                     <i class="bi bi-box-seam h4"></i>
                     <span class="ms-2">Notification</span>
                 </a>
-                <a href="admin_manage_user.html"
+                <a href="{{ route('my_storage') }}"
                     class="sidebarcontent list-group-item list-group-item-action {{ request()->is('student/my_storage') ? 'active' : '' }}">
                     <i class="bi bi-person-gear h4"></i>
                     <span class="ms-2">My Storage</span>

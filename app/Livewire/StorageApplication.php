@@ -7,8 +7,8 @@ use App\Livewire\Forms\StorageApplicationRoom;
 use App\Models\OpenArea;
 use App\Models\StorageApplication as ModelsStorageApplication;
 use App\Models\StorageRoom;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Computed;
@@ -268,8 +268,8 @@ class StorageApplication extends Component
                 'open_area_id' => $openAreaId,
                 'locker_id' => $this->roomForm->selectedLockerId,
                 'storage_application_status' => 'pending',
-                'expected_check_in' => Carbon::parse(now())->addDay(),
-                'purpose' => $this->purpose ?? 'Purpose',
+                'start_date' => Date::now(),
+                'end_date' => Date::now()->addDays(30) // TODO
             ]);
 
             // Create stored items for each item in the application

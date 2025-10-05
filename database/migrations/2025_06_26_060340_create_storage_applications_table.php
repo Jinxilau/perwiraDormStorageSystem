@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             
             $table->enum('storage_application_status', ['pending', 'approved', 'rejected']);
-            $table->datetime('expected_check_in')->nullable();
-            $table->text('purpose')->nullable(); # TODO
+            $table->date('start_date');
+            $table->date('end_date');
             
             $table->timestamps();
 

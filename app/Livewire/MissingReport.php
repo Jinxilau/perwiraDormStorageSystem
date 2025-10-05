@@ -7,8 +7,6 @@ use App\Models\MissingReport as ModelsMissingReport;
 use App\Models\QRCode;
 use App\Models\StorageApplication;
 use App\Models\StoredItem;
-use App\Models\User;
-use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -152,13 +150,13 @@ class MissingReport extends Component
     {
         try {
             $report = ModelsMissingReport::create([
-                'last_seen_type' => $this->form->seeTime ?? null,
-                'last_seen_date' => $this->form->seeDate,
-                'last_seen_range' => $this->form->seeRange,
-                'discovered_missing_type' => $this->form->discoverTime,
-                'discovered_missing_date' => $this->form->discoverDate,
-                'discovered_missing_range' => $this->form->discoverRange,
-                'witnesses_and_info' => $this->form->addInfo,
+                'last_seen_type' => $this->form->seeTime ?: null,
+                'last_seen_date' => $this->form->seeDate ?: null,
+                'last_seen_range' => $this->form->seeRange ?: null,
+                'discovered_missing_type' => $this->form->discoverTime ?: null,
+                'discovered_missing_date' => $this->form->discoverDate ?: null,
+                'discovered_missing_range' => $this->form->discoverRange ?: null,
+                'witnesses_and_info' => $this->form->addInfo ?: null,
                 'qr_code_id' => $this->selectedApplication->qrCode->value('id'),
             ]);
 

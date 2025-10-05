@@ -7,6 +7,7 @@ use App\Livewire\ManageStorageApplication;
 use App\Livewire\ManageStorageRoom;
 use App\Livewire\ManageUser;
 use App\Livewire\MissingReport;
+use App\Livewire\MyStorage;
 use App\Livewire\ScanLog;
 use App\Livewire\ScanQr;
 use App\Livewire\StaffDashboard;
@@ -31,6 +32,7 @@ Route::middleware(['auth', EnsureUserIsApproved::class, CheckRole::class . ':stu
     Route::get('/student/dashboard', StudentDashboard::class)->name('student_dashboard'); # Use livewire as full page instead
     Route::get('/student/storage', StorageApplication::class)->name('storage');
     Route::get('/student/missing_report', MissingReport::class)->name('missing_report');
+    Route::get('/student/my_storage', MyStorage::class)->name('my_storage');
 });
 
 // Staff
