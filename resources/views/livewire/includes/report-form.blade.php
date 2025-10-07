@@ -210,7 +210,7 @@
         </div>
     @elseif ($this->currentStep === 3)
         {{-- Radio 1 --}}
-        <p class="h4 mt-2">When did you last see the items?</p>
+        <p class="h4 mt-2">When did you last see these items?</p>
         <div x-data="{ option: @entangle('form.seeTime') }">
 
             <div class="form-check">
@@ -256,9 +256,21 @@
         @enderror
 
         <hr>
+        <div class="my-2">
+            <p for="last_seen_location" class="h4">Last Seen Location?</p>
+            <input wire:model="form.last_seen_location" type="text" id="last_seen_location" class="form-control"
+                placeholder="Enter where the item was last seen..." required>
+            <small class="form-text text-muted">
+                Example: Locker A-12, Main Hall, or Reception Counter
+            </small>
+            @error('form.last_seen_location')
+                <p class="text-danger mb-0">{{ $message }}</p>
+            @enderror
+        </div>
 
+        <hr>
         {{-- Radio 2 --}}
-        <p class="h4 mt-2">When did you discover it was missing?</p>
+        <p class="h4 mt-2">When did you discover items was missing?</p>
         <div x-data="{ option: @entangle('form.discoverTime') }">
 
             <div class="form-check">

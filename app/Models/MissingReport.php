@@ -6,11 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class MissingReport extends Model
 {
+    protected $casts = [
+        'last_seen_date' => 'date',
+        'discovered_missing_date' => 'date'
+    ];
+
     protected $fillable = [
         'status',
         'last_seen_type',
         'last_seen_date',
         'last_seen_range',
+        'last_seen_location',
         'discovered_missing_type',
         'discovered_missing_date',
         'discovered_missing_range',

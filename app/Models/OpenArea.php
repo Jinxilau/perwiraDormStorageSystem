@@ -8,15 +8,15 @@ class OpenArea extends Model
 {
     protected $fillable = [
         'storage_room_id',
-        'estimated_storage_capacity',
-        'occupied_storage_capacity',
+        // 'estimated_storage_capacity',
+        // 'occupied_storage_capacity',
         'area_status',
     ];
 
-    protected $casts = [
-        'estimated_storage_capacity' => 'decimal:2',
-        'occupied_storage_capacity' => 'decimal:2',
-    ];
+    // protected $casts = [
+    //     'estimated_storage_capacity' => 'decimal:2',
+    //     'occupied_storage_capacity' => 'decimal:2',
+    // ];
 
     // Eloquent Model Relationship
     public function storageRoom()

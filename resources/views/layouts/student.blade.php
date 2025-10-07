@@ -133,10 +133,10 @@
                     <i class="bi bi-house-gear h4"></i>
                     <span class="ms-2">Report Missing Item</span>
                 </a>
-                <a href="admin_manage_storage.html"
-                    class="sidebarcontent list-group-item list-group-item-action {{ request()->is('student/my_missing_report') ? 'active' : '' }}">
+                <a href="{{ route('my_report') }}"
+                    class="sidebarcontent list-group-item list-group-item-action {{ request()->is('student/my_report') ? 'active' : '' }}">
                     <i class="bi bi-house-gear h4"></i>
-                    <span class="ms-2">Missing Items</span>
+                    <span class="ms-2">My Missing Report</span>
                 </a>
                 <a href="admin_manage_storage.html"
                     class="sidebarcontent list-group-item list-group-item-action {{ request()->is('student/help') ? 'active' : '' }}">

@@ -16,7 +16,7 @@ return new class extends Migration
             
             $table->enum('storage_application_status', ['pending', 'approved', 'rejected']);
             $table->date('start_date');
-            $table->date('end_date');
+            $table->date('end_date'); // TODO
             
             $table->timestamps();
 

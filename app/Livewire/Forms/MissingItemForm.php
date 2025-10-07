@@ -40,6 +40,8 @@ class MissingItemForm extends Form
     public $discoverDate;
     public $discoverRange;
 
+    public $last_seen_location;
+
     public $userEmail;
     public $userPhone;
     public $confirmed; # Confirm that information provided is correct.

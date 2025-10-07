@@ -14,12 +14,14 @@ return new class extends Migration
         Schema::create('missing_reports', function (Blueprint $table) {
             $table->id();
 
-            $table->enum('status', ['reported', 'investigating', 'found', 'closed'])->default('reported');
+            $table->enum('status', ['pending', 'investigating', 'resolved', 'closed'])->default('pending');
 
             // Last see the item?
             $table->enum('last_seen_type', ['specific_date', 'dont_remember', 'range']);
             $table->date('last_seen_date')->nullable();
             $table->string('last_seen_range')->nullable();
+            
+            $table->text('last_seen_location');
 
             // When did you discover it was missing?
             $table->enum('discovered_missing_type', ['specific_date', 'dont_remember', 'range']);

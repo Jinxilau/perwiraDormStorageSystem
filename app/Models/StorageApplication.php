@@ -10,8 +10,8 @@ class StorageApplication extends Model
 
     protected $fillable = [
         'storage_application_status',
-        'expected_check_in',
-        'purpose',
+        'start_date',
+        'end_date',
         'applicant_id',
         'approver_id',
         'open_area_id',

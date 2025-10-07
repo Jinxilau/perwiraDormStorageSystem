@@ -153,6 +153,7 @@ class MissingReport extends Component
                 'last_seen_type' => $this->form->seeTime ?: null,
                 'last_seen_date' => $this->form->seeDate ?: null,
                 'last_seen_range' => $this->form->seeRange ?: null,
+                'last_seen_location' => $this->form->last_seen_location ?? null,
                 'discovered_missing_type' => $this->form->discoverTime ?: null,
                 'discovered_missing_date' => $this->form->discoverDate ?: null,
                 'discovered_missing_range' => $this->form->discoverRange ?: null,
@@ -160,9 +161,17 @@ class MissingReport extends Component
                 'qr_code_id' => $this->selectedApplication->qrCode->value('id'),
             ]);
 
-            // Associate selected Item to the report 
+            // 1. Associate selected Item to the report 
             StoredItem::whereIn('id', collect($this->form->items)->pluck('id'))
                 ->update(['missing_report_id' => $report->id]);
+
+            // 2. Update photos only where needed
+            foreach ($this->form->items as $item) {
+                if (!empty($item['photo'])) {
+                    $path = $item['photo']->store('storage-items', 'public');
+                    StoredItem::where('id', $item['id'])->update(['item_photo_path' => $path]);
+                }
+            }
 
             // Update the user's contact info
             Auth::user()->update([
