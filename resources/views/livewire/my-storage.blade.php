@@ -108,13 +108,8 @@
     @empty
         <div class="card shadow-sm">
             <div class="card-body text-center py-5">
-                <svg class="text-muted mb-3" width="64" height="64" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4">
-                    </path>
-                </svg>
-                <h5 class="card-title">No Applications Found</h5>
+                <p class="mb-0" style="font-size: 64px">📦</p>
+                <h5 class="card-title h3">No Applications Found</h5>
                 <p class="text-muted">You haven't submitted any storage applications yet.</p>
                 <div class="mt-3">
                     <a href="{{ route('storage') }}" class="btn btn-primary">

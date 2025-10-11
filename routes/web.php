@@ -16,6 +16,7 @@ use App\Livewire\StorageApplication;
 use App\Livewire\StorageApplicationActive;
 use App\Livewire\StorageApplicationReject;
 use App\Livewire\StudentDashboard;
+use App\Livewire\StudentNotifications;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -35,7 +36,7 @@ Route::middleware(['auth', EnsureUserIsApproved::class, CheckRole::class . ':stu
     Route::get('/student/missing_report', MissingReport::class)->name('missing_report');
     Route::get('/student/my_storage', MyStorage::class)->name('my_storage');
     Route::get('/student/my_report', MyReport::class)->name('my_report');
-    Route::get('/student/notification', MyReport::class)->name('student_notification');
+    Route::get('/student/notification', StudentNotifications::class)->name('student_notification');
 });
 
 // Staff

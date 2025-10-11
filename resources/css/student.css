@@ -9,7 +9,7 @@
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
     line-height: 1.6;
     color: #1a1a1a;
     overflow-x: hidden;
@@ -17,9 +17,10 @@ body {
 }
 
 /* Navigation */
-nav {
-    /* position: fixed; */
-    /* top: 0; */
+#navbar {
+    z-index: 1051;
+    max-height: 90px;
+    padding: 24px 10px;
     width: 100%;
     background: rgba(0, 0, 0, 0.95);
     backdrop-filter: blur(20px);
@@ -29,41 +30,86 @@ nav {
     color: white;
 }
 
-nav.scrolled {
-    background: rgba(255, 255, 255, 0.98);
-    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+#logo-perwira {
+    object-fit: cover;
+    overflow: visible;
+    width: 130px;
+    height: 30px;
+    position: relative;
+    z-index: 1050;
+    top: 5px;
 }
 
-/* .nav-container {
-    display: flex;
-    justify-content: space-between;
+.brand {
+    font-size: 1.8rem;
+    font-weight: 700;
+    font-size: clamp(12px, 2.3vw, 28px);
+}
+
+/* User Dropdown START */
+.user-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.avatar-circle {
+    display: inline-flex;
     align-items: center;
-} */
-
-.logo {
-    font-size: 1.8rem;
-    font-weight: 700;
-    /* background: linear-gradient(135deg, #fafafa 75%, #969696 100%); */
-    /* -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text; */
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: background 0.3s, color 0.3s;
 }
 
-.logo.scrolled {
-    font-size: 1.8rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+.user-dropdown button:hover .avatar-circle {
+    background: rgba(12, 12, 12, 0.979);
+    color: white;
 }
 
-@media (max-width: 900px) {
-    .logo {
-        display: none;
-    }
+.custom-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    min-width: 250px;
+    background: rgba(255, 255, 255, 0.963);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.329);
+    z-index: 1000;
+    padding: 0.5rem 0;
 }
 
+.dropdown-header-custom {
+    padding: 0 1rem;
+}
+
+.dropdown-item-custom {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    color: #212529;
+    text-decoration: none;
+    transition: background-color 0.15s ease-in-out;
+    cursor: pointer;
+}
+
+.dropdown-item-custom:hover {
+    background-color: #f8f9fa;
+}
+
+.dropdown-item-custom.text-danger:hover {
+    background-color: #fff5f5;
+}
+
+.rotate-180 {
+    transform: rotate(180deg);
+}
+/* User Dropdown END */
+/* 
 .nav-links {
     display: flex;
     list-style: none;
@@ -86,9 +132,8 @@ nav.scrolled {
     color: #667eea;
 }
 
-
 .nav-links a::after {
-    content: '';
+    content: "";
     position: absolute;
     width: 0;
     height: 2px;
@@ -96,7 +141,7 @@ nav.scrolled {
     left: 0;
     background: linear-gradient(90deg, #667eea, #764ba2);
     transition: width 0.3s ease;
-}
+} */
 
 .nav-links a:hover::after {
     width: 100%;

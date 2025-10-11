@@ -1,0 +1,68 @@
+#toggle-btn {
+    transition: transform 150ms ease;
+}
+
+#maincontent {
+    transition: 300ms ease-in-out;
+    flex: 1;
+}
+
+@media (min-width: 768px) {
+    .custom-vh-100 {
+        height: 100vh;
+    }
+    #sidebar {
+        background-color: rgb(255, 255, 255);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        transition: 300ms ease-in-out;
+        overflow: hidden;
+    }
+    #sidebar.close {
+        padding: 5px;
+        width: 60px;
+        text-wrap: nowrap;
+    }
+
+    #sidebarcontent {
+        overflow-wrap: normal;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    #sidebar #sidebarcontent span {
+        opacity: 1;
+        transition: opacity 300ms ease-in-out;
+    }
+
+    #sidebar.close #sidebarcontent span {
+        opacity: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    #sidebar {
+        position: absolute;
+        top: 85px;
+        left: 0;
+        right: 0;
+        width: 100%;
+        transform: translateY(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    #sidebar.close {
+        transform: translateY(0);
+    }
+}
+
+.text-outline {
+    color: white;
+    text-shadow: -0.3px -0.3px 0 black, 0.3px -0.3px 0 black,
+        -0.3px 0.3px 0 black, 0.3px 0.3px 0 black;
+}
+
+.rotate {
+    transform: rotate(-180deg);
+}

@@ -1,4 +1,9 @@
 <div>
     {{-- If your happiness depends on money, you will never be happy with yourself. --}}
-    <h1>Dashboard</h1>
+    @include('livewire.includes.header2', [
+        'title' => 'Dashboard',
+        'subtitle' => 'Manage your storage system efficiently.',
+    ])
+
+    
 </div>

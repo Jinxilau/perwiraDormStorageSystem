@@ -1,6 +1,9 @@
 <div>
     {{-- Knowing others is intelligence; knowing yourself is true wisdom. --}}
-    <h3 class="text-center">Storage Application Process</h3>
+    <h2 class="card-title text-center">Storage Application Process</h2>
+    <p class="text-muted text-center mb-2 small">
+        Follow the steps below to submit your storage request.
+    </p>
     @if ($showSuccessMessage)
         @include('livewire.includes.application-ok')
     @else
@@ -8,8 +11,8 @@
         <div class="container mb-2">
             <div class="row justify-content-center">
                 <div class="col-lg-8 d-flex justify-content-center">
-                    <ul x-data="{current: $wire.entangle('currentStep')}"
-                        class="steper-step list-unstyled p-0 m-0 position-relative stepper-vertical d-inline-flex justify-content-center">
+                    <ul x-data="{ current: $wire.entangle('currentStep') }"
+                        class="steper-step list-unstyled p-0 mb-3 position-relative stepper-vertical d-inline-flex justify-content-center">
                         @for ($i = 1; $i <= $totalSteps; $i++)
                             <li class="stepper position-relative pb-1 d-inline-flex"
                                 :class="{
@@ -22,7 +25,9 @@
                                     {{-- Stepper Icon --}}
                                     <span
                                         class="stepper-head-icon d-flex align-items-center justify-content-center fw-bold rounded-circle">
-                                        {{ $i }}
+                                        @if ($this->currentStep <= $i)
+                                            {{ $i }}
+                                        @endif
                                     </span>
                                     <div class="stepper-content py-0">
                                         <p class="text-muted small mb-0">
@@ -79,9 +84,9 @@
             @include('livewire.includes.application-form')
         </div>
     @endif
-    <x-toast-message></x-toast-message>
+    <x-toast-message />
 </div>
 
 @push('styles')
-    @vite('resources\css\storage_application.css')
+    @vite('resources\css\progress_bar.css')
 @endpush

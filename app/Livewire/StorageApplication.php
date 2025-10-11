@@ -7,6 +7,8 @@ use App\Livewire\Forms\StorageApplicationRoom;
 use App\Models\OpenArea;
 use App\Models\StorageApplication as ModelsStorageApplication;
 use App\Models\StorageRoom;
+use App\Models\User;
+use App\Notifications\StorageApplicationMadeNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -106,10 +108,10 @@ class StorageApplication extends Component
         // Step 3: Review & Submit 
         $this->applicantData = [
             'name' => Auth::user()->name,
-            'matric_card' => Auth::user()->matric_card,
-            'study_year_semester' => Auth::user()->study_year_semester,
+            'matric_card' => Auth::user()->matric_no,
+            'study_year_semester' => Auth::user()->year_of_study,
             'gender' => Auth::user()->gender,
-            'phone' => Auth::user()->phone,
+            'phone' => Auth::user()->phone_number,
             'email' => Auth::user()->email
         ];
     }
@@ -281,6 +283,10 @@ class StorageApplication extends Component
             $this->dispatch('show_toast', message: 'Storage Application success.', type: 'success');
             $this->resetAllForms();
             $this->showSuccessMessage = true;
+
+            foreach(User::whereIn('role_id', [1, 2])->get() as $staff) {
+                $staff->notify(new StorageApplicationMadeNotification($storageApplication));
+            }
         } catch (\Exception $e) {
             DB::rollback();
             Log::error($e->getMessage());

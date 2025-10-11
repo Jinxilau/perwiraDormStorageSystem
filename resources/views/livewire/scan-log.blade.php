@@ -1,5 +1,10 @@
 <div>
     {{-- Close your eyes. Count to one. That is how long forever feels. --}}
+    @include('livewire.includes.header2', [
+        'title' => 'QR Code Scan Logs',
+        'subtitle' => 'View and monitor all QR code scan activities in the system.',
+    ])
+
     <div class="bg-white shadow-sm rounded-lg overflow-hidden container-fluid">
         <!-- Table -->
         <div class="table-responsive">

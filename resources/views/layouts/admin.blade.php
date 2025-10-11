@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }}</title>
-    @vite(['resources\css\app.css'])
+    @vite(['resources\css\admin.css', 'resources\css\sidebar2.css', 'resources\css\notification.css'])
     @stack('styles')
     {{-- Livewire Style --}}
     @livewireStyles
@@ -14,218 +14,83 @@
         integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <style>
-        .sidebarcontent:hover {
-            background-color: rgba(0, 179, 255, 0.571);
-        }
-
-        #sidebar.close {
-            padding: 5px;
-            width: 60px;
-            text-wrap: nowrap;
-        }
-
-        .rotate {
-            rotate: -180deg;
-        }
-
-        @media(min-width: 768px) {
-            .custom-vh-100 {
-                height: 100vh;
-            }
-        }
-
-        .text-outline {
-            color: white;
-            /* Set the text color */
-            text-shadow:
-                -0.3px -0.3px 0 black,
-                /* Top-left shadow */
-                0.3px -0.3px 0 black,
-                /* Top-right shadow */
-                -0.3px 0.3px 0 black,
-                /* Bottom-left shadow */
-                0.3px 0.3px 0 black;
-            /* Bottom-right shadow */
-        }
-    </style>
 </head>
 
-<body class="d-flex flex-column min-vh-100">
-    <!-- Navigation -->
-    <nav id="navbar" class="" style="z-index: 1051; max-height: 90px; padding: 24px 10px">
-        <div class="container-fluid d-flex justify-content-between align-items-center">
-            <div class="d-flex gap-4">
-                <button id="toggle-btn" class="navbar-toggler" type="button" onclick="toggleSidebar()"
-                    style="transition: rotate 150ms ease;">
-                    <i class="bi bi-list h2 text -white" id="hambur"></i>
-                </button>
+<body class="d-md-flex min-vh-100">
+    {{-- Sidebar --}}
+    <x-sidebar2 :items="[
+        [
+            'title' => 'Dashboard',
+            'url' => route('admin_dashboard'),
+            'icon' => 'bi-speedometer',
+            'path' => 'admin/dashboard',
+        ],
+        [
+            'title' => 'Manage Storage Application',
+            'url' => route('manage_storage_pending'),
+            'icon' => 'bi-calendar-week',
+            'path' => 'storage/*',
+        ],
+        [
+            'title' => 'Manage Storage Room',
+            'url' => route('storage_room'),
+            'icon' => 'bi-box-seam',
+            'path' => 'room/*',
+        ],
+        [
+            'title' => 'Manage User Account',
+            'url' => route('manage_user'),
+            'icon' => 'bi-speedometer',
+            'path' => 'admin/user',
+        ],
+        [
+            'title' => 'Scan Logs',
+            'url' => route('scan_log'),
+            'icon' => 'bi-speedometer',
+            'path' => 'scan_log',
+        ],
+        [
+            'title' => 'System Activity Log',
+            'url' => route('admin_dashboard'),
+            'icon' => 'bi-speedometer',
+            'path' => 'admin/dashboard',
+        ],
+        [
+            'title' => 'Notifications',
+            'url' => route('admin_dashboard'),
+            'icon' => 'bi-speedometer',
+            'path' => 'admin/dashboard',
+        ],
+        [
+            'title' => 'Scan QR Code',
+            'url' => route('scan_qr'),
+            'icon' => 'bi-speedometer',
+            'path' => 'scanqr',
+        ],
+        [
+            'title' => 'Missing Item Report',
+            'url' => route('scan_qr'),
+            'icon' => 'bi-speedometer',
+            'path' => 'scanqr',
+        ],
+        [
+            'title' => 'Generate Report',
+            'url' => route('scan_qr'),
+            'icon' => 'bi-speedometer',
+            'path' => 'scanqr',
+        ],
+        [
+            'title' => 'Setting',
+            'url' => route('scan_qr'),
+            'icon' => 'bi-speedometer',
+            'path' => 'scanqr',
+        ],
+    ]" />
 
-                <div class="d-flex align-items-center gap-2">
-                    <a href="{{ route('staff_dashboard') }}">
-                        <img src="{{ Vite::asset('resources\images\icons\perwira_logo.png') }}" alt="Logo"
-                            id="logo-icon" class="logo-icon"
-                            style="object-fit: cover; overflow: visible; width: 130px; height: 30px; z-index: 1050;">
-                    </a>
-                    <div class="logo" id="logo" style="font-size: clamp(12px, 2.3vw, 28px)">Perwira Dorm Storage
-                        System</div>
-                </div>
-            </div>
-
-            <div class="d-flex align-items-center justify-content-end gap-2">
-                @auth
-                    <div class="dropdown">
-                        <button class="btn btn-outline-light dropdown-toggle rounded-pill" type="button" id="userDropdown"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            {{ auth()->user()->name }}
-                        </button>
-
-                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
-                            <li>
-                                <h6 class="dropdown-header">{{ auth()->user()->email }}</h6>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="{{ route('profile') }}">Profile</a></li>
-                            {{-- <li><a class="dropdown-item" href="{{ route('favourites') }}">My favourites</a></li> --}}
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-
-                            <li>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button class="dropdown-item text-danger" type="submit">Logout</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </div>
-                @endauth
-            </div>
-        </div>
-    </nav>
-
-    <div class="row">
-        <!-- Sidebar -->
-        <div id="sidebar" class="col-md-3 p-0 mb-4 mb-md-0 custom-vh-100 shadow-lg"
-            style="background-color: rgb(255, 255, 255); position: sticky; top: 0; z-index: 10; transition: 300ms ease-in-out; overflow: hidden;">
-            <div class="list-group ms-2">
-                <a href="{{ route('admin_dashboard') }}" wire:navigate
-                    class="sidebarcontent list-group-item list-group-item-action {{ request()->is('admin/dashboard') ? 'active' : '' }}">
-                    <i class="bi bi-speedometer h4"></i>
-                    <span class="ms-2">Dashboard</span>
-                </a>
-                <a href="{{ route('manage_storage_pending') }}" wire:navigate
-                    class="sidebarcontent list-group-item list-group-item-action {{ request()->is('storage/*') ? 'active' : '' }}">
-                    <i class="bi bi-calendar-week h4"></i>
-                    <span class="ms-2">Manage Storage Application</span>
-                </a>
-                <a href="{{ route('storage_room') }}" wire:navigate
-                    class="sidebarcontent list-group-item list-group-item-action {{ request()->is('room/*') ? 'active' : '' }}">
-                    <i class="bi bi-box-seam h4"></i>
-                    <span class="ms-2">Manage Storage Room</span>
-                </a>
-                <a href="{{ route('manage_user') }}" wire:navigate
-                    class="sidebarcontent list-group-item list-group-item-action {{ request()->is('admin/user') ? 'active' : '' }}">
-                    <i class="bi bi-box-seam h4"></i>
-                    <span class="ms-2">Manage User Account</span>
-                </a>
-                <a href="{{ route('scan_log') }}" class="sidebarcontent list-group-item list-group-item-action {{ request()->is('scan_log') ? 'active' : '' }}">
-                    <i class="bi bi-person-gear h4"></i>
-                    <span class="ms-2">Scan Logs</span>
-                </a>
-                <a href="admin_manage_storage.html" class="sidebarcontent list-group-item list-group-item-action">
-                    <i class="bi bi-house-gear h4"></i>
-                    <span class="ms-2">System Activity Log</span>
-                </a>
-                <a href="{{ route('scan_qr') }}" wire:navigate
-                    class="sidebarcontent list-group-item list-group-item-action {{ request()->is('scanqr') ? 'active' : '' }}">
-                    <i class="bi bi-house-gear h4"></i>
-                    <span class="ms-2">Notifications</span>
-                </a>
-                <a href="{{ route('scan_qr') }}" class="sidebarcontent list-group-item list-group-item-action {{ request()->is('scanqr') ? 'active' : '' }}">
-                    <i class="bi bi-house-gear h4"></i>
-                    <span class="ms-2">Scan QR Code</span>
-                </a>
-                <a href="admin_manage_storage.html" class="sidebarcontent list-group-item list-group-item-action">
-                    <i class="bi bi-house-gear h4"></i>
-                    <span class="ms-2">Missing Item Report</span>
-                </a>
-                <a href="admin_manage_storage.html" class="sidebarcontent list-group-item list-group-item-action">
-                    <i class="bi bi-house-gear h4"></i>
-                    <span class="ms-2">Generate Report</span>
-                </a>
-                <a href="admin_manage_storage.html" class="sidebarcontent list-group-item list-group-item-action">
-                    <i class="bi bi-house-gear h4"></i>
-                    <span class="ms-2">Setting</span>
-                </a>
-            </div>
-        </div>
-        <!-- Main Content -->
-        <div class="col-md-9 p-4">
-            {{ $slot }}
-        </div>
-    </div>
-
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container-fluid mx-2">
-            <!-- Logo Button -->
-            <div class="mb-4">
-                <img src="{{ Vite::asset('resources\images\icons\perwira_logo.png') }}" alt="Logo"
-                    id="logo-icon" class="logo-icon"
-                    style="object-fit: cover; overflow: visible; width: 130px; height: 30px; position: relative; z-index: 1050; top: 5px;">
-            </div>
-
-            <!-- Social Icons -->
-            <div>
-                <div class="social-icons">
-                    <a href="#" class="social-icon" aria-label="Facebook">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="#" class="social-icon" aria-label="Twitter">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="#" class="social-icon" aria-label="Instagram">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="#" class="social-icon" aria-label="LinkedIn">
-                        <i class="fab fa-linkedin-in"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Footer Links -->
-            <div class="d-flex justify-content-between">
-                <div class="">
-                    <p class="copyright">
-                        © 2024 Universiti Tun Hussein Onn Malaysia | Perwira Dorm Storage System
-                    </p>
-                </div>
-                <div class="footer-links" style="width: fit-content">
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms & Conditions</a>
-                    <a href="#">Cookie Policy</a>
-                    <a href="#">Contact</a>
-                </div>
-            </div>
-
-        </div>
-    </footer>
-
-    <!-- Scripts -->
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const toggleButton = document.getElementById('toggle-btn');
-
-            sidebar.classList.toggle('close'); // Adds or removes the 'close' class to/from the sidebar
-            toggleButton.classList.toggle('rotate'); // Adds or removes the 'rotate' class to/from the button
-        }
-    </script>
+    {{-- Main Content --}}
+    <main id="main-content">
+        {{ $slot }}
+    </main>
 
     {{-- Livewire --}}
     @livewireScripts
@@ -235,6 +100,59 @@
         integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous">
     </script>
     @stack('scripts')
+    <script>
+        document.addEventListener('livewire:navigated', () => {
+            const sidebar = document.getElementById('sidebar');
+            const toggleButton = document.getElementById('sidebar-toggle-btn');
+            const mainContent = document.getElementById('maincontent');
+            const icon = toggleButton.querySelector('i');
+            const mediaQuery = window.matchMedia('(max-width: 768px)');
+
+            if (!sidebar || !toggleButton || !icon) return;
+
+            // Sidebar: Initial load check
+            if (mediaQuery.matches) {
+                sidebar.classList.add('closed');
+                icon.classList.replace('bi-x-lg', 'bi-list');
+            } else {
+                sidebar.classList.remove('closed');
+                icon.classList.replace('bi-list', 'bi-x-lg');
+            }
+
+            // Sidebar: Resize check
+            mediaQuery.addEventListener('change', e => {
+                if (e.matches) {
+                    sidebar.classList.add('closed');
+                    toggleButton.classList.remove('rotate');
+                    icon.classList.replace('bi-x-lg', 'bi-list');
+                } else {
+                    sidebar.classList.remove('closed');
+                    toggleButton.classList.remove('rotate');
+                    icon.classList.replace('bi-list', 'bi-x-lg');
+                }
+            });
+
+            // Sidebar: Toggle Button
+            toggleButton.addEventListener('click', () => {
+                sidebar.classList.toggle('closed');
+                toggleButton.classList.toggle('rotate');
+
+                if (sidebar.classList.contains('closed')) {
+                    icon.classList.replace('bi-x-lg', 'bi-list');
+                } else {
+                    icon.classList.replace('bi-list', 'bi-x-lg');
+                }
+            })
+
+            // Notification
+            let userid = {{ Auth::user()->id }};
+            Echo.private(`App.Models.User.${userid}`).notification((notification) => {
+                Livewire.dispatch('notificationReceived');
+            });
+        }, {
+            once: true
+        });
+    </script>
 </body>
 
 </html>

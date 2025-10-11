@@ -1,0 +1,214 @@
+@media (min-width: 768px) {
+    #sidebar {
+        width: 260px;
+        background: #042046;
+        transition: all 0.3s ease;
+        height: 100vh;
+        z-index: 1000;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+    }
+    #sidebar.closed {
+        width: 60px;
+    }
+
+    #main-content {
+        transition: margin-left 0.2s ease-in-out;
+        margin-left: 260px;
+    }
+    #sidebar.closed + #main-content {
+        margin-left: 60px;
+    }
+    #sidebar #sidebar-header h1 {
+        flex-shrink: 1;
+        min-width: 0;
+        opacity: 1;
+        transition: opacity 0.1s ease-in-out;
+    }
+    #sidebar.closed #sidebar-header h1 {
+        opacity: 0;
+    }
+
+    #sidebar.closed #user-profile {
+        padding: 20px 10px;
+    }
+    #user-button {
+        overflow: hidden;
+    }
+    #user-button-name {
+        opacity: 1;
+        transition: opacity 0.3s ease-in-out;
+    }
+    #sidebar.closed #user-button-name {
+        opacity: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    #sidebar {
+        background: #042046;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+    }
+    #sidebar.closed {
+        background-color: #ffffff;
+        width: auto;
+        height: auto;
+        position: absolute;
+        top: 0px;
+        left: 0;
+        right: auto;
+        bottom: auto;
+    }
+    #sidebar.closed #sidebar-header h1 {
+        display: none;
+    }
+    #sidebar.closed #sidebar-nav {
+        display: none;
+    }
+    #sidebar.closed #user-profile {
+        display: none;
+    }
+    #sidebar.closed + #main-content #main-header {
+        padding-left: 70px;
+    }
+    #sidebar.closed #sidebar-toggle-btn {
+        color: black;
+    }
+}
+
+#sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.313);
+    height: 80px;
+}
+#sidebar-nav {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 15px 0;
+}
+#nav-item {
+    background: transparent;
+    transition: background 0.3s ease-in-out;
+    margin: 5px 0;
+}
+#nav-item:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
+#nav-link {
+    color: white;
+    text-decoration: none;
+    padding: 5px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.3s;
+    cursor: pointer;
+    border-right: 4px solid transparent;
+}
+#nav-link.active {
+    background: #3b82f6;
+    border-right-color: #60a5fa;
+}
+#sidebar #nav-link span {
+    opacity: 1;
+    transition: all 0.3s ease-in-out;
+    display: inline-block;
+    min-width: 166px;
+}
+#sidebar.closed #nav-link span {
+    opacity: 0;
+}
+#user-profile {
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.313);
+    transition: padding 0.3s ease-in-out;
+}
+
+#sidebar-toggle-btn {
+    transition: transform 0.3s ease-in-out;
+    color: white;
+}
+.rotate {
+    transform: rotate(-180deg);
+}
+#main-content {
+    flex: 1;
+    background: #f1f5f9;
+    min-width: 0;
+}
+/* User Dropdown START */
+#user-dropdown {
+    position: relative;
+}
+
+#user-button {
+    width: 100%;
+    background-color: transparent;
+    padding: 10px 5px;
+    border: none;
+    border-radius: 8px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+#user-button:hover {
+    background-color: rgba(255, 255, 255, 0.187);
+}
+
+#avatar-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: background 0.3s, color 0.3s;
+}
+
+.custom-dropdown-menu {
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    left: 0;
+    min-width: 250px;
+    background: rgba(255, 255, 255, 0.963);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.329);
+    z-index: 1000;
+    padding: 0.5rem 0;
+}
+
+.dropdown-header-custom {
+    padding: 0 1rem;
+}
+
+.dropdown-item-custom {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    color: #212529;
+    text-decoration: none;
+    transition: background-color 0.15s ease-in-out;
+    cursor: pointer;
+}
+
+.dropdown-item-custom:hover {
+    background-color: #f8f9fa;
+}
+
+.dropdown-item-custom.text-danger:hover {
+    background-color: #fff5f5;
+}
+
+.rotate-180 {
+    transform: rotate(180deg);
+}
+/* User Dropdown END */

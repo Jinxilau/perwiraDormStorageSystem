@@ -20,7 +20,7 @@
             </div>
         @endif
     </div>
-
+    
     <div class="bg-white shadow-sm rounded-lg overflow-hidden container-fluid">
         <!-- Table -->
         <div class="table-responsive">

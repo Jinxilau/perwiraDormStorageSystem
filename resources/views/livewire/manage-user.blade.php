@@ -77,6 +77,8 @@
     </div>
 
 
+    @include('livewire.includes.header2', ['title' => 'User Account Management', 'subtitle' => 'View and Manage User Accounts.'])
+
     <div class="bg-white shadow-sm rounded-lg overflow-hidden container-fluid">
 
         <!-- Bulk Actions Bar -->
@@ -105,7 +107,7 @@
         </div>
 
         <!-- Table -->
-        <div class="table-responsive">
+        <div class="table-responsive-xxl">
             <table class="table">
                 <thead class="table-dark">
                     <tr>

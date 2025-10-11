@@ -17,6 +17,7 @@
         </div>
     </div>
 
+    @include('livewire.includes.header2', ['title' => 'Storage Application Management', 'subtitle' => 'Approve or Review Storage Requests.'])
     {{-- If you look to others for fulfillment, you will never truly be fulfilled. --}}
     <div class="bg-white shadow-sm rounded-lg overflow-hidden container-fluid">
         <!-- Bulk Actions Bar -->
