@@ -39,9 +39,13 @@ class ManageStorageRoom extends Component
     public function showModal($id)
     {
         $this->locker = $this->storageRoom->lockers->where('id', $id)->first();
-        $this->lockerStatus = $this->locker->status;
-        $this->lockerSize = $this->locker->size;
-        $this->dispatch('display_modal');
+        if (!empty($this->locker)) {
+            $this->lockerStatus = $this->locker->status;
+            $this->lockerSize = $this->locker->size;
+            $this->dispatch('display_modal');
+        } else {
+            $this->dispatch('show_toast', message: 'Something went wrong.', type: 'fail');
+        }
     }
 
     public function toggleRoomStatus()

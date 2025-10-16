@@ -23,10 +23,10 @@ class QRCode extends Model
     {
         return $this->belongsTo(StorageApplication::class, 'storage_application_id');
     }
-    public function missingReports()
-    {
-        return $this->hasMany(MissingReport::class, 'qr_code_id');
-    }
+    // public function missingReports()
+    // {
+    //     return $this->hasMany(MissingReport::class, 'qr_code_id');
+    // }
     public function scanLogs() {
         return $this->hasMany(ScanLog::class, 'qr_code_id');
     }

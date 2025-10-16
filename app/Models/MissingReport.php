@@ -21,13 +21,13 @@ class MissingReport extends Model
         'discovered_missing_date',
         'discovered_missing_range',
         'witnesses_and_info',
-        'qr_code_id',
+        // 'qr_code_id',
     ];
 
-    public function qrCode()
-    {
-        return $this->belongsTo(QrCode::class);
-    }
+    // public function qrCode()
+    // {
+    //     return $this->belongsTo(QrCode::class);
+    // }
     public function storedItems()
     {
         return $this->hasMany(StoredItem::class);

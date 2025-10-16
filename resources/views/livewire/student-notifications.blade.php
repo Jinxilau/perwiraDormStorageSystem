@@ -29,11 +29,11 @@
 
                                             if (isset($notification->data['type'])) {
                                                 switch ($notification->data['type']) {
-                                                    case 'assignment':
+                                                    case 'general':
                                                         $badgeClass = 'bg-primary';
-                                                        $icon = '📝';
+                                                        $icon = '🤖';
                                                         break;
-                                                    case 'grade':
+                                                    case 'success':
                                                         $badgeClass = 'bg-success';
                                                         $icon = '✓';
                                                         break;

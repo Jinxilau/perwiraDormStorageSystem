@@ -1,83 +1,74 @@
 <div>
     {{-- Care about people's approval and you will be their prisoner. --}}
-    {{-- Modal --}}
-    <div tabindex="-1" :class="{ 'd-flex align-items-center justify-content-center': show }"
-        style="display: none; z-index: 9000; inset: 0;" class="position-fixed" id="lockerModal" x-data="{ show: false }"
-        @display_modal.window="show = true" x-show='show' x-effect="document.body.style.overflow = show ? 'hidden': ''">
-
-        <div class="position-fixed" style="background-color: rgba(0, 0, 0, 0.5); inset:0;" @click="show = false"></div>
-
+    <x-custom-modal title="Edit User - {{ $this->user?->id }}">
         @if ($this->user)
-            <div class="card" x-transition>
-                <div class="card-header">
-                    Edit User - {{ $this->user->id }}
+            <form wire:submit="editUser">
+
+                <div class="d-flex gap-2">
+                    <h5 class="card-title">
+                        User Status
+                        <span
+                            class="badge px-3 py-1 {{ match ($this->userStatus) {'approved' => 'bg-success','rejected' => 'bg-danger','pending' => 'bg-secondary'} }}">
+                            {{ ucfirst($this->userStatus) }}
+                        </span>
+                    </h5>
                 </div>
-                <form wire:submit="editUser">
-                    <div class="card-body">
+                <div>
+                    <input type="radio" class="btn-check" name="user_status" id="option1" autocomplete="off"
+                        wire:model.live="userStatus" value="approved"
+                        {{ $this->userStatus === 'approved' ? 'checked disabled' : '' }}>
+                    <label class="btn btn-success" for="option1">
+                        <i class="bi bi-check-circle-fill"></i>
+                        Approve
+                    </label>
 
-                        <div class="d-flex gap-2">
-                            <h5 class="card-title">User Status
-                                <span
-                                    class="badge px-3 py-1 {{ match ($this->userStatus) {'approved' => 'bg-success','rejected' => 'bg-danger','pending' => 'bg-secondary'} }}">
-                                    {{ ucfirst($this->userStatus) }}
-                                </span>
-                            </h5>
-                        </div>
-                        <div>
-                            <input type="radio" class="btn-check" name="user_status" id="option1" autocomplete="off"
-                                wire:model.live="userStatus" value="approved"
-                                {{ $this->userStatus === 'approved' ? 'checked disabled' : '' }}>
-                            <label class="btn btn-success" for="option1">
-                                <i class="bi bi-check-circle-fill"></i>
-                                Approve
-                            </label>
+                    <input type="radio" class="btn-check" name="user_status" id="option2" autocomplete="off"
+                        wire:model.live="userStatus" value="pending"
+                        {{ $this->userStatus === 'pending' ? 'checked disabled' : '' }}>
+                    <label class="btn btn-warning" for="option2">
+                        <i class="bi bi-slash-square-fill"></i>
+                        Mark as Pending
+                    </label>
 
-                            <input type="radio" class="btn-check" name="user_status" id="option2" autocomplete="off"
-                                wire:model.live="userStatus" value="pending"
-                                {{ $this->userStatus === 'pending' ? 'checked disabled' : '' }}>
-                            <label class="btn btn-warning" for="option2">
-                                <i class="bi bi-slash-square-fill"></i>
-                                Mark as Pending
-                            </label>
+                    <input type="radio" class="btn-check" name="user_status" id="option3" autocomplete="off"
+                        wire:model.live="userStatus" value="rejected"
+                        {{ $this->userStatus === 'rejected' ? 'checked disabled' : '' }}>
+                    <label class="btn btn-danger" for="option3">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Reject
+                    </label>
+                </div>
 
-                            <input type="radio" class="btn-check" name="user_status" id="option3" autocomplete="off"
-                                wire:model.live="userStatus" value="rejected"
-                                {{ $this->userStatus === 'rejected' ? 'checked disabled' : '' }}>
-                            <label class="btn btn-danger" for="option3">
-                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                Reject
-                            </label>
-                        </div>
+                <h5 class="card-title mt-2">User Role</h5>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        {{ ucfirst($this->userRole) }}
+                    </button>
+                    <ul class="dropdown-menu">
+                        @foreach ($this->roles as $role)
+                            <li>
+                                <input type="radio" style="display:none" id="role-{{ $role->id }}"
+                                    value="{{ $role->role_name }}" wire:model.live="userRole">
+                                <label for="role-{{ $role->id }}"
+                                    class="dropdown-item {{ $role->role_name === $this->userRole ? 'active' : '' }}">
+                                    {{ ucfirst($role->role_name) }}
+                                </label>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
 
-                        <h5 class="card-title mt-2">User Role</h5>
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                {{ ucfirst($this->userRole) }}
-                            </button>
-                            <ul class="dropdown-menu">
-                                @foreach ($this->roles as $role)
-                                    <li>
-                                        <input type="radio" style="display:none" id="role-{{ $role->id }}"
-                                            value="{{ $role->role_name }}" wire:model.live="userRole">
-                                        <label for="role-{{ $role->id }}" class="dropdown-item {{ $role->role_name === $this->userRole ? 'active' : ''}}">
-                                            {{ ucfirst($role->role_name) }}
-                                        </label>
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </div>
+                <button type="submit" class="btn btn-primary w-100 mt-2">Submit</button>
 
-                        <button type="submit" class="btn btn-primary w-100 mt-2">Submit</button>
-
-                    </div>
-                </form>
-            </div>
+            </form>
         @endif
-    </div>
+    </x-custom-modal>
 
-
-    @include('livewire.includes.header2', ['title' => 'User Account Management', 'subtitle' => 'View and Manage User Accounts.'])
+    @include('livewire.includes.header2', [
+        'title' => 'User Account Management',
+        'subtitle' => 'View and Manage User Accounts.',
+    ])
 
     <div class="bg-white shadow-sm rounded-lg overflow-hidden container-fluid">
 
@@ -232,9 +223,9 @@
                         <tr>
                             <td colspan="8" class="px-3 py-5 text-center">
                                 <div>
-                                    <i class="bi bi-file-earmark-text mx-auto" style="font-size: 60px"></i>
-                                    <h3 class="mt-4">No pending applications</h3>
-                                    <p class="mt-2">There are no pending storage applications to review.</p>
+                                    <i class="bi bi-folder2-open mx-auto" style="font-size: 60px"></i>
+                                    <h3 class="mt-4">No User Found</h3>
+                                    <p class="mt-2">There are no user found.</p>
                                 </div>
                             </td>
                         </tr>
@@ -246,37 +237,7 @@
     </div>
 
     <!-- Toast Notifications -->
-    <div x-data="{ show: false, message: '', type: 'success' }"
-        @user-updated.window="
-        show = true;
-        message = $event.detail.message;
-        type = $event.detail.type;
-        setTimeout(() => show = false, 4000);
-    "
-        x-show="show" x-transition:enter="fade-in" x-transition:leave="fade-out"
-        class="position-fixed bottom-0 start-0 p-3" style="z-index: 1050; display: none;">
-        <div class="toast show" role="alert">
-            <div class="toast-header"
-                :class="{
-                    'bg-success': type === 'success',
-                    'bg-danger': type === 'fail'
-                }">
-                <!-- Change color based on type -->
-                <div :class="{
-                    'bg-success': type === 'success',
-                    'bg-danger': type === 'fail'
-                }"
-                    class="rounded me-2" style="width: 20px; height: 20px;">
-                </div>
-
-                <!-- Change title based on type -->
-                <strong class="me-auto" x-text="type === 'success' ? 'Success' : 'Error'"></strong>
-
-                <button type="button" class="btn-close" @click="show = false"></button>
-            </div>
-            <div class="toast-body" x-text="message"></div>
-        </div>
-    </div>
+    <x-toast-message />
 
 
 </div>

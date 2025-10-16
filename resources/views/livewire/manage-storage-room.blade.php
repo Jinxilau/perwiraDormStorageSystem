@@ -1,75 +1,61 @@
 <div>
     {{-- To attain knowledge, add things every day; To attain wisdom, subtract things every day. --}}
-    {{-- Modal --}}
-    <div tabindex="-1" :class="{ 'd-flex align-items-center justify-content-center': show }"
-        style="display: none; z-index: 9000; inset: 0;" class="position-fixed" id="lockerModal" x-data="{ show: false }"
-        @display_modal.window="show = true" x-show='show' x-effect="document.body.style.overflow = show ? 'hidden': ''">
-
-        <div class="position-fixed" style="background-color: rgba(0, 0, 0, 0.5); inset:0;" @click="show = false"></div>
-
+    <x-custom-modal title="Edit Locker - {{ $this->locker?->id }}">
         @if ($this->locker)
-            <div class="card" x-transition>
-                <div class="card-header">
-                    Edit Locker - {{ $this->locker->id }}
+            <form wire:submit="editLocker">
+
+                <div class="d-flex gap-2">
+                    <h5 class="card-title">
+                        Locker Status
+                        <span
+                            class="badge px-3 py-1 {{ match ($this->locker->status) {'available' => 'bg-success','occupied' => 'bg-danger','under_maintenance' => 'bg-secondary'} }}">
+                            {{ ucfirst($this->locker->status) }}
+                        </span>
+                    </h5>
                 </div>
-                <form wire:submit="editLocker">
-                    <div class="card-body">
+                <div>
+                    <input type="radio" class="btn-check" name="locker_status" id="option1" autocomplete="off"
+                        wire:model="lockerStatus" value="available"
+                        {{ $this->locker->status === 'available' ? 'checked disabled' : '' }}>
+                    <label class="btn btn-success" for="option1">
+                        <i class="bi bi-check-circle-fill"></i>
+                        Mark as Available
+                    </label>
 
-                        <div class="d-flex gap-2">
-                            <h5 class="card-title">
-                                Locker Status
-                                <span
-                                    class="badge px-3 py-1 {{ match ($this->locker->status) {'available' => 'bg-success','occupied' => 'bg-danger','under_maintenance' => 'bg-secondary'} }}">
-                                    {{ ucfirst($this->locker->status) }}
-                                </span>
-                            </h5>
-                        </div>
-                        <div>
-                            <input type="radio" class="btn-check" name="locker_status" id="option1"
-                                autocomplete="off" wire:model="lockerStatus" value="available"
-                                {{ $this->locker->status === 'available' ? 'checked disabled' : '' }}>
-                            <label class="btn btn-success" for="option1">
-                                <i class="bi bi-check-circle-fill"></i>
-                                Mark as Available
-                            </label>
+                    <input type="radio" class="btn-check" name="locker_status" id="option2" autocomplete="off"
+                        wire:model="lockerStatus" value="occupied"
+                        {{ $this->locker->status === 'occupied' ? 'checked disabled' : '' }}>
+                    <label class="btn btn-danger" for="option2">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Mark as Full
+                    </label>
 
-                            <input type="radio" class="btn-check" name="locker_status" id="option2"
-                                autocomplete="off" wire:model="lockerStatus" value="occupied"
-                                {{ $this->locker->status === 'occupied' ? 'checked disabled' : '' }}>
-                            <label class="btn btn-danger" for="option2">
-                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                Mark as Full
-                            </label>
+                    <input type="radio" class="btn-check" name="locker_status" id="option3" autocomplete="off"
+                        wire:model="lockerStatus" value="under_maintenance"
+                        {{ $this->locker->status === 'under_maintenance' ? 'checked disabled' : '' }}>
+                    <label class="btn btn-secondary" for="option3">
+                        <i class="bi bi-wrench-adjustable"></i>
+                        Mark as Under Maintenance
+                    </label>
+                </div>
+                @error('lockerStatus')
+                    <span class="text-danger">{{ $message }}</span>
+                @enderror
 
-                            <input type="radio" class="btn-check" name="locker_status" id="option3"
-                                autocomplete="off" wire:model="lockerStatus" value="under_maintenance"
-                                {{ $this->locker->status === 'under_maintenance' ? 'checked disabled' : '' }}>
-                            <label class="btn btn-secondary" for="option3">
-                                <i class="bi bi-wrench-adjustable"></i>
-                                Mark as Under Maintenance
-                            </label>
-                        </div>
-                        @error('lockerStatus')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
+                <h5 class="card-title mt-2">Locker Size</h5>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control border border-dark"
+                        placeholder="{{ $this->locker->size }}" wire:model="lockerSize">
+                    <span class="input-group-text border border-dark">cm</span>
+                </div>
+                @error('lockerSize')
+                    <span class="text-danger">{{ $message }}</span>
+                @enderror
 
-                        <h5 class="card-title mt-2">Locker Size</h5>
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control border border-dark"
-                                placeholder="{{ $this->locker->size }}" wire:model="lockerSize">
-                            <span class="input-group-text border border-dark">cm</span>
-                        </div>
-                        @error('lockerSize')
-                            <span class="text-danger">{{ $message }}</span>
-                        @enderror
-
-                        <button type="submit" class="btn btn-primary w-100">Submit</button>
-                    </div>
-                </form>
-            </div>
+                <button type="submit" class="btn btn-primary w-100">Submit</button>
+            </form>
         @endif
-    </div>
-
+    </x-custom-modal>
 
     @include('livewire.includes.header2', [
         'title' => 'Storage Room Management',

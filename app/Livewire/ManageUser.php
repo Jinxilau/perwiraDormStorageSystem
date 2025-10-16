@@ -48,11 +48,11 @@ class ManageUser extends Component
         try {
             User::findOrFail($userId)->update(['application_status' => 'approved']);
 
-            $this->dispatch('user-updated', message: 'User approved successfully!', type: 'success');
+            $this->dispatch('show_toast', message: 'User approved successfully!', type: 'success');
             $this->reset();
         } catch (Exception $e) {
             Log::error($e->getMessage());
-            $this->dispatch('user-updated', message: 'Something went wrong. Please try again.', type: 'fail');
+            $this->dispatch('show_toast', message: 'Something went wrong. Please try again.', type: 'fail');
         }
     }
     public function rejectUser($userId)
@@ -60,11 +60,11 @@ class ManageUser extends Component
         try {
             User::findOrFail($userId)->update(['application_status' => 'rejected']);
 
-            $this->dispatch('user-updated', message: 'User rejected successfully!', type: 'success');
+            $this->dispatch('show_toast', message: 'User rejected successfully!', type: 'success');
             $this->reset();
         } catch (Exception $e) {
             Log::error($e->getMessage());
-            $this->dispatch('user-updated', message: 'Something went wrong. Please try again.', type: 'fail');
+            $this->dispatch('show_toast', message: 'Something went wrong. Please try again.', type: 'fail');
         }
     }
 
@@ -73,11 +73,11 @@ class ManageUser extends Component
         try {
             User::whereIn('id', $this->selectedUsers)->update(['application_status' => 'approved']);
 
-            $this->dispatch('user-updated', message: 'Users approved successfully!', type: 'success');
+            $this->dispatch('show_toast', message: 'Users approved successfully!', type: 'success');
             $this->reset();
         } catch (Exception $e) {
             Log::error($e->getMessage());
-            $this->dispatch('user-updated', message: 'Something went wrong. Please try again.', type: 'fail');
+            $this->dispatch('show_toast', message: 'Something went wrong. Please try again.', type: 'fail');
         }
     }
     public function bulkReject()
@@ -85,11 +85,11 @@ class ManageUser extends Component
         try {
             User::whereIn('id', $this->selectedUsers)->update(['application_status' => 'rejected']);
 
-            $this->dispatch('user-updated', message: 'Users rejected successfully!', type: 'success');
+            $this->dispatch('show_toast', message: 'Users rejected successfully!', type: 'success');
             $this->reset();
         } catch (Exception $e) {
             Log::error($e->getMessage());
-            $this->dispatch('user-updated', message: 'Something went wrong. Please try again.', type: 'fail');
+            $this->dispatch('show_toast', message: 'Something went wrong. Please try again.', type: 'fail');
         }
     }
 
@@ -97,13 +97,13 @@ class ManageUser extends Component
     public function viewModal($id)
     {
         $this->user = $this->users->where('id', $id)->first();
-
+        
         if (!empty($this->user)) {
             $this->userStatus = $this->user->application_status;
             $this->userRole = $this->user->userRole->role_name;
             $this->dispatch('display_modal');
         } else {
-            $this->dispatch('user-updated', message: 'Something went wrong.', type: 'fail');
+            $this->dispatch('show_toast', message: 'Something went wrong.', type: 'fail');
         }
     }
 
@@ -122,7 +122,7 @@ class ManageUser extends Component
             'role_id' => $role,
         ]);
 
-        $this->dispatch('user-updated', message: "Users {$this->user->id} updated.", type: 'fail');
+        $this->dispatch('show_toast', message: "Users {$this->user->id} updated.", type: 'fail');
     }
 
     #[Computed()]

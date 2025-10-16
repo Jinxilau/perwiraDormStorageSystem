@@ -47,16 +47,22 @@ class StorageApplicationMadeNotification extends Notification implements ShouldQ
     public function toDatabase(object $notifiable)
     {
         return [
+            'type' => 'message',
+            'title' => 'New Storage Application Made!',
             'message' => 'New storage application by ' . $this->application->applicant_id,
-            'application_id' => $this->application->id
+            'application_id' => $this->application->id,
+            'url' => route('', []), // TODO
         ];
     }
 
     public function toBroadcast(object $notifiable)
     {
         return new BroadcastMessage([
+            'type' => 'message',
+            'title' => 'New Storage Application Made!',
             'message' => 'New storage application by ' . $this->application->applicant_id,
             'application_id' => $this->application->id,
+            'url' => route('', []), // TODO
         ]);
     }
 

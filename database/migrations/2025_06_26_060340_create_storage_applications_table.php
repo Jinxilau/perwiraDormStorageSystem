@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             
             $table->enum('storage_application_status', ['pending', 'approved', 'rejected']);
+            $table->text('note'); # Admin's note
             $table->date('start_date');
             $table->date('end_date'); // TODO
             

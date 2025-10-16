@@ -1,0 +1,20 @@
+#modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#overlay {
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.5);
+    inset: 0;
+    backdrop-filter: blur(2px);
+}
+
+.modal-content {
+    position: relative;
+    z-index: 10;
+}

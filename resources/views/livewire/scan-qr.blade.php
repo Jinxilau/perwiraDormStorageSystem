@@ -136,7 +136,7 @@
                         <div class="mb-3">
                             <i class="fas fa-inbox fa-3x text-muted"></i>
                         </div>
-                        <h6 class="text-muted">No recent logs found</h6>
+                        <h6 class="">No recent logs found</h6>
                         <p class="text-muted mb-0">Scan logs will appear here once you start scanning.</p>
                     </div>
                 @endforelse

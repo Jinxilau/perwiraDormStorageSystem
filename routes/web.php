@@ -3,6 +3,7 @@
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\EnsureUserIsApproved;
 use App\Livewire\AdminDashboard;
+use App\Livewire\ManageMissingReport;
 use App\Livewire\ManageStorageApplication;
 use App\Livewire\ManageStorageRoom;
 use App\Livewire\ManageUser;
@@ -14,6 +15,7 @@ use App\Livewire\ScanQr;
 use App\Livewire\StaffDashboard;
 use App\Livewire\StorageApplication;
 use App\Livewire\StorageApplicationActive;
+use App\Livewire\StorageApplicationPending;
 use App\Livewire\StorageApplicationReject;
 use App\Livewire\StudentDashboard;
 use App\Livewire\StudentNotifications;
@@ -48,13 +50,12 @@ Route::middleware(['auth', CheckRole::class . ':staff'])->group(function () {
 Route::middleware(['auth', CheckRole::class . ':administrator'])->group(function () {
     Route::get('/admin/dashboard', AdminDashboard::class)->name('admin_dashboard');
     Route::get('/admin/user', ManageUser::class)->name('manage_user');
+    Route::get('/admin/missing_report', ManageMissingReport::class)->name('manage_missing');
 });
 
 // Staff/Admin
 Route::middleware(['auth', CheckRole::class . ':staff,administrator'])->group(function () {
-    Route::get('/storage/pending', ManageStorageApplication::class)->name('manage_storage_pending');
-    Route::get('/storage/active', StorageApplicationActive::class)->name('manage_storage_active');
-    Route::get('/storage/rejected', StorageApplicationReject::class)->name('manage_storage_rejected');
+    Route::get('/storage_application', ManageStorageApplication::class)->name('manage_storage_application');
     Route::get('/room/{room?}', ManageStorageRoom::class)->name('storage_room');
     Route::get('/scanqr', ScanQr::class)->name('scan_qr');
     Route::get('/scan_log', ScanLog::class)->name('scan_log');

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }}</title>
-    @vite(['resources\css\admin.css', 'resources\css\sidebar2.css', 'resources\css\notification.css'])
+    @vite(['resources\css\admin.css', 'resources\css\sidebar2.css', 'resources\css\notification.css', 'resources\css\modal.css'])
     @stack('styles')
     {{-- Livewire Style --}}
     @livewireStyles
@@ -26,63 +26,63 @@
             'path' => 'admin/dashboard',
         ],
         [
-            'title' => 'Manage Storage Application',
-            'url' => route('manage_storage_pending'),
+            'title' => 'Storage Application',
+            'url' => route('manage_storage_application', ['status' => 'pending']),
             'icon' => 'bi-calendar-week',
             'path' => 'storage/*',
         ],
         [
-            'title' => 'Manage Storage Room',
+            'title' => 'Storage Room',
             'url' => route('storage_room'),
             'icon' => 'bi-box-seam',
             'path' => 'room/*',
         ],
         [
-            'title' => 'Manage User Account',
+            'title' => 'User Account',
             'url' => route('manage_user'),
-            'icon' => 'bi-speedometer',
+            'icon' => 'bi-people',
             'path' => 'admin/user',
         ],
         [
             'title' => 'Scan Logs',
             'url' => route('scan_log'),
-            'icon' => 'bi-speedometer',
+            'icon' => 'bi-card-list',
             'path' => 'scan_log',
         ],
         [
             'title' => 'System Activity Log',
             'url' => route('admin_dashboard'),
-            'icon' => 'bi-speedometer',
+            'icon' => 'bi-graph-up',
             'path' => 'admin/dashboard',
         ],
         [
             'title' => 'Notifications',
             'url' => route('admin_dashboard'),
-            'icon' => 'bi-speedometer',
+            'icon' => 'bi-bell',
             'path' => 'admin/dashboard',
         ],
         [
             'title' => 'Scan QR Code',
             'url' => route('scan_qr'),
-            'icon' => 'bi-speedometer',
+            'icon' => 'bi-qr-code-scan',
             'path' => 'scanqr',
         ],
         [
-            'title' => 'Missing Item Report',
-            'url' => route('scan_qr'),
-            'icon' => 'bi-speedometer',
-            'path' => 'scanqr',
+            'title' => 'Missing Items Report',
+            'url' => route('manage_missing'),
+            'icon' => 'bi-exclamation-triangle-fill',
+            'path' => 'admin/missing_report',
         ],
         [
             'title' => 'Generate Report',
             'url' => route('scan_qr'),
-            'icon' => 'bi-speedometer',
+            'icon' => 'bi-clipboard2-data-fill',
             'path' => 'scanqr',
         ],
         [
             'title' => 'Setting',
             'url' => route('scan_qr'),
-            'icon' => 'bi-speedometer',
+            'icon' => 'bi-gear',
             'path' => 'scanqr',
         ],
     ]" />
