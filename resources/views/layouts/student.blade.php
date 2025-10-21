@@ -79,12 +79,63 @@
 
     {{-- Scripts --}}
     @livewireScripts
+    <script>
+        window.userId = {{ Auth::id() }};
+    </script>
+
     @vite(['resources\js\app.js'])
     {{-- Bootstrap --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous">
     </script>
     @stack('scripts')
+
+    <script>
+        document.addEventListener('livewire:navigated', () => {
+            const sidebar = document.getElementById('sidebar');
+            const toggleButton = document.getElementById('toggle-btn');
+            const mainContent = document.getElementById('maincontent');
+            const mediaQuery = window.matchMedia('(max-width: 768px)');
+
+            toggleButton.addEventListener('click', toggleSidebar);
+
+            if (mediaQuery.matches) {
+                sidebar.classList.add('close');
+                icon.classList.replace('bi-x-lg', 'bi-list');
+            } else {
+                sidebar.classList.remove('close');
+                icon.classList.replace('bi-list', 'bi-x-lg');
+            }
+
+            mediaQuery.addEventListener('change', e => {
+                if (mediaQuery.matches) {
+                    sidebar.classList.add('close');
+                    icon.classList.replace('bi-x-lg', 'bi-list');
+                    toggleButton.classList.toggle('rotate');
+                } else {
+                    sidebar.classList.remove('close');
+                    icon.classList.replace('bi-list', 'bi-x-lg');
+                    toggleButton.classList.toggle('rotate');
+                }
+            });
+
+            function toggleSidebar() {
+                sidebar.classList.toggle('close');
+                toggleButton.classList.toggle('rotate');
+                mainContent.classList.toggle('col-md-9');
+
+                const icon = toggleButton.querySelector('i');
+                if (sidebar.classList.contains('close')) {
+                    icon.classList.replace('bi-list', 'bi-x-lg');
+                } else {
+                    icon.classList.replace('bi-x-lg', 'bi-list');
+                }
+            }
+        }, {
+            once: true
+        });
+    </script>
+
 </body>
 
 </html>

@@ -94,11 +94,17 @@
 
     {{-- Livewire --}}
     @livewireScripts
+    <script>
+        window.userId = {{ Auth::id() }};
+    </script>
     @vite(['resources\js\app.js'])
     {{-- Bootstrap --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous">
     </script>
+    {{-- QR Reader --}}
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
     @stack('scripts')
     <script>
         document.addEventListener('livewire:navigated', () => {
@@ -123,11 +129,11 @@
             mediaQuery.addEventListener('change', e => {
                 if (e.matches) {
                     sidebar.classList.add('closed');
-                    toggleButton.classList.remove('rotate');
+                    toggleButton.classList.toggle('rotate');
                     icon.classList.replace('bi-x-lg', 'bi-list');
                 } else {
                     sidebar.classList.remove('closed');
-                    toggleButton.classList.remove('rotate');
+                    toggleButton.classList.toggle('rotate');
                     icon.classList.replace('bi-list', 'bi-x-lg');
                 }
             });

@@ -15,12 +15,11 @@ return new class extends Migration
             $table->id();
             
             $table->string('size', 50); 
-            $table->enum('status', ['available', 'occupied', 'under_maintenance'])->default('available');
+            $table->enum('status', ['available', 'reserved', 'occupied', 'under_maintenance'])->default('available');
             
             $table->timestamps();
             
             $table->foreignId('storage_room_id')->constrained('storage_rooms')->onDelete('cascade');
-            // $table->foreignId('application_id')->constrained('storage_applications')->nullable(); //TODO
         });
     }
 

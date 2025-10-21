@@ -69,6 +69,9 @@
 
     {{-- Livewire --}}
     @livewireScripts
+    <script>
+        window.userId = {{ Auth::id() }};
+    </script>
     @vite(['resources\js\app.js'])
     {{-- Bootstrap --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"

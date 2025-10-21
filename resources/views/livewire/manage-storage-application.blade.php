@@ -14,7 +14,7 @@
                     </li>
                     <li class="nav-item" style="flex: 1;">
                         <button class="nav-link w-100 {{ $this->status == 'active' ? 'active disabled' : '' }}"
-                            wire:click="$set('status', 'active')">Active Application</button>
+                            wire:click="$set('status', 'active')">Approved Application</button>
                     </li>
                     <li class="nav-item" style="flex: 1;">
                         <button class="nav-link w-100 {{ $this->status == 'reject' ? 'active disabled' : '' }}"
@@ -24,11 +24,11 @@
             </div>
             <div class="card-body">
                 @if ($this->status === 'pending')
-                    <livewire:storage-application-pending />
+                    <livewire:storage-application-pending lazy="on-load" />
                 @elseif($this->status === 'active')
-                    <livewire:storage-application-active />
+                    <livewire:storage-application-active lazy="on-load" />
                 @elseif($this->status === 'reject')
-                    <livewire:storage-application-reject />
+                    <livewire:storage-application-reject lazy="on-load" />
                 @else
                     {{-- Error --}}
                     <div class="alert alert-danger d-flex align-items-start" role="alert">

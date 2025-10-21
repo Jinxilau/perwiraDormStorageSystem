@@ -1,6 +1,6 @@
 <header id="navbar">
     <div class="container-fluid d-flex justify-content-between align-items-center">
-        <button id="toggle-btn" class="navbar-toggler" type="button" onclick="toggleSidebar()">
+        <button id="toggle-btn" class="navbar-toggler" type="button">
             <i class="bi bi-list h2 text-white" id="hambur"></i>
         </button>
 

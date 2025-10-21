@@ -4,4 +4,9 @@
  * allow your team to quickly build robust real-time web applications.
  */
 
-import './echo';
+import "./echo";
+
+Echo.private(`App.Models.User.${window.userId}`).notification((notification) => {
+    console.log("Notification received:", notification);
+    Livewire.dispatch("notificationReceived");
+});

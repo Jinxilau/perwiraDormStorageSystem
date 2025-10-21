@@ -78,7 +78,7 @@ class User extends Authenticatable
     }
     public function reviewApplications()
     {
-        return $this->hasMany(StorageApplication::class, 'approver_id');
+        return $this->hasOne(StorageApplication::class, 'approver_id');
     }
 
 }

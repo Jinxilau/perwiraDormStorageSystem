@@ -36,8 +36,13 @@ class StorageApplicationPending extends Component
 
     public $paginationInt = 10; # Pagination Amount
 
+    public $modalData; # application id for modal
+    public $modalData2; # application id for modal reject
+
     public $selectedApplications = []; # arr application id
     public $selectAll = false;
+
+    public $rejectionNote = '';
 
     public function updatedSelectAll($value)
     {
@@ -77,7 +82,16 @@ class StorageApplicationPending extends Component
                 'qr_expires_at' => Carbon::now()->addDays(7)
             ]);
 
-            $application->update(['storage_application_status' => 'approved',]);
+            if ($application->locker_id) {
+                $application->locker->update(['status' => 'reserved']);
+            } elseif ($application->open_area_id) {
+                $application->openArea->update(['status' => 'reserved']);
+            }
+
+            $application->update([
+                'storage_application_status' => 'approved',
+                'approver_id' => Auth::user()->id
+            ]);
 
             $this->dispatch('show_toast', message: 'Application approved successfully!', type: 'success');
             $this->reset();
@@ -91,19 +105,28 @@ class StorageApplicationPending extends Component
     public function bulkApprove()
     {
         try {
-            StorageApplication::whereIn('id', $this->selectedApplications)->update([
-                'storage_application_status' => 'approved'
-            ]);
+            $applications = StorageApplication::whereIn('id', $this->selectedApplications)->get();
 
-            foreach ($this->selectedApplications as $applicationId) { # Create QR Code
+            foreach ($applications as $application) {
                 QRCode::create([
-                    'storage_application_id' => $applicationId,
+                    'storage_application_id' => $application->id,
                     'qr_token' => Str::uuid(),
                     'qr_expires_at' => Carbon::now()->addDays(7),
                 ]);
+
+                $application->update([
+                    'storage_application_status' => 'approved',
+                    'approver_id' => Auth::user()->id
+                ]);
+
+                if ($application->locker_id) {
+                    $application->locker->update(['status' => 'reserved']);
+                } elseif ($application->open_area_id) {
+                    $application->openArea->update(['status' => 'reserved']);
+                }
             }
 
-            $this->dispatch('show_toast', message: 'Users approved successfully!', type: 'success');
+            $this->dispatch('show_toast', message: 'Application approved successfully!', type: 'success');
             $this->reset();
         } catch (\Exception $e) {
             Log::error($e->getMessage());
@@ -113,13 +136,16 @@ class StorageApplicationPending extends Component
 
     public function bulkReject()
     {
+        $this->validate(['rejectionNote' => 'nullable|string|max:500']);
+        
         try {
             StorageApplication::whereIn('id', $this->selectedApplications)->update([
-                'storage_application_status' => 'rejected'
+                'storage_application_status' => 'rejected',
+                'note' => $this->rejectionNote,
+                'approver_id' => Auth::user()->id,
             ]);
 
-            $this->dispatch('show_toast', message: 'Users approved successfully!', type: 'success');
-            $this->reset();
+            $this->dispatch('show_toast', message: 'Application rejected successfully!', type: 'success');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             $this->dispatch('show_toast', message: 'Something went wrong. Please try again.', type: 'fail');
@@ -128,16 +154,23 @@ class StorageApplicationPending extends Component
 
     public function rejectApplication($id)
     {
+        $this->validate(['rejectionNote' => 'nullable|string|max:500']);
+
         try {
             $application = StorageApplication::findOrFail($id);
-            $application->update(['storage_application_status' => 'rejected']);
-            $this->dispatch('show_toast', message: 'Application approved successfully!', type: 'success');
-            $this->reset();
+
+            $application->update([
+                'storage_application_status' => 'rejected',
+                'note' => $this->rejectionNote,
+                'approver_id' => Auth::user()->id
+            ]);
+
+            $this->dispatch('show_toast', message: 'Application rejected successfully!', type: 'success');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             $this->dispatch('show_toast', message: 'Application not found.', type: 'fail');
         } catch (\Exception $e) {
-            $this->dispatch('show_toast', message: 'Something went wrong. Please try again.', type: 'fail');
             Log::error($e->getMessage());
+            $this->dispatch('show_toast', message: 'Something went wrong. Please try again.', type: 'fail');
         }
     }
 
@@ -153,7 +186,7 @@ class StorageApplicationPending extends Component
                     $q->where('id', $this->search);
                 }
 
-                $q->orWhereHas("applicant", function ($userQuery) {
+                $q->WhereHas("applicant", function ($userQuery) {
                     $userQuery->where('name', 'like', "%" . $this->search . "%")->orWhere('matric_no', 'like', '%' . $this->search . "%");
                 });
             });
@@ -226,6 +259,11 @@ class StorageApplicationPending extends Component
     public function countOpenArea()
     {
         return StorageApplication::where('storage_application_status', 'pending')->whereNotNull('open_area_id')->count();
+    }
+
+    public function placeholder()
+    {
+        return view('livewire.placeholder.table');
     }
 
     public function render()

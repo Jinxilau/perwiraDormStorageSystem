@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\User;
 use App\Models\UserRole;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
 use Livewire\Component;
 
@@ -119,6 +120,7 @@ class AccountApplication extends Component
             $this->resetValidation();
 
         } catch (\Exception $e) {
+            Log::error('Account Application Submission Error: ' . $e->getMessage());
             session()->flash('error', 'An error occurred while submitting your application. Please try again.');
         }
     }

@@ -1,5 +1,113 @@
 <div>
     {{-- Close your eyes. Count to one. That is how long forever feels. --}}
+    <x-custom-modal>
+        <x-slot:title>
+            Application #{{ $this->modalData }}
+        </x-slot:title>
+
+        <div wire:loading="modalData" class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        @php
+            $modalApplication = App\Models\StorageApplication::find($this->modalData);
+        @endphp
+        <div wire:loading.remove="modalData" class="text-start">
+            @if ($modalApplication)
+                <div class="mb-4 pb-3 border-bottom">
+                    <h5 class="text-info mb-3"><i class="bi bi-person-circle me-2"></i>Applicant Information</h5>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="text-muted small d-block mb-1">ID</label>
+                            <p class="mb-0 fw-medium">{{ $modalApplication->applicant->id ?? 'N/A' }}</p>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small d-block mb-1">Matric No</label>
+                            <p class="mb-0 fw-medium">{{ $modalApplication->applicant->matric_no ?? 'N/A' }}</p>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small d-block mb-1">Name</label>
+                            <p class="mb-0 fw-medium">{{ $modalApplication->applicant->name ?? 'N/A' }}</p>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small d-block mb-1">Email</label>
+                            <p class="mb-0 fw-medium text-break">{{ $modalApplication->applicant->email ?? 'N/A' }}</p>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small d-block mb-1">Phone</label>
+                            <p class="mb-0 fw-medium text-break">
+                                {{ $modalApplication->applicant->phone_number ?? 'N/A' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center pb-4 border-bottom mb-4">
+                    <h5 class="text-info mb-3"><i class="bi bi-qr-code me-2"></i>QR Code</h5>
+                    <p class="fw-bold mt-3 mb-0">{{ $modalApplication->qrCode->qr_token }}</p>
+                    <div class="d-inline-block p-3 bg-white rounded shadow-sm border">
+                        {!! QrCode::size(200)->generate($modalApplication->qrCode->qr_token) !!}
+                    </div>
+                    <p class="text-muted small mt-3 mb-0">Scan this code for quick check-in and check-out.</p>
+                </div>
+                <div class="mb-4 pb-3 border-bottom">
+                    <h5 class="text-info mb-3"><i class="bi bi-archive me-2"></i>Stored Items</h5>
+                    @if ($modalApplication->storedItems->count() > 0)
+                        <div class="row g-3">
+                            @foreach ($modalApplication->storedItems as $item)
+                                <div class="col-12">
+                                    <div class="d-flex align-items-start p-3 bg-light rounded">
+                                        <img src="{{ asset('storage/' . $item->item_photo_path) }}" alt="Item Photo"
+                                            class="rounded shadow-sm me-3"
+                                            style="width: 80px; height: 80px; object-fit: cover;" />
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-2 fw-bold">{{ ucfirst($item->item_name) }}</h6>
+                                            <div class="mb-2">
+                                                <span
+                                                    class="badge bg-primary me-1">{{ ucfirst($item->item_type) }}</span>
+                                                <span
+                                                    class="badge bg-secondary">{{ ucfirst($item->estimated_size) }}</span>
+                                            </div>
+                                            <p class="mb-0 small text-muted">{{ ucfirst($item->item_description) }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-muted text-center mb-0 py-3">No stored items found.</p>
+                    @endif
+                </div>
+                @if ($modalApplication->approver)
+                    <div class="mb-2">
+                        <h5 class="text-info mb-3">Approver</h5>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="text-muted small d-block mb-1">ID</label>
+                                <p class="mb-0 fw-medium">#{{ $modalApplication->approver->id ?? 'N/A' }}</p>
+                            </div>
+                            <div class="col-6">
+                                <label class="text-muted small d-block mb-1">Name</label>
+                                <p class="mb-0 fw-medium">{{ $modalApplication->approver->name ?? 'N/A' }}</p>
+                            </div>
+                            <div class="col-6">
+                                <label class="text-muted small d-block mb-1">Email</label>
+                                <p class="mb-0 fw-medium text-break">
+                                    {{ $modalApplication->approver->email ?? 'N/A' }}</p>
+                            </div>
+                            <div class="col-6">
+                                <label class="text-muted small d-block mb-1">Phone</label>
+                                <p class="mb-0 fw-medium text-break">
+                                    {{ $modalApplication->approver->phone_number ?? 'N/A' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <p class="text-muted mb-2">No reviewer information available.</p>
+                @endif
+            @endif
+        </div>
+    </x-custom-modal>
+
+    {{-- Main Content --}}
     <div x-data="{
         allCol: true,
         cols: [],
@@ -15,19 +123,6 @@
             this.allCol = this.cols.length === this.cols.length && this.allOptions.every(e => this.cols.includes(e));
         },
     }" x-init="toggleAll()" class="bg-white shadow-sm rounded-lg overflow-hidden">
-        <x-custom-modal>
-            @if ($this->application)
-                <div class="card">
-                    <div class="card-header">
-                        Application - {{ $this->application->id }}
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">QR Code</h5>
-                        {!! QrCode::size(200)->generate($this->application->qrCode->qr_token) !!}
-                    </div>
-                </div>
-            @endif
-        </x-custom-modal>
 
         <x-card-matrix :items="[
             ['title' => $this->countTotalActive, 'subtitle' => 'Total Active Application'],
@@ -44,7 +139,7 @@
                         style="left: 16px; top: 50%;transform: translateY(-50%);"></i>
                     <input wire:model="search" type="text" class="w-100" id="searchInput"
                         style="padding: 14px 16px 14px 48px; border: 2px solid #e5e7eb; border-radius: 8px;"
-                        placeholder="Search applications...">
+                        placeholder="Search applications by applicant name, matric no, or ID...">
                 </div>
                 <button type="button" class="btn btn-primary fw-bold">Search</button>
             </div>
@@ -210,8 +305,7 @@
                 </th>
             </x-slot:header>
             @forelse($this->approvedStorageApplications as $application)
-                <tr wire:key="row-{{ $application->id }}"
-                    class="{{ in_array($application->id, $this->selectedApplications) ? 'table-active' : '' }}">
+                <tr wire:key="row-{{ $application->id }}">
                     <td> {{-- Application ID --}}
                         #{{ $application->id }}
                     </td>
@@ -246,15 +340,26 @@
                             @endif
                         </div>
                     </td>
-                    <td x-show="cols.includes('item')"> {{-- Items --}}
-                        @foreach ($application->items as $item)
-                            <div wire:key="item-{{ $item->id }}">
-                                {{ ucfirst($item->item_type) }}
+                    <td x-show="cols.includes('item')">
+                        @if ($application->storedItems->count() > 0)
+                            <div class="d-flex flex-column gap-2">
+                                @foreach ($application->storedItems as $item)
+                                    <div wire:key="item-{{ $item->id }}" class="d-flex align-items-center gap-2">
+                                        <div class="flex-grow-1">
+                                            <div class="fw-semibold small">{{ ucfirst($item->item_name) }}</div>
+                                            <span class="badge bg-light text-dark border small">
+                                                {{ ucfirst($item->item_type) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
-                        @endforeach
+                        @else
+                            <span class="text-muted small">No items</span>
+                        @endif
                     </td>
                     <td x-show="cols.includes('applicationDate')"> {{-- Application Date --}}
-                        <div>
+                        <div style="white-space: nowrap;">
                             {{ $application->created_at ? $application->created_at->format('M d, Y') : 'N/A' }}
                         </div>
                         <div>
@@ -262,16 +367,26 @@
                         </div>
                     </td>
                     <td x-show="cols.includes('status')"> {{-- Status --}}
-                        <span class="badge text-bg-success">
-                            {{ ucfirst($application->storage_application_status) }}
-                        </span>
+                        @if ($application->qrCode->status === 'checked_in')
+                            <span class="badge text-bg-warning">
+                                {{ ucfirst($application->qrCode->status) }}
+                            </span>
+                        @elseif ($application->qrCode->status === 'checked_out')
+                            <span class="badge text-bg-success">
+                                {{ ucfirst($application->qrCode->status) }}
+                            </span>
+                        @else
+                            <span class="badge text-bg-danger">
+                                Not Checked In
+                            </span>
+                        @endif
                     </td>
                     <td> {{-- Check-in Date --}}
                         @php
                             $checkin = $application->qrCode->scanLogs->where('event_type', 'check_in')->first();
                         @endphp
                         @if ($checkin)
-                            <div>
+                            <div style="white-space: nowrap;">
                                 {{ $checkin->created_at->format('M d, Y') }}
                             </div>
                             <div>
@@ -286,32 +401,34 @@
                             $checkout = $application->qrCode->scanLogs->where('event_type', 'check_out')->first();
                         @endphp
                         @if ($checkout)
-                            <div>
+                            <div style="white-space: nowrap;">
                                 {{ $checkout->created_at->format('M d, Y') }}
                             </div>
                             <div>
                                 {{ $checkout->created_at->format('h:i A') }}
                             </div>
+                        @else
+                            N/A
                         @endif
                     </td>
                     <td class="align-middle"> {{-- Actions --}}
                         <div class="flex items-center space-x-2" style="white-space: nowrap">
-                            <button @click="$dispatch('view_modal', {id: {{ $application->id }}})"
-                                title="View Details" class="btn btn-sm border border-secondary" style="padding: 0;"
-                                type="button">
+                            <button wire:click="$set('modalData', {{ $application->id }}); $dispatch('display_modal')"
+                                title="View Details" class="btn btn-sm border border-secondary"
+                                style="padding: 0 2px;" type="button">
                                 <i class="bi bi-eye"></i>
                             </button>
 
-                            <button wire:click="approveApplication({{ $application->id }})"
+                            <button wire:click="checkin({{ $application }})"
                                 wire:confirm="Are you sure you want to check in this storage?"
-                                class="text-success btn btn-sm border border-success" style="padding: 0;"
+                                class="text-success btn btn-sm border border-success" style="padding: 0 2px;"
                                 title="Check In">
                                 <i class="bi bi-box-arrow-in-right"></i>
                             </button>
 
-                            <button wire:click="rejectApplication({{ $application->id }})"
+                            <button wire:click="checkout({{ $application }})"
                                 wire:confirm="Are you sure you want to check out this storage?"
-                                class="text-danger btn btn-sm border border-danger" style="padding: 0;"
+                                class="text-danger btn btn-sm border border-danger" style="padding: 0 2px;"
                                 title="Check Out">
                                 <i class="bi bi-box-arrow-left"></i>
                             </button>

@@ -10,6 +10,7 @@ class StorageApplication extends Model
 
     protected $fillable = [
         'storage_application_status',
+        'note',
         'start_date',
         'end_date',
         'applicant_id',
@@ -19,6 +20,8 @@ class StorageApplication extends Model
     ];
 
     protected $casts = [
+        'start_date' => 'date',
+        'end_date' => 'date',
         'storage_application_date' => 'date',
         'expected_check_in' => 'datetime',
     ];
@@ -29,9 +32,9 @@ class StorageApplication extends Model
         return $this->belongsTo(User::class, 'applicant_id');
     }
 
-    public function approvers()
+    public function approver()
     {
-        return $this->belongsToMany(User::class, 'approver_id');
+        return $this->belongsTo(User::class, 'approver_id');
     }
 
     public function openArea()

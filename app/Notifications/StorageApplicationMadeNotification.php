@@ -12,6 +12,7 @@ class StorageApplicationMadeNotification extends Notification implements ShouldQ
 {
     use Queueable;
 
+    public $url;
     public $application;
     /**
      * Create a new notification instance.
@@ -19,6 +20,7 @@ class StorageApplicationMadeNotification extends Notification implements ShouldQ
     public function __construct($application)
     {
         $this->application = $application;
+        $this->url = route('manage_storage_application', ['status' => 'pending']);
     }
 
     /**
@@ -38,9 +40,9 @@ class StorageApplicationMadeNotification extends Notification implements ShouldQ
     {
         return (new MailMessage)
             ->subject('New Storage Application Submitted')
-            ->greeting('Hello ' . $notifiable->name . ',')
-            ->line('A new storage application has been made by ' . $this->application->user->name)
-            ->action('View Application', route('manage_storage_pending'))
+            ->greeting('Hello ' . ($notifiable->name ?? "User") . ',')
+            ->line('A new storage application has been made by ' . ($this->application->applicant->name ?? "a user") . '.')
+            ->action('View Application', $this->url)
             ->line('Please review the application when convenient.');
     }
 
@@ -51,7 +53,7 @@ class StorageApplicationMadeNotification extends Notification implements ShouldQ
             'title' => 'New Storage Application Made!',
             'message' => 'New storage application by ' . $this->application->applicant_id,
             'application_id' => $this->application->id,
-            'url' => route('', []), // TODO
+            'url' => $this->url,
         ];
     }
 
@@ -62,7 +64,7 @@ class StorageApplicationMadeNotification extends Notification implements ShouldQ
             'title' => 'New Storage Application Made!',
             'message' => 'New storage application by ' . $this->application->applicant_id,
             'application_id' => $this->application->id,
-            'url' => route('', []), // TODO
+            'url' => $this->url,
         ]);
     }
 

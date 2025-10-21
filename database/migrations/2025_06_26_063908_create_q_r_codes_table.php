@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             
             $table->text('qr_token');
+            $table->enum('status', ['not_scanned', 'checked_in', 'checked_out', 'expired'])->default('not_scanned');
             $table->unsignedInteger('scanned_count')->default(0);
             
             $table->timestamp('qr_expires_at')->nullable();

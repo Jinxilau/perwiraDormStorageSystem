@@ -12,7 +12,6 @@ use Livewire\Component;
 
 class ScanQr extends Component
 {
-    public $storageApp; # QR's storage application
     public $qrId;
 
     #[Validate('required|uuid')]
@@ -37,12 +36,10 @@ class ScanQr extends Component
                 throw new \Exception('QR Code expired');
             }
 
-            // Find Storage Application
-            $this->storageApp = $qr->storageApplication;
-
+            $this->dispatch('show_toast', message: "Valid QR Code.", type: "success");
             $this->reset('scannedToken');
         } catch (\Exception $e) {
-            $this->dispatch('scanned', message: "Something went wrong. Please try again.", type: "fail");
+            $this->dispatch('show_toast', message: "Something went wrong. Please try again.", type: "fail");
             Log::error($e->getMessage());
         }
     }
@@ -50,28 +47,84 @@ class ScanQr extends Component
     // Log the scan
     public function checkin()
     {
-        ScanLog::create([
-            'qr_code_id' => $this->qrId,
-            'event_type' => 'check_in'
-        ]);
+        try {
+            $qrCode = QRCode::with('storageApplication.locker', 'storageApplication.openArea')->findOrFail($this->qrId);
+            $application = $qrCode->storageApplication;
 
-        $this->dispatch('scanned', message: "Check in successfully!", type: "success");
-        $this->reset();
+            if ($qrCode->status === 'checked_in') {
+                $this->dispatch('show_toast', message: "This storage has already been checked in.", type: "fail");
+                return;
+            }
+
+            ScanLog::create([
+                'qr_code_id' => $this->qrId,
+                'event_type' => 'check_in'
+            ]);
+
+            $qrCode->update([
+                'status' => 'checked_in',
+                'scanned_count' => $qrCode->scanned_count + 1
+            ]);
+
+            if ($application->locker_id) {
+                $application->locker->update(['status' => 'occupied']);
+            }
+            if ($application->open_area_id) {
+                $application->openArea->update(['status' => 'occupied']);
+            }
+
+            $this->dispatch('show_toast', message: "Check in successfully!", type: "success");
+            $this->reset();
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            $this->dispatch('show_toast', message: "Something went wrong. Please try again.", type: "fail");
+        }
     }
 
     public function checkout()
     {
-        ScanLog::create([
-            'qr_code_id' => $this->qrId,
-            'event_type' => 'check_out'
-        ]);
+        try {
+            $qrCode = QRCode::with('storageApplication.locker', 'storageApplication.openArea')->findOrFail($this->qrId);
+            $application = $qrCode->storageApplication;
 
-        $this->dispatch('scanned', message: "Check out successfully!", type: "success");
-        $this->reset();
+            // Check Status
+            if ($qrCode->status !== 'checked_in') {
+                $this->dispatch('show_toast', message: "This storage is not checked in yet.", type: "fail");
+                return;
+            }
+            if ($qrCode->status === 'checked_out') {
+                $this->dispatch('show_toast', message: "This storage has already been checked out.", type: "fail");
+                return;
+            }
+
+            ScanLog::create([
+                'qr_code_id' => $this->qrId,
+                'event_type' => 'check_out'
+            ]);
+
+            $qrCode->update([
+                'status' => 'checked_out',
+                'scanned_count' => $qrCode->scanned_count + 1
+            ]);
+
+            if ($application->locker_id) {
+                $application->locker->update(['status' => 'available']);
+            }
+            if ($application->open_area_id) {
+                $application->openArea->update(['status' => 'available']);
+            }
+
+            $this->dispatch('show_toast', message: "Check out successfully!", type: "success");
+            $this->reset();
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            $this->dispatch('show_toast', message: "Something went wrong. Please try again.", type: "fail");
+        }
     }
 
     #[Computed()]
-    public function recentLogs() {
+    public function recentLogs()
+    {
         return ScanLog::latest()->limit(15)->get();
     }
 

@@ -6,7 +6,7 @@
         setTimeout(() => show = false, 4000);
     "
     x-show="show" x-transition:enter="fade-in" x-transition:leave="fade-out" class="position-fixed bottom-0 start-0 p-3"
-    style="z-index: 1050; display: none;">
+    style="z-index: 9999; display: none;">
     <div class="toast show" role="alert">
         <div class="toast-header"
             :class="{

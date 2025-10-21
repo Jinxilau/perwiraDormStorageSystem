@@ -2,9 +2,11 @@
 
 namespace App\Livewire;
 
+use App\Models\ScanLog;
 use App\Models\StorageApplication;
 use App\Models\StorageRoom;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
@@ -32,7 +34,7 @@ class StorageApplicationActive extends Component
 
     public $paginationInt = 10;
 
-    public $application;
+    public $modalData;
 
     public function clearFilters()
     {
@@ -47,27 +49,78 @@ class StorageApplicationActive extends Component
         $this->paginationInt = 10; # Pagination Amount
     }
 
-    #[On('view_modal')]
-    public function viewApplicationModal($id)
+    public function checkin($application)
     {
-        $this->application = $this->approvedStorageApplications->where('id', $id)->first();
-        $this->dispatch('display_modal');
+        try {
+            if ($application->qrCode->status === 'checked_in') {
+                $this->dispatch('show_toast', message: "This storage has already been checked in.", type: "fail");
+                return;
+            }
+
+            ScanLog::create([
+                'qr_code_id' => $application->qrCode->id,
+                'event_type' => 'check_in'
+            ]);
+
+            $application->qrCode->update([
+                'status' => 'checked_in',
+                'scanned_count' => $application->qrCode->scanned_count + 1
+            ]);
+
+            if ($application->locker_id) {
+                $application->locker->update(['status' => 'occupied']);
+            }
+            if ($application->open_area_id) {
+                $application->openArea->update(['status' => 'occupied']);
+            }
+
+            $this->dispatch('show_toast', message: "Check in successfully!", type: "success");
+        } catch (\Exception $e) {
+            Log::error("Checkin Error: " . $e->getMessage());
+            $this->dispatch('show_toast', message: "Error during check in.", type: "fail");
+        }
     }
 
-    public function checkin()
+    public function checkout($application)
     {
-        // TODO
-    }
+        try {
+            if ($application->qrCode->status !== 'checked_in') {
+                $this->dispatch('show_toast', message: "This storage is not checked in yet.", type: "fail");
+                return;
+            }
+            if ($application->qrCode->status === 'checked_out') {
+                $this->dispatch('show_toast', message: "This storage has already been checked out.", type: "fail");
+                return;
+            }
 
-    public function checkout()
-    {
-        // TODO
+            ScanLog::create([
+                'qr_code_id' => $application->qrCode->id,
+                'event_type' => 'check_out'
+            ]);
+
+            $application->qrCode->update([
+                'status' => 'checked_out',
+                'scanned_count' => $application->qrCode->scanned_count + 1
+            ]);
+
+            if ($application->locker_id) {
+                $application->locker->update(['status' => 'available']);
+            }
+            if ($application->open_area_id) {
+                $application->openArea->update(['status' => 'available']);
+            }
+
+            $this->dispatch('show_toast', message: "Check out successfully!", type: "success");
+        } catch (\Exception $e) {
+            Log::error("Checkout Error: " . $e->getMessage());
+            $this->dispatch('show_toast', message: "Error during check out.", type: "fail");
+        }
     }
 
     #[Computed()]
     public function approvedStorageApplications()
     {
-        $query = StorageApplication::query()->with(['applicant', 'items', 'openArea.storageRoom', 'locker.storageRoom', 'qrCode.scanLogs'])->where('storage_application_status', 'approved');
+        $query = StorageApplication::query()->with(['applicant', 'approver', 'storedItems', 'openArea.storageRoom', 'locker.storageRoom', 'qrCode.scanLogs'])->where('storage_application_status', 'approved');
 
         if ($this->search) {
             $query->where(function ($q) {
@@ -76,7 +129,7 @@ class StorageApplicationActive extends Component
                     $q->where('id', $this->search);
                 }
 
-                $q->orWhereHas("applicant", function ($userQuery) {
+                $q->whereHas("applicant", function ($userQuery) {
                     $userQuery->where('name', 'like', "%" . $this->search . "%")->orWhere('matric_no', 'like', '%' . $this->search . "%");
                 });
             });
@@ -101,6 +154,8 @@ class StorageApplicationActive extends Component
                 $query->whereNotNull('locker_id')->whereNotNull('open_area_id');
             }
         }
+
+        // TODO: Not yet checked in/out filters
 
         if ($this->checkinDate) {
             $query->whereHas('qrCode.scanLogs', function ($logQuery) {
@@ -152,6 +207,10 @@ class StorageApplicationActive extends Component
         return StorageRoom::all();
     }
 
+    public function placeholder()
+    {
+        return view('livewire.placeholder.table');
+    }
     public function render()
     {
         return view('livewire.storage-application-active');

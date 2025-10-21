@@ -2,13 +2,15 @@
 
 namespace App\Livewire;
 
+use App\Models\QRCode;
 use App\Models\StorageApplication;
 use App\Models\StorageRoom;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Computed;
-use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -24,27 +26,81 @@ class StorageApplicationReject extends Component
     #[Url(except: '')]
     public $storageType = '';
     #[Url(except: '')]
-    public $sortDate = '';
+    public $sortApplicationDate = '';
+    #[Url(except: '')]
+    public $rejectedDate = '';
     #[Url(except: '')]
     public $sortName = '';
 
     public $paginationInt = 10;
+
+    public $modalData;
 
     public function clearFilters()
     {
         $this->search = '';
         $this->room = '';
         $this->storageType = '';
-        $this->sortDate = '';
+        $this->sortApplicationDate = '';
+        $this->rejectedDate = '';
         $this->sortName = '';
 
-        $this->paginationInt = 10; # Pagination Amount
+        $this->paginationInt = 10;
+    }
+
+    public function approveApplication($applicationId)
+    {
+        try {
+            $application = StorageApplication::findOrFail($applicationId);
+
+            QRCode::create([
+                'storage_application_id' => $application->id,
+                'qr_token' => Str::uuid(),
+                'qr_expires_at' => Carbon::now()->addDays(7)
+            ]);
+
+            if ($application->locker_id) {
+                $application->locker->update(['status' => 'reserved']);
+            } elseif ($application->open_area_id) {
+                $application->openArea->update(['status' => 'reserved']);
+            }
+
+            $application->update([
+                'storage_application_status' => 'approved',
+                'approver_id' => Auth::user()->id
+            ]);
+
+            $this->dispatch('show_toast', message: 'Application approved successfully!', type: 'success');
+            $this->reset();
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            $this->dispatch('show_toast', message: 'Application not found.', type: 'fail');
+        } catch (\Exception $e) {
+            $this->dispatch('show_toast', message: 'Something went wrong. Please try again.', type: 'fail');
+            Log::error($e->getMessage());
+        }
+    }
+
+    public function undoApplication($applicationId)
+    {
+        try {
+            $application = StorageApplication::findOrFail($applicationId);
+
+            $application->update([
+                'storage_application_status' => 'pending',
+                'approver_id' => null,
+                'note' => null
+            ]);
+            $this->dispatch('show_toast', message: 'Rejection undone successfully!', type: 'success');
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            $this->dispatch('show_toast', message: 'Something went wrong. Please try again.', type: 'fail');
+        }
     }
 
     #[Computed()]
     public function rejectedStorageApplications()
     {
-        $query = StorageApplication::query()->with(['applicant', 'items', 'openArea.storageRoom', 'locker.storageRoom'])->where('storage_application_status', 'rejected');
+        $query = StorageApplication::query()->with(['applicant', 'approver', 'storedItems', 'openArea.storageRoom', 'locker.storageRoom'])->where('storage_application_status', 'rejected');
 
         if ($this->search) {
             $query->where(function ($q) {
@@ -53,7 +109,7 @@ class StorageApplicationReject extends Component
                     $q->where('id', $this->search);
                 }
 
-                $q->orWhereHas("applicant", function ($userQuery) {
+                $q->whereHas("applicant", function ($userQuery) {
                     $userQuery->where('name', 'like', "%" . $this->search . "%")->orWhere('matric_no', 'like', '%' . $this->search . "%");
                 });
             });
@@ -79,10 +135,16 @@ class StorageApplicationReject extends Component
             }
         }
 
-        if ($this->sortDate === 'latest') {
+        if ($this->sortApplicationDate === 'latest') {
             $query->latest();
-        } elseif ($this->sortDate === 'oldest') {
+        } elseif ($this->sortApplicationDate === 'oldest') {
             $query->oldest();
+        }
+
+        if ($this->rejectedDate === 'latest') {
+            $query->orderBy('updated_at', 'desc');
+        } elseif ($this->rejectedDate === 'oldest') {
+            $query->orderBy('updated_at', 'asc');
         }
 
         if ($this->sortName) {
@@ -112,6 +174,11 @@ class StorageApplicationReject extends Component
     public function rooms()
     {
         return StorageRoom::all();
+    }
+
+    public function placeholder()
+    {
+        return view('livewire.placeholder.table');
     }
 
     public function render()
