@@ -468,7 +468,7 @@
 </form>
 
 
-@push('styles')
+@assets
     <style>
         input[type='radio']:checked+#estimated {
             border: 1px solid #0d6efd;
@@ -486,4 +486,4 @@
             color: #0d6efd !important;
         }
     </style>
-@endpush
+@endassets

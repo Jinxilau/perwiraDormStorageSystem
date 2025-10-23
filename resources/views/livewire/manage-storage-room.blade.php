@@ -204,7 +204,7 @@
         <x-toast-message />
     </div>
 </div>
-@push('styles')
+@assets
     <style>
         #grid {
             display: grid;
@@ -216,4 +216,4 @@
             gap: 10px
         }
     </style>
-@endpush
+@endassets

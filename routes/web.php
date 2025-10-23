@@ -3,6 +3,7 @@
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\EnsureUserIsApproved;
 use App\Livewire\AdminDashboard;
+use App\Livewire\AdminNotification;
 use App\Livewire\ManageMissingReport;
 use App\Livewire\ManageStorageApplication;
 use App\Livewire\ManageStorageRoom;
@@ -14,9 +15,6 @@ use App\Livewire\ScanLog;
 use App\Livewire\ScanQr;
 use App\Livewire\StaffDashboard;
 use App\Livewire\StorageApplication;
-use App\Livewire\StorageApplicationActive;
-use App\Livewire\StorageApplicationPending;
-use App\Livewire\StorageApplicationReject;
 use App\Livewire\StudentDashboard;
 use App\Livewire\StudentNotifications;
 use Illuminate\Support\Facades\Route;
@@ -51,6 +49,7 @@ Route::middleware(['auth', CheckRole::class . ':administrator'])->group(function
     Route::get('/admin/dashboard', AdminDashboard::class)->name('admin_dashboard');
     Route::get('/admin/user', ManageUser::class)->name('manage_user');
     Route::get('/admin/missing_report', ManageMissingReport::class)->name('manage_missing');
+    Route::get('/admin/notifications', AdminNotification::class)->name('admin_notification');
 });
 
 // Staff/Admin

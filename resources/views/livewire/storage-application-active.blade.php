@@ -456,7 +456,7 @@
 
     <x-toast-message />
 </div>
-@push('styles')
+@assets
     <style>
         .avatar {
             width: 2.5rem;
@@ -503,4 +503,4 @@
             }
         }
     </style>
-@endpush
+@endassets

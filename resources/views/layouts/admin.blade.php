@@ -57,9 +57,9 @@
         ],
         [
             'title' => 'Notifications',
-            'url' => route('admin_dashboard'),
+            'url' => route('admin_notification'),
             'icon' => 'bi-bell',
-            'path' => 'admin/dashboard',
+            'path' => 'admin/notifications',
         ],
         [
             'title' => 'Scan QR Code',

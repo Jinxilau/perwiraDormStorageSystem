@@ -11,7 +11,7 @@
             <div class="card-body p-4">
                 <div class="text-center mb-4">
                     <h4 class="fw-bold text-dark mb-2">
-                        <i class="fas fa-qrcode me-2 text-primary"></i>QR Code Scanner
+                        <i class="bi bi-qr-code-scan me-2 text-primary"></i>QR Code Scanner
                     </h4>
                     <p class="text-muted small mb-0">Scan or enter QR token to validate</p>
                 </div>
@@ -271,7 +271,7 @@
 </div>
 
 {{-- HTML5QRCODE --}}
-@push('styles')
+@assets
     <style>
         .log-item:last-child {
             border-bottom: none !important;
@@ -326,15 +326,14 @@
             letter-spacing: 0.5px;
         }
     </style>
-@endpush
+@endassets
 
-@push('scripts')
+@script
     <script>
         const scanner = new Html5Qrcode("reader");
         const startbtn = document.getElementById('startBtn');
         const stopbtn = document.getElementById('stopBtn');
 
-        // Scanner function
         async function startScanner() {
             if (scanner.getState() === 2) return;
             try {
@@ -347,10 +346,10 @@
                     (decodedText) => {
                         $wire.call('validateQR', decodedText);
                         stopScanner();
-                    }, // Success Callback
+                    },
                     (errorMessage) => {
                         console.log("Unable to detect a QR Code.", errorMessage);
-                    } // Error Callback
+                    }
                 )
                 startbtn.disabled = true;
                 stopbtn.disabled = false;
@@ -374,9 +373,9 @@
         stopbtn.addEventListener('click', stopScanner);
         document.addEventListener('livewire:initialized', () => {
             startScanner();
-        })
+        });
         document.addEventListener('livewire:navigate', () => {
             stopScanner();
-        })
+        });
     </script>
-@endpush
+@endscript

@@ -123,10 +123,10 @@
     </div>
 </div>
 
-@push('styles')
+@assets
     <style>
         .border-4 {
             border-width: 4px !important;
         }
     </style>
-@endpush
+@endassets

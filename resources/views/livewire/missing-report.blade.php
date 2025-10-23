@@ -74,6 +74,6 @@
 
     <x-toast-message></x-toast-message>
 </div>
-@push('styles')
+@assets('styles')
     @vite('resources\css\progress_bar.css')
-@endpush
+@endassets
