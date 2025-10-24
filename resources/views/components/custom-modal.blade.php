@@ -8,8 +8,8 @@
         this.show = false;
         document.body.style.overflow = '';
     },
-}" @display_modal.window="openModal();" x-show='show'
-    tabindex="-1" id="modal" :class="{ 'display': show }" style="display: none;" x-transition.scale>
+}" @display_modal.window="openModal();" x-show='show' tabindex="-1" id="modal"
+    :class="{ 'display': show }" style="display: none;" x-transition.scale>
 
     {{-- Background Overlay --}}
     <div id="overlay" @click="closeModal()" x-show="show" x-transition.opacity></div>
@@ -23,6 +23,11 @@
         <div class="card-body" style="max-height: 80vh; overflow-y: auto;">
             {{ $slot }}
         </div>
+        @if (!empty($footer))
+            <div class="card-footer">
+                {{ $footer }}
+            </div>
+        @endif
     </div>
 </div>
 

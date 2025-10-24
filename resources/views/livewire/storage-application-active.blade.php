@@ -9,7 +9,7 @@
             <span class="visually-hidden">Loading...</span>
         </div>
         @php
-            $modalApplication = App\Models\StorageApplication::find($this->modalData);
+            $modalApplication = App\Models\StorageApplication::with(['applicant', 'approver', 'storedItems', 'openArea.storageRoom', 'locker.storageRoom'])->find($this->modalData);
         @endphp
         <div wire:loading.remove="modalData" class="text-start">
             @if ($modalApplication)

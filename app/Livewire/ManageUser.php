@@ -8,8 +8,8 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -22,12 +22,31 @@ class ManageUser extends Component
 
     public $selectedUsers = [];
     public $selectAll = false;
-    public $user; # Specific User's Modal
+    public $userId; # Modal
 
     #[Validate('required|in:approved,pending,rejected')]
     public $userStatus;
     #[Validate('required|in:administrator,staff,student')]
     public $userRole;
+
+    #[Url(except: '')]
+    public $search = '';
+    #[Url(except: '')]
+    public $role = '';
+    #[Url(except: '')]
+    public $accStatus = '';
+    #[Url(except: '')]
+    public $userGender = '';
+    #[Url(except: '')]
+    public $fromRange = '';
+    #[Url(except: '')]
+    public $toRange = '';
+    #[Url(except: 'latest')]
+    public $sortDate = 'latest';
+    #[Url(except: '')]
+    public $sortName = '';
+
+    public $paginationInt = 10;
 
     public function updatedSelectAll()
     {
@@ -93,20 +112,6 @@ class ManageUser extends Component
         }
     }
 
-    #[On('view-user')]
-    public function viewModal($id)
-    {
-        $this->user = $this->users->where('id', $id)->first();
-        
-        if (!empty($this->user)) {
-            $this->userStatus = $this->user->application_status;
-            $this->userRole = $this->user->userRole->role_name;
-            $this->dispatch('display_modal');
-        } else {
-            $this->dispatch('show_toast', message: 'Something went wrong.', type: 'fail');
-        }
-    }
-
     public function editUser()
     {
         $this->validate();
@@ -128,7 +133,54 @@ class ManageUser extends Component
     #[Computed()]
     public function users()
     {
-        return User::with(['userRole', 'applyStorage'])->paginate(15);
+        $query = User::query()->with(['userRole', 'applyStorage']);
+
+        if ($this->search) {
+            $query->where(function ($q) {
+
+                if (is_numeric($this->search)) {
+                    $q->where('id', $this->search);
+                }
+
+                $q->where('matric_no', 'like', "%" . $this->search . "%")->orWhere('name', 'like', "%" . $this->search . "%");
+            });
+        }
+
+        if(!empty($this->role)) {
+            $query->where('role_id', is_numeric($this->role));
+        }
+
+        if (!empty($this->accStatus)) {
+            $query->where('account_status', $this->accStatus);
+        }
+
+        if (!empty($this->userGender)) {
+            $query->where('gender', $this->userGender);
+        }
+
+        if ($this->fromRange && $this->toRange) {
+            $query->whereBetween('created_at', [$this->fromRange, $this->toRange]);
+        } elseif ($this->fromRange) {
+            $query->whereDate('created_at', '>=', $this->fromRange);
+        } elseif ($this->toRange) {
+            $query->whereDate('created_at', '<=', $this->toRange);
+        }
+
+        if ($this->sortDate === 'latest') {
+            $query->oldest();
+        } elseif ($this->sortDate === 'oldest') {
+            $query->latest();
+        }
+
+        if ($this->sortName) {
+            $query->orderBy(
+                User::select('name')
+                    ->whereColumn('users.id', 'storage_applications.applicant_id'),
+                $this->sortName === 'desc' ? 'desc' : 'asc'
+            );
+        }
+
+        return $query->paginate($this->paginationInt);
     }
 
     #[Computed()]

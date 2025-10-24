@@ -20,7 +20,7 @@ class StorageApplicationMadeNotification extends Notification implements ShouldQ
     public function __construct($application)
     {
         $this->application = $application;
-        $this->url = route('manage_storage_application', ['status' => 'pending']);
+        $this->url = route('manage_storage_application', ['status' => 'pending', 'search' => $this->application->id]);
     }
 
     /**

@@ -45,7 +45,7 @@ class AccountApplication extends Component
         $this->genders = [
             'male' => 'Male',
             'female' => 'Female',
-            'other' => 'Other',
+            // 'other' => 'Other',
         ];
     }
 

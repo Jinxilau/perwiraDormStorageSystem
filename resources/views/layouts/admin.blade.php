@@ -29,7 +29,7 @@
             'title' => 'Storage Application',
             'url' => route('manage_storage_application', ['status' => 'pending']),
             'icon' => 'bi-calendar-week',
-            'path' => 'storage/*',
+            'path' => 'storage_application',
         ],
         [
             'title' => 'Storage Room',
