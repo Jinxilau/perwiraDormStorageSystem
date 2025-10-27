@@ -42,6 +42,7 @@ Route::middleware(['auth', EnsureUserIsApproved::class, CheckRole::class . ':stu
 // Staff
 Route::middleware(['auth', CheckRole::class . ':staff'])->group(function () {
     Route::get('/staff/dashboard', StaffDashboard::class)->name('staff_dashboard');
+    // Route::get('staff/notification', )->name('staff_notification');
 });
 
 // Administrator

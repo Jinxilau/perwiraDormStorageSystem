@@ -10,11 +10,11 @@
             @include('livewire.includes.report-ok') {{-- Success message --}}
         @else
             {{-- Progress Indicator --}}
-            <div class="container mb-4">
+            <div class="container mb-2">
                 <div class="row justify-content-center">
                     <div class="col-lg-8 d-flex justify-content-center">
                         <ul x-data="{ current: $wire.entangle('currentStep') }"
-                            class="steper-step list-unstyled p-0 m-0 position-relative stepper-vertical d-inline-flex justify-content-center">
+                            class="steper-step list-unstyled p-0 m-3 position-relative stepper-vertical d-inline-flex justify-content-center">
                             @for ($i = 1; $i <= $totalSteps; $i++)
                                 <li class="stepper position-relative pb-1 d-inline-flex"
                                     :class="{
@@ -23,22 +23,24 @@
                                     }">
                                     {{-- Stepper Head --}}
                                     <div class="d-flex flex-column align-items-center justify-content-center align-items-center position-relative text-center"
-                                        style="min-width: 70px;">
+                                        style="width: 12vw; min-width: 70px;">
                                         {{-- Stepper Icon --}}
                                         <span
                                             class="stepper-head-icon d-flex align-items-center justify-content-center fw-bold rounded-circle">
-                                            {{ $i }}
+                                            @if ($this->currentStep <= $i)
+                                                {{ $i }}
+                                            @endif
                                         </span>
                                         <div class="stepper-content py-0">
                                             <p class="text-muted small mb-0">
                                                 @if ($i == 1)
-                                                    Storage
+                                                    Select Storage
                                                 @elseif($i == 2)
-                                                    Item
+                                                    Select Missing Items
                                                 @elseif($i == 3)
-                                                    Additional Information
+                                                    Related Information
                                                 @else
-                                                    Contact Information
+                                                    Review & Submit
                                                 @endif
                                             </p>
                                         </div>

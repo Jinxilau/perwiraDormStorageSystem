@@ -6,7 +6,8 @@
 
 import "./echo";
 
-Echo.private(`App.Models.User.${window.userId}`).notification((notification) => {
-    console.log("Notification received:", notification);
-    Livewire.dispatch("notificationReceived");
-});
+Echo.private(`App.Models.User.${window.userId}`).notification(
+    (notification) => {
+        Livewire.dispatch("notificationReceived", {notification: notification});
+    }
+);

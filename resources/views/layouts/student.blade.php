@@ -36,12 +36,7 @@
                 'url' => route('storage'),
                 'path' => 'student/storage',
             ],
-            [
-                'icon' => 'bi-bell',
-                'title' => 'Notification',
-                'url' => route('student_notification'),
-                'path' => 'student/notification',
-            ],
+        
             [
                 'icon' => 'bi-box-seam',
                 'title' => 'My Storage',
@@ -59,6 +54,12 @@
                 'title' => 'My Missing Report',
                 'url' => route('my_report'),
                 'path' => 'student/my_report',
+            ],
+            [
+                'icon' => 'bi-bell',
+                'title' => 'Notification',
+                'url' => route('student_notification'),
+                'path' => 'student/notification',
             ],
             [
                 'icon' => 'bi-info-circle',
@@ -94,6 +95,7 @@
         document.addEventListener('livewire:navigated', () => {
             const sidebar = document.getElementById('sidebar');
             const toggleButton = document.getElementById('toggle-btn');
+            const icon = toggleButton.querySelector('i');
             const mainContent = document.getElementById('maincontent');
             const mediaQuery = window.matchMedia('(max-width: 768px)');
 

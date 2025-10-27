@@ -11,7 +11,7 @@
             <div class="card-body p-4">
                 <div class="text-center mb-4">
                     <h4 class="fw-bold text-dark mb-2">
-                        <i class="bi bi-qr-code-scan me-2 text-primary"></i>QR Code Scanner
+                        <i class="bi bi-qr-code-scan me-2"></i>QR Code Scanner
                     </h4>
                     <p class="text-muted small mb-0">Scan or enter QR token to validate</p>
                 </div>

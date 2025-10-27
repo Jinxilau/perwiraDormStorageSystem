@@ -62,6 +62,20 @@ class ManageUser extends Component
         $this->selectAll = count($this->selectedUsers) === $this->users->count();
     }
 
+    public function clearFilters()
+    {
+        $this->search = '';
+        $this->role = '';
+        $this->accStatus = '';
+        $this->userGender = '';
+        $this->fromRange = '';
+        $this->toRange = '';
+        $this->sortDate = 'latest';
+        $this->sortName = '';
+
+        $this->paginationInt = 10; # Pagination Amount
+    }
+
     public function approveUser($userId)
     {
         try {
@@ -146,7 +160,7 @@ class ManageUser extends Component
             });
         }
 
-        if(!empty($this->role)) {
+        if (!empty($this->role)) {
             $query->where('role_id', is_numeric($this->role));
         }
 

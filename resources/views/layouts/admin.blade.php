@@ -110,8 +110,8 @@
         document.addEventListener('livewire:navigated', () => {
             const sidebar = document.getElementById('sidebar');
             const toggleButton = document.getElementById('sidebar-toggle-btn');
-            const mainContent = document.getElementById('maincontent');
             const icon = toggleButton.querySelector('i');
+            const mainContent = document.getElementById('maincontent');
             const mediaQuery = window.matchMedia('(max-width: 768px)');
 
             if (!sidebar || !toggleButton || !icon) return;
@@ -150,11 +150,6 @@
                 }
             })
 
-            // Notification
-            let userid = {{ Auth::user()->id }};
-            Echo.private(`App.Models.User.${userid}`).notification((notification) => {
-                Livewire.dispatch('notificationReceived');
-            });
         }, {
             once: true
         });

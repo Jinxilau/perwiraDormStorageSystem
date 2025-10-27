@@ -170,6 +170,14 @@
                 'title' => $this->users->count(),
                 'subtitle' => 'Total User Accounts',
             ],
+            [
+                'title' => $this->users->where('gender', 'male')->count(),
+                'subtitle' => 'Total Male',
+            ],
+            [
+                'title' => $this->users->where('gender', 'female')->count(),
+                'subtitle' => 'Total Female',
+            ],
         ]" />
 
         {{-- Filter Options --}}

@@ -6,7 +6,11 @@
     </div>
 
     @if ($this->studentStorageApplication)
-        @forelse ($this->studentStorageApplication->qrCode->missingReports as $report)
+        @php
+            $reports = $this->studentStorageApplication->storedItems->pluck('missingReport');
+        @endphp
+        
+        @forelse ($reports as $report)
             <div class="card mb-3 shadow-sm">
                 <div class="card-body">
                     {{-- Header Section --}}
@@ -164,12 +168,7 @@
         @empty
             <div class="card shadow-sm">
                 <div class="card-body text-center py-5">
-                    <svg class="text-muted mb-3" width="64" height="64" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                        </path>
-                    </svg>
+                    <p class="mb-0" style="font-size: 64px">📄</p>
                     <h5 class="card-title">No Reports Found</h5>
                     <p class="text-muted">You haven't submitted any missing item reports yet.</p>
                     <div class="mt-3">
@@ -183,12 +182,12 @@
     @else
         <div class="card shadow-sm">
             <div class="card-body text-center py-5">
-                <p class="mb-0" style="font-size: 64px">📄</p> 
-                <h5 class="card-title">No Reports Found</h5>
-                <p class="text-muted">You haven't submitted any missing item reports yet.</p>
+                <p class="mb-0" style="font-size: 64px">📄</p>
+                <h5 class="card-title">No Active Storage</h5>
+                <p class="text-muted">You currently have no active storage in Perwira.</p>
                 <div class="mt-3">
-                    <a href="{{ route('missing_report') }}" class="btn btn-primary">
-                        <i class="bi bi-plus-circle"></i> Submit New Report
+                    <a href="{{ route('storage') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Apply for Storage
                     </a>
                 </div>
             </div>

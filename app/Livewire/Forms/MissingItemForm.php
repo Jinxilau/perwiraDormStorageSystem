@@ -48,6 +48,12 @@ class MissingItemForm extends Form
 
     public $addInfo;
 
+    // Step 1 : Storage
+    public function updatedStorageApplicationId()
+    {
+        $this->itemId = null;
+    }
+
     // Step 2 : Items
     public function storeArr()
     {

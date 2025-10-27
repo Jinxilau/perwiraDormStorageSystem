@@ -24,10 +24,6 @@ class MissingReport extends Model
         // 'qr_code_id',
     ];
 
-    // public function qrCode()
-    // {
-    //     return $this->belongsTo(QrCode::class);
-    // }
     public function storedItems()
     {
         return $this->hasMany(StoredItem::class);

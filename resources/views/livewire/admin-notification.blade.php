@@ -75,7 +75,7 @@
                                             {{-- Message --}}
                                             <p class="card-text text-secondary mb-3"
                                                 style="line-height: 1.7; font-size: 0.95rem;">
-                                                {{ $notification->data['message'] ?? 'You have a new notification.' }}
+                                                {{ $notification->data['message'] ?? 'You have a new notification.' }} #{{ $notification->data['application_id'] }}
                                             </p>
 
                                             {{-- Footer: Link and Timestamp --}}

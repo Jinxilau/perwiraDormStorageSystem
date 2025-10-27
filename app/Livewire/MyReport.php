@@ -12,7 +12,7 @@ class MyReport extends Component
     #[Computed()]
     public function studentStorageApplication()
     {
-        return StorageApplication::where('applicant_id', Auth::user()->id)->with(['qrCode.missingReports.storedItems'])->first();
+        return StorageApplication::where('applicant_id', Auth::user()->id)->with(['storedItems.missingReport'])->first();
     }
 
     public function render()

@@ -1,4 +1,6 @@
-<div x-data="{ open: false }" class="notification-dropdown" @click="open = !open">
+<div x-data="{ open: false, show: false, notification: null }" @click="open = !open"
+    @show_notification.window="show = true; notification = $event.detail.notification; setTimeout(() => show = false, 5000)"
+    class="notification-dropdown">
     <button class="notification-button position-relative">
         <span class="notification-icon">🔔</span>
         @if ($this->countUnread > 0)
@@ -8,8 +10,9 @@
         @endif
     </button>
 
-    <div x-show="open" @click.away="open = false" @keydown.escape.window="open = false" x-transition class="notification-dropdown-menu"
-        style="display: none">
+    {{-- Dropdown --}}
+    <div x-show="open" @click.away="open = false" @keydown.escape.window="open = false" x-transition
+        class="notification-dropdown-menu" style="display: none">
 
         <div class="notification-header">
             <span class="fw-bold text-dark">Notifications</span>
@@ -61,12 +64,44 @@
             @endforelse
         </div>
 
+        @php
+            $role = auth()->user()->role_id;
+            $route = $role === 1 ? 'admin_notification' : ($role === 2 ? 'staff_notification' : 'student_notification');
+        @endphp
         @if ($this->unreadNotifications->count() > 0)
             <div class="notification-footer">
-                <a href="{{ route('student_notification') }}" class="view-all-link">
+                <a href="{{ route($route) }}" class="view-all-link">
                     View all notifications
                 </a>
             </div>
         @endif
+    </div>
+
+    {{-- Latest Notification --}}
+    <div class="position-absolute end-0" style="z-index: 9999; top: calc(100% + 0.5rem); ">
+        <template x-if="show">
+            <div x-show="show" x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 transform translate-x-full"
+                x-transition:enter-end="opacity-100 transform translate-x-0"
+                x-transition:leave="transition ease-in duration-300"
+                x-transition:leave-start="opacity-100 transform translate-x-0"
+                x-transition:leave-end="opacity-0 transform translate-x-full" class="toast show mb-2" role="alert"
+                aria-live="assertive" aria-atomic="true">
+
+                <div class="toast-header">
+                    <i class="bi bi-bell-fill me-2"></i>
+                    <strong class="me-auto">New Notification</strong>
+                    @if ($this->braodcastNotificationId)
+                        <button type="button" class="btn-close"
+                            @click="show = false; $wire.markAsRead(notification.id)"></button>
+                    @endif
+                </div>
+
+                <div class="toast-body">
+                    <p class="fw-semibold text-dark mb-1" x-text="notification.title"></p>
+                    <p class="text-muted small mb-0" x-text="notification.message"></p>
+                </div>
+            </div>
+        </template>
     </div>
 </div>

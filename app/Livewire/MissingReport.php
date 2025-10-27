@@ -7,6 +7,8 @@ use App\Models\MissingReport as ModelsMissingReport;
 use App\Models\QRCode;
 use App\Models\StorageApplication;
 use App\Models\StoredItem;
+use App\Models\User;
+use App\Notifications\MissingReportMadeNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -181,6 +183,11 @@ class MissingReport extends Component
 
             $this->showSuccessMessage = true;
             $this->dispatch('show_toast', message: "Report submitted successfully!", type: "success");
+            
+            // Admin Notification
+            foreach (User::where('role_id', 1)->get() as $staff) {
+                $staff->notify(new MissingReportMadeNotification($report));
+            }
         } catch (\Exception $e) {
             Log::error('Report submission failed: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
