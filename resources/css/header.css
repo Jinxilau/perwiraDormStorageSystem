@@ -1,0 +1,294 @@
+/* ===========================
+   Navbar Header Styles
+   =========================== */
+
+#navbar {
+    background: #1C1C1E;
+    padding: 0.75rem 0;
+    max-height: 90px;
+    width: 100%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+#navbar .container-fluid {
+    padding: 0 1.5rem;
+}
+
+/* ===========================
+   Toggle Button
+   =========================== */
+
+#toggle-btn {
+    border: none;
+    background: transparent;
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+#toggle-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+    border-radius: 0.25rem;
+}
+
+#hambur {
+    margin: 0;
+    transition: color 0.2s ease;
+}
+
+#toggle-btn:hover #hambur {
+    color: #f0f0f0 !important;
+}
+
+/* ===========================
+   Logo and Brand
+   =========================== */
+
+#navbar a {
+    text-decoration: none;
+    overflow: visible;
+}
+
+#brand {
+    color: white;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    padding: 0.5rem 0;
+    overflow: visible;
+}
+
+#navbar a:hover #brand {
+    color: #f0f0f0;
+    transform: scale(1.02);
+}
+
+/* Responsive text size */
+@media (max-width: 768px) {
+    #brand {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    #brand {
+        font-size: 0.9rem;
+    }
+}
+
+/* ===========================
+   User Dropdown
+   =========================== */
+
+.user-dropdown {
+    position: relative;
+}
+
+.user-dropdown .btn-outline-light {
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.user-dropdown .btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: white;
+    transform: translateY(-1px);
+    color: white;
+}
+
+.user-dropdown .btn-outline-light:focus {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+/* Avatar Circle */
+.avatar-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #333333 0%, #4c2d9b 100%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Dropdown Arrow Rotation */
+.rotate-180 {
+    transform: rotate(180deg);
+}
+
+/* ===========================
+   Custom Dropdown Menu
+   =========================== */
+
+.custom-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    background: white;
+    border-radius: 0.75rem;
+    min-width: 250px;
+    padding: 0.5rem 0;
+    z-index: 1050;
+    border: 1px solid rgba(159, 159, 159, 0.58)
+}
+
+/* Dropdown Header */
+.dropdown-header-custom {
+    padding: 1rem 1.25rem;
+}
+
+.dropdown-header-custom .fw-semibold {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.dropdown-header-custom .text-muted {
+    font-size: 0.875rem;
+    display: block;
+}
+
+/* Dropdown Divider */
+.custom-dropdown-menu hr {
+    margin: 0.5rem 0;
+    opacity: 0.1;
+}
+
+/* Dropdown Items */
+.dropdown-item-custom {
+    padding: 0.75rem 1.25rem;
+    color: #333;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.dropdown-item-custom:hover {
+    background-color: #f8f9fa;
+    padding-left: 1.5rem;
+}
+
+.dropdown-item-custom i {
+    width: 24px;
+    text-align: center;
+}
+
+.dropdown-item-custom.text-danger:hover {
+    background-color: #fff5f5;
+    color: #dc3545 !important;
+}
+
+/* ===========================
+   Alpine.js Transitions
+   =========================== */
+
+[x-cloak] {
+    display: none !important;
+}
+
+/* Fade and slide down animation */
+.custom-dropdown-menu[x-show] {
+    transition: all 0.2s ease-out;
+    transform-origin: top right;
+}
+
+/* ===========================
+   Responsive Design
+   =========================== */
+
+@media (max-width: 576px) {
+    #navbar .container-fluid {
+        padding: 0 1rem;
+    }
+
+    #logo-perwira {
+        height: 35px;
+    }
+
+    .user-dropdown .btn-outline-light {
+        padding: 0.4rem 0.75rem;
+    }
+
+    .avatar-circle {
+        width: 28px;
+        height: 28px;
+        font-size: 0.75rem;
+    }
+
+    .custom-dropdown-menu {
+        min-width: 220px;
+        right: -0.5rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .custom-dropdown-menu {
+        min-width: 200px;
+    }
+
+    .dropdown-header-custom,
+    .dropdown-item-custom {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+/* ===========================
+   Hover Effects & Animations
+   =========================== */
+
+/* Smooth hover transition for all interactive elements */
+#navbar button,
+#navbar a,
+.dropdown-item-custom {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Ripple effect on dropdown items */
+.dropdown-item-custom::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.05);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.dropdown-item-custom:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* ===========================
+   Accessibility Improvements
+   =========================== */
+
+/* Focus visible for keyboard navigation */
+.user-dropdown .btn-outline-light:focus-visible,
+.dropdown-item-custom:focus-visible,
+#toggle-btn:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+/* Ensure text remains readable */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

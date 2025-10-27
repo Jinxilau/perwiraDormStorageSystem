@@ -1,15 +1,11 @@
 <header id="navbar">
     <div class="container-fluid d-flex justify-content-between align-items-center">
         <button id="toggle-btn" class="navbar-toggler" type="button">
-            <i class="bi bi-list h2 text-white" id="hambur"></i>
+            <i class="bi bi-list h4 text-white" id="hambur"></i>
         </button>
 
         <a href="{{ route('student_dashboard') }}">
-            <div class="d-flex align-items-center gap-2">
-                <img src="{{ Vite::asset('resources\images\icons\perwira_logo.png') }}" alt="Logo"
-                    id="logo-perwira">
-                <div id="brand">Perwira Dorm Storage System</div>
-            </div>
+            <div id="brand">Perwira Dorm Storage System</div>
         </a>
 
         <div class="d-flex align-items-center justify-content-end gap-2">

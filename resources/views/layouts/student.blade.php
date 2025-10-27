@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }}</title>
-    @vite(['resources\css\student.css', 'resources\css\sidebar.css', 'resources\css\notification.css'])
+    @vite(['resources\css\student.css', 'resources\css\sidebar.css', 'resources\css\notification.css', 'resources\css\header.css'])
     @stack('styles')
     {{-- Livewire Style --}}
     @livewireStyles
@@ -126,11 +126,10 @@
                 toggleButton.classList.toggle('rotate');
                 mainContent.classList.toggle('col-md-9');
 
-                const icon = toggleButton.querySelector('i');
                 if (sidebar.classList.contains('close')) {
-                    icon.classList.replace('bi-list', 'bi-x-lg');
-                } else {
                     icon.classList.replace('bi-x-lg', 'bi-list');
+                } else {
+                    icon.classList.replace('bi-list', 'bi-x-lg');
                 }
             }
         }, {
