@@ -38,7 +38,7 @@
                                                 @elseif($i == 2)
                                                     Select Missing Items
                                                 @elseif($i == 3)
-                                                    Related Information
+                                                    Incident Details
                                                 @else
                                                     Review & Submit
                                                 @endif

@@ -1,62 +1,130 @@
 <form wire:submit.prevent="" class="card bg-white shadow px-5 py-4 mb-4">
     @for ($i = 0; $i < count($this->form->items); $i++)
         @error('form.items.' . $i . '.id')
-            <span class="text-danger">{{ $message }}</span>
+            <div class="alert alert-danger d-flex align-items-center py-2 px-3 mb-2" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span>{{ $message }}</span>
+            </div>
         @enderror
     @endfor
+
     @if ($this->currentStep === 1)
         {{-- Select Existing Storage --}}
-        <section x-data="{ ok: $wire.entangle('form.storageApplicationId') }">
-            <p class="h4 mt-2">My Storage</p>
-            <select wire:model="form.storageApplicationId" class="form-select mb-2">
-                <option value="">Select Storage</option>
-                @forelse ($this->studentApplications as $application)
-                <option value="{{ $application->id }}">Storage #{{ ucfirst($application->id) }}</option>
-                @empty
-                    <p class="mb-0">
-                        No Existing Storage
-                    </p>
-                @endforelse
-            </select>
+        <section x-data="{ ok: $wire.entangle('form.storageApplicationId') }" class="py-4">
+            <div class="mb-4">
+                <h4 class="fw-bold mb-1 d-flex align-items-center">
+                    <i class="bi bi-box-seam me-2 text-primary"></i>
+                    My Storage
+                </h4>
+                <p class="text-muted small mb-0">Select an existing storage location to proceed</p>
+            </div>
+
+            <div class="mb-3">
+                <label for="storageSelect" class="form-label fw-semibold">Storage Location</label>
+                <select id="storageSelect" wire:model="form.storageApplicationId"
+                    class="form-select form-select-lg shadow-sm">
+                    <option value="">-- Choose a storage location --</option>
+                    @forelse ($this->studentApplications as $application)
+                        <option value="{{ $application->id }}">Storage #{{ ucfirst($application->id) }}</option>
+                    @empty
+                        <option disabled>No storage locations available</option>
+                    @endforelse
+                </select>
+
+                @if (empty($this->studentApplications))
+                    <div class="alert alert-info d-flex align-items-start mt-3" role="alert">
+                        <i class="bi bi-info-circle-fill me-2 mt-1"></i>
+                        <div>
+                            <strong>No Existing Storage</strong>
+                            <p class="mb-0 small">You don't have any storage locations yet. Please create a new one to
+                                continue.</p>
+                        </div>
+                    </div>
+                @endif
+            </div>
 
             @if ($this->form->storageApplicationId)
-                <div class="border-top border-bottom border-primary bg-primary-subtle bg-opacity-10 p-2">
-                    <div class="row">
-                        <p class="leading col-3 fw-bold">Storage Room:</p>
-                        <p class="col-9">{{ $this->selectedApplication->storageRoom->id }}</p>
-                        <p class="leading col-3 fw-bold">Locker:</p>
-                        <p class="col-9">{{ $this->selectedApplication->locker->id ?? 'N/A' }}</p>
-                        <p class="leading col-3 fw-bold">Open Area:</p>
-                        <p class="col-9">{{ $this->selectedApplication->openArea->id ?? 'N/A' }}</p>
+                <div class="card border-primary shadow-sm mt-4 animate-fade-in">
+                    <div class="card-header bg-primary bg-opacity-10 border-primary">
+                        <h6 class="mb-0 fw-semibold text-primary">
+                            <i class="bi bi-info-circle me-2"></i>Storage Details
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="d-flex align-items-start">
+                                    <i class="bi bi-door-open text-primary me-3 fs-5"></i>
+                                    <div class="flex-grow-1">
+                                        <p class="text-muted small mb-1">Storage Room</p>
+                                        <p class="fw-semibold mb-0">{{ $this->selectedApplication->storageRoom->id }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <i class="bi bi-lock text-primary me-3 fs-5"></i>
+                                    <div class="flex-grow-1">
+                                        <p class="text-muted small mb-1">Locker</p>
+                                        <p class="fw-semibold mb-0">
+                                            {{ $this->selectedApplication->locker->id ?? 'N/A' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-start">
+                                    <i class="bi bi-grid-3x3 text-primary me-3 fs-5"></i>
+                                    <div class="flex-grow-1">
+                                        <p class="text-muted small mb-1">Open Area</p>
+                                        <p class="fw-semibold mb-0">
+                                            {{ $this->selectedApplication->openArea->id ?? 'N/A' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             @endif
 
-            <button :disabled="!ok" class="btn btn-primary flex-fill py-3 w-100 mt-5"
-                wire:loading.attr="disabled" wire:click.prevent="nextStep">
-                <span>
-                    <i class="bi bi-check-lg me-2" wire:loading.remove wire:target='nextStep'></i>
-                    <span wire:loading wire:target='nextStep'>
-                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+            <div class="mt-5 pt-3 border-top">
+                <button :disabled="!ok"
+                    class="btn btn-primary btn-lg w-100 py-3 shadow-sm d-flex align-items-center justify-content-center position-relative overflow-hidden"
+                    wire:loading.attr="disabled" wire:click.prevent="nextStep" style="transition: all 0.3s ease;">
+                    <span class="d-flex align-items-center">
+                        <i class="bi bi-check-lg me-2 fs-5" wire:loading.remove wire:target='nextStep'></i>
+                        <span wire:loading wire:target='nextStep'>
+                            <div class="spinner-border spinner-border-sm me-2" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </span>
+                        <span class="fw-semibold">Proceed to Next Step</span>
                     </span>
-                    Proceed
-                </span>
-            </button>
+                </button>
+            </div>
         </section>
     @elseif ($this->currentStep === 2)
         {{-- Item Navigation --}}
-        <section>
+        <section class="py-2">
             @if (count($this->form->items) > 1)
                 <div class="mb-4">
-                    <ul class="nav nav-tabs" role="tablist" x-data="{ currentIdx: $wire.entangle('form.itemIdx') }">
+                    <ul class="nav nav-pills nav-fill gap-2" role="tablist" x-data="{ currentIdx: $wire.entangle('form.itemIdx') }">
                         @foreach ($this->form->items as $index => $item)
                             <li class="nav-item" role="presentation">
-                                <span wire:click.prevent="switchToItem({{ $index }})" class="nav-link"
-                                    :class="{ 'active': currentIdx == {{ $index }} }" style="cursor: pointer">
-                                    Item {{ $index + 1 }}
+                                <span wire:click.prevent="switchToItem({{ $index }})"
+                                    class="nav-link position-relative d-flex align-items-center justify-content-center py-3 shadow-sm"
+                                    :class="{ 'active': currentIdx == {{ $index }} }"
+                                    style="cursor: pointer; transition: all 0.2s ease;">
+                                    <i class="bi bi-box-seam me-2"></i>
+                                    <span class="fw-semibold">Item {{ $index + 1 }}</span>
                                     <button type="button" wire:confirm="Are you sure you want to delete this item?"
                                         wire:click.stop.prevent="removeItem({{ $index }})"
-                                        class="btn-close btn-close-sm d-inline"></button>
+                                        class="btn-close btn-close-sm ms-2 position-absolute end-0 me-2"
+                                        style="font-size: 0.7rem;"></button>
                                 </span>
                             </li>
                         @endforeach
@@ -64,305 +132,780 @@
                 </div>
             @endif
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <p class="h4 mt-2">
-                    Item
-                    {{ count($this->form->items) > 1 ? $this->form->itemIdx + 1 : '' }}
-                    Name
-                </p>
-                {{-- Add/Remove Item --}}
-                <div class="d-flex">
-                    @if (count($this->form->items) > 1)
-                        <button type="button" wire:confirm="Are you sure you want to delete this item?"
-                            wire:click="removeItem({{ $this->form->itemIdx }})"
-                            class="btn btn-sm d-flex align-items-center justify-content-center btn-outline-danger py-2">
-                            <i class="bi bi-trash"></i>
-                            Remove This Item
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 fw-bold d-flex align-items-center">
+                        <i class="bi bi-tag text-primary me-2"></i>
+                        Item {{ count($this->form->items) > 1 ? $this->form->itemIdx + 1 : '' }} Details
+                    </h5>
+
+                    {{-- Add/Remove Item --}}
+                    <div class="d-flex gap-2">
+                        @if (count($this->form->items) > 1)
+                            <button type="button" wire:confirm="Are you sure you want to delete this item?"
+                                wire:click="removeItem({{ $this->form->itemIdx }})"
+                                class="btn btn-sm btn-outline-danger d-flex align-items-center gap-2 px-3 py-2">
+                                <i class="bi bi-trash"></i>
+                                <span class="d-none d-md-inline">Remove</span>
+                            </button>
+                        @endif
+                        <button type="button" wire:click="addItem"
+                            class="btn btn-sm btn-outline-primary d-flex align-items-center gap-2 px-3 py-2"
+                            style="border-style: dashed; border-width: 2px;">
+                            <i class="bi bi-plus-lg"></i>
+                            <span class="d-none d-md-inline">Add Item</span>
                         </button>
-                    @endif
-                    <button type="button" wire:click="addItem" style="border: 1.5px rgb(108, 117, 125) dashed;"
-                        class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center py-2">
-                        <i class="bi bi-plus-lg"></i>
-                        Add Another Item
-                    </button>
+                    </div>
                 </div>
-            </div>
 
-            {{-- Dropdown: Select Item --}}
-            <select wire:model.live="form.itemId" class="form-select mb-2">
-                <option value="">Select Item</option>
-                @foreach ($this->selectedApplication->storedItems as $item)
-                    <option value="{{ $item->id }}">{{ ucfirst($item->item_name) }}</option>
-                @endforeach
-            </select>
+                <div class="card-body p-4">
+                    {{-- Dropdown: Select Item --}}
+                    <div class="mb-4">
+                        <label for="itemSelect" class="form-label fw-semibold">
+                            <i class="bi bi-search me-1"></i>Select an Item
+                        </label>
+                        <select id="itemSelect" wire:model.live="form.itemId"
+                            class="form-select form-select-lg shadow-sm">
+                            <option value="">-- Choose an item --</option>
+                            @foreach ($this->selectedApplication->storedItems as $item)
+                                <option value="{{ $item->id }}">{{ ucfirst($item->item_name) }}</option>
+                            @endforeach
+                        </select>
 
-            @error('form.itemId')
-                <p class="text-danger mb-0">{{ $message }}</p>
-            @enderror
-            {{-- Show Detail of Selected Item --}}
-            @if (!empty($this->form->itemId))
-                <div class="border-top border-bottom border-primary bg-primary-subtle bg-opacity-10 p-2">
-                    <div class="row">
-                        <p class="leading col-3 fw-bold">Category:</p>
-                        <p class="col-9">{{ $this->selectedItem->item_type }}</p>
-                        <p class="leading col-3 fw-bold">Description:</p>
-                        <p class="col-9">{{ $this->selectedItem->item_name }}</p>
-                        <p class="leading col-3 fw-bold">Size:</p>
-                        <p class="col-9">{{ $this->selectedItem->estimated_size }}</p>
-                        <p class="leading col-3 fw-bold">Photo:</p>
-                        @if ($this->selectedItem->item_photo_path)
-                            <img class="col-9" style="height:500px; object-fit: contain"
-                                src="{{ asset('storage/' . $this->selectedItem->item_photo_path) }}" alt="Item Photo">
-                        @else
-                            {{-- Option to uplaod item Photo --}}
-                            <div class="col-9">
-                                <p>N/A</p>
-                                <div class="mb-4">
-                                    <input type="file" id="item_photo" accept=".jpg,.jpeg,.png,.svg" class="d-none"
-                                        wire:model="form.photo">
-                                    <label for="item_photo" style="cursor: pointer;">
-                                        <span
-                                            class="btn btn-primary rounded-pill d-flex align-items-center justify-content-center gap-2"
-                                            style="width: fit-content;">
-                                            <i class="bi bi-cloud-arrow-up text-light fs-5"
-                                                style="vertical-align: middle"></i>
-                                            Upload a Photo
-                                        </span>
-                                    </label>
-                                    <p class="small text-muted mt-0">
-                                        Only support .jpg, .png and .svg files (Max: 2MB)
-                                    </p>
-                                    @error('form.photo')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                    <div wire:loading wire:target="form.photo" class="mt-2">
-                                        <div class="d-flex align-items-center">
-                                            <div class="spinner-border spinner-border-sm text-primary me-2"
-                                                role="status">
+                        @error('form.itemId')
+                            <div class="alert alert-danger d-flex align-items-center py-2 px-3 mt-2 mb-0" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <span>{{ $message }}</span>
+                            </div>
+                        @enderror
+                    </div>
+
+                    {{-- Show Detail of Selected Item --}}
+                    @if (!empty($this->form->itemId))
+                        <div class="card border-primary shadow-sm animate-fade-in">
+                            <div class="card-header bg-primary bg-opacity-10 border-primary">
+                                <h6 class="mb-0 fw-semibold text-primary">
+                                    <i class="bi bi-info-circle me-2"></i>Item Information
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    {{-- Category --}}
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-start">
+                                            <i class="bi bi-grid text-primary me-3 fs-5 mt-1"></i>
+                                            <div class="flex-grow-1">
+                                                <p class="text-muted small mb-1">Category</p>
+                                                <p class="fw-semibold mb-0">{{ $this->selectedItem->item_type }}</p>
                                             </div>
-                                            <span class="text-primary small">Uploading photo...</span>
                                         </div>
                                     </div>
-                                    {{-- Photo Preview --}}
-                                    @if ($this->form->photo)
-                                        <div class="mb-3">
-                                            <div class="position-relative d-inline-block" style="width: 128px;">
-                                                <div style="width: 128px; height: 128px;">
-                                                    <img src="{{ $this->form->photo->temporaryUrl() }}"
-                                                        alt="Preview" class="img-thumbnail"
-                                                        style="width: 128px; height: 128px;">
-                                                    <button type="button"
-                                                        class="position-absolute top-0 end-0 bg-danger text-white rounded-circle d-flex align-items-center justify-content-center fs-6"
-                                                        style="width: 23px; height: 23px" wire:click="removePhoto">
-                                                        X
-                                                    </button>
-                                                </div>
-                                                <p class="text-success small fw-medium mb-1 text-center"
-                                                    style="white-space: nowrap; overflow:visible;">
-                                                    {{ $this->form->photo->getClientOriginalName() }}
+
+                                    {{-- Size --}}
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-start">
+                                            <i class="bi bi-rulers text-primary me-3 fs-5 mt-1"></i>
+                                            <div class="flex-grow-1">
+                                                <p class="text-muted small mb-1">Size</p>
+                                                <p class="fw-semibold mb-0">{{ $this->selectedItem->estimated_size }}
                                                 </p>
                                             </div>
                                         </div>
-                                    @endif
+                                    </div>
+
+                                    {{-- Description --}}
+                                    <div class="col-12">
+                                        <div class="d-flex align-items-start">
+                                            <i class="bi bi-text-left text-primary me-3 fs-5 mt-1"></i>
+                                            <div class="flex-grow-1">
+                                                <p class="text-muted small mb-1">Description</p>
+                                                <p class="fw-semibold mb-0">{{ $this->selectedItem->item_name }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Photo --}}
+                                    <div class="col-12">
+                                        <div class="border-top pt-3 mt-2">
+                                            <div class="d-flex align-items-start">
+                                                <i class="bi bi-image text-primary me-3 fs-5 mt-1"></i>
+                                                <div class="flex-grow-1">
+                                                    <p class="text-muted small mb-2">Item Photo</p>
+
+                                                    @if ($this->selectedItem->item_photo_path)
+                                                        <div class="text-center bg-light rounded p-3">
+                                                            <img class="img-fluid rounded shadow-sm"
+                                                                style="max-height: 500px; object-fit: contain;"
+                                                                src="{{ asset('storage/' . $this->selectedItem->item_photo_path) }}"
+                                                                alt="Item Photo">
+                                                        </div>
+                                                    @else
+                                                        {{-- Option to upload item Photo --}}
+                                                        <div
+                                                            class="upload-area border border-2 border-dashed rounded p-4 text-center bg-light">
+                                                            <i
+                                                                class="bi bi-cloud-arrow-up text-muted fs-1 mb-3 d-block"></i>
+
+                                                            <input type="file" id="item_photo"
+                                                                accept=".jpg,.jpeg,.png,.svg" class="d-none"
+                                                                wire:model="form.photo">
+
+                                                            <label for="item_photo" class="mb-0"
+                                                                style="cursor: pointer;">
+                                                                <span
+                                                                    class="btn btn-primary rounded-pill px-4 py-2 shadow-sm">
+                                                                    <i class="bi bi-upload me-2"></i>
+                                                                    Upload Photo
+                                                                </span>
+                                                            </label>
+
+                                                            <p class="small text-muted mt-3 mb-0">
+                                                                <i class="bi bi-info-circle me-1"></i>
+                                                                Supports .jpg, .png and .svg files (Max: 2MB)
+                                                            </p>
+
+                                                            @error('form.photo')
+                                                                <div class="alert alert-danger d-flex align-items-center py-2 px-3 mt-3 mb-0"
+                                                                    role="alert">
+                                                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                                                    <span>{{ $message }}</span>
+                                                                </div>
+                                                            @enderror
+
+                                                            {{-- Loading State --}}
+                                                            <div wire:loading wire:target="form.photo" class="mt-3">
+                                                                <div
+                                                                    class="d-flex align-items-center justify-content-center">
+                                                                    <div class="spinner-border spinner-border-sm text-primary me-2"
+                                                                        role="status">
+                                                                        <span class="visually-hidden">Loading...</span>
+                                                                    </div>
+                                                                    <span
+                                                                        class="text-primary small fw-medium">Uploading
+                                                                        photo...</span>
+                                                                </div>
+                                                            </div>
+
+                                                            {{-- Photo Preview --}}
+                                                            @if ($this->form->photo)
+                                                                <div class="mt-4">
+                                                                    <div class="d-inline-block position-relative">
+                                                                        <img src="{{ $this->form->photo->temporaryUrl() }}"
+                                                                            alt="Preview"
+                                                                            class="img-thumbnail shadow-sm"
+                                                                            style="width: 150px; height: 150px; object-fit: cover;">
+                                                                        <button type="button"
+                                                                            class="btn btn-danger btn-sm position-absolute top-0 end-0 rounded-circle shadow"
+                                                                            style="width: 30px; height: 30px; padding: 0; margin: -8px;"
+                                                                            wire:click="removePhoto">
+                                                                            <i class="bi bi-x-lg"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                    <p class="text-success small fw-medium mt-2 mb-0">
+                                                                        <i class="bi bi-check-circle-fill me-1"></i>
+                                                                        {{ $this->form->photo->getClientOriginalName() }}
+                                                                    </p>
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        @endif
+                        </div>
+                    @endif {{-- End Selected Item --}}
+                </div>
+            </div>
+
+            {{-- Back/Next Button --}}
+            <div x-data="{ ok: $wire.entangle('form.itemId') }" class="d-flex justify-content-between gap-3 pt-3 border-top">
+                <button wire:click.prevent="previousStep" type="button"
+                    class="btn btn-outline-secondary btn-lg px-5 py-3 d-flex align-items-center">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    <span>Back</span>
+                </button>
+
+                <button type="button" wire:click.prevent="nextStep"
+                    class="btn btn-primary btn-lg px-5 py-3 shadow-sm d-flex align-items-center" :disabled="!ok"
+                    style="transition: all 0.3s ease;">
+                    <span>Confirm Selection</span>
+                    <i class="bi bi-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </section>
+
+        <style>
+            .nav-pills .nav-link {
+                background-color: #f8f9fa;
+                color: #6c757d;
+                border: 1px solid #dee2e6;
+            }
+
+            .nav-pills .nav-link:hover {
+                background-color: #e9ecef;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .nav-pills .nav-link.active {
+                background-color: var(--bs-primary);
+                color: white;
+                border-color: var(--bs-primary);
+            }
+
+            .form-select:focus {
+                border-color: var(--bs-primary);
+                box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+            }
+
+            .btn-outline-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+            }
+
+            .btn-outline-secondary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .btn:disabled {
+                cursor: not-allowed;
+                opacity: 0.6;
+            }
+
+            .upload-area {
+                transition: all 0.3s ease;
+            }
+
+            .upload-area:hover {
+                background-color: #f0f7ff !important;
+                border-color: var(--bs-primary) !important;
+            }
+
+            .card {
+                transition: all 0.3s ease;
+            }
+        </style>
+    @elseif ($this->currentStep === 3)
+        {{-- Missing Item Details Form --}}
+        <section class="py-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold d-flex align-items-center">
+                        <i class="bi bi-calendar-event text-primary me-2"></i>
+                        Incident Details
+                    </h5>
+                </div>
+
+                <div class="card-body p-4">
+                    {{-- Last Seen Time --}}
+                    <div class="mb-5">
+                        <h6 class="fw-bold mb-3 d-flex align-items-center">
+                            <i class="bi bi-eye text-primary me-2"></i>
+                            When did you last see these items?
+                        </h6>
+
+                        <div x-data="{ option: @entangle('form.seeTime') }" class="ps-3">
+                            {{-- Specific Date Option --}}
+                            <div class="form-check form-check-custom mb-3">
+                                <input x-model="option" name="seeTime" value="specific_date" id="seetime1"
+                                    type="radio" class="form-check-input" style="cursor: pointer;">
+                                <label for="seetime1" class="form-check-label fw-medium" style="cursor: pointer;">
+                                    <i class="bi bi-calendar-date me-2"></i>On a specific date
+                                </label>
+                            </div>
+
+                            <div class="ms-4 mb-3" x-show="option === 'specific_date'" x-transition>
+                                <input type="date" wire:model="form.seeDate"
+                                    :disabled="option !== 'specific_date'"
+                                    class="form-control form-control-lg shadow-sm"
+                                    :class="{ 'bg-light': option !== 'specific_date' }">
+                                @error('form.seeDate')
+                                    <div class="alert alert-danger d-flex align-items-center py-2 px-3 mt-2 mb-0"
+                                        role="alert">
+                                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                        <span>{{ $message }}</span>
+                                    </div>
+                                @enderror
+                            </div>
+
+                            {{-- Time Range Option --}}
+                            <div class="form-check form-check-custom mb-3">
+                                <input x-model="option" name="seeTime" value="range" id="seetime2" type="radio"
+                                    class="form-check-input" style="cursor: pointer;">
+                                <label for="seetime2" class="form-check-label fw-medium" style="cursor: pointer;">
+                                    <i class="bi bi-clock-history me-2"></i>Around this time
+                                </label>
+                            </div>
+
+                            <div class="ms-4 mb-3" x-show="option === 'range'" x-transition>
+                                <select wire:model="form.seeRange" :disabled="option !== 'range'"
+                                    class="form-select form-select-lg shadow-sm"
+                                    :class="{ 'bg-light': option !== 'range' }">
+                                    <option value="">-- Select a timeframe --</option>
+                                    <option value="today">Today</option>
+                                    <option value="yesterday">Yesterday</option>
+                                    <option value="this_week">This week</option>
+                                    <option value="last_week">Last week</option>
+                                    <option value="last_month">Last month</option>
+                                    <option value="longer">More than a month ago</option>
+                                </select>
+                                @error('form.seeRange')
+                                    <div class="alert alert-danger d-flex align-items-center py-2 px-3 mt-2 mb-0"
+                                        role="alert">
+                                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                        <span>{{ $message }}</span>
+                                    </div>
+                                @enderror
+                            </div>
+
+                            {{-- Don't Remember Option --}}
+                            <div class="form-check form-check-custom">
+                                <input x-model="option" name="seeTime" value="dont_remember" id="seetime3"
+                                    type="radio" class="form-check-input" style="cursor: pointer;">
+                                <label for="seetime3" class="form-check-label fw-medium" style="cursor: pointer;">
+                                    <i class="bi bi-question-circle me-2"></i>I don't remember
+                                </label>
+                            </div>
+
+                            @error('form.seeTime')
+                                <div class="alert alert-danger d-flex align-items-center py-2 px-3 mt-3 mb-0"
+                                    role="alert">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                    <span>{{ $message }}</span>
+                                </div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    {{-- Last Seen Location --}}
+                    <div class="mb-5 pb-4 border-bottom">
+                        <h6 class="fw-bold mb-3 d-flex align-items-center">
+                            <i class="bi bi-geo-alt text-primary me-2"></i>
+                            Last Seen Location
+                        </h6>
+
+                        <div class="ps-3">
+                            <input wire:model="form.last_seen_location" type="text" id="last_seen_location"
+                                class="form-control form-control-lg shadow-sm"
+                                placeholder="e.g., Locker A-12, Main Hall, or Reception Counter" required>
+                            <small class="form-text text-muted d-flex align-items-center mt-2">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Be as specific as possible to help with the investigation
+                            </small>
+                            @error('form.last_seen_location')
+                                <div class="alert alert-danger d-flex align-items-center py-2 px-3 mt-2 mb-0"
+                                    role="alert">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                    <span>{{ $message }}</span>
+                                </div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    {{-- Discovery Time --}}
+                    <div class="mb-5 pb-4 border-bottom">
+                        <h6 class="fw-bold mb-3 d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle text-primary me-2"></i>
+                            When did you discover the items were missing?
+                        </h6>
+
+                        <div x-data="{ option: @entangle('form.discoverTime') }" class="ps-3">
+                            {{-- Specific Date Option --}}
+                            <div class="form-check form-check-custom mb-3">
+                                <input x-model="option" name="discoverTime" value="specific_date" id="discoverTime1"
+                                    type="radio" class="form-check-input" style="cursor: pointer;">
+                                <label for="discoverTime1" class="form-check-label fw-medium"
+                                    style="cursor: pointer;">
+                                    <i class="bi bi-calendar-date me-2"></i>On a specific date
+                                </label>
+                            </div>
+
+                            <div class="ms-4 mb-3" x-show="option === 'specific_date'" x-transition>
+                                <input type="date" wire:model="form.discoverDate"
+                                    :disabled="option !== 'specific_date'"
+                                    class="form-control form-control-lg shadow-sm"
+                                    :class="{ 'bg-light': option !== 'specific_date' }">
+                                @error('form.discoverDate')
+                                    <div class="alert alert-danger d-flex align-items-center py-2 px-3 mt-2 mb-0"
+                                        role="alert">
+                                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                        <span>{{ $message }}</span>
+                                    </div>
+                                @enderror
+                            </div>
+
+                            {{-- Time Range Option --}}
+                            <div class="form-check form-check-custom mb-3">
+                                <input x-model="option" name="discoverTime" value="range" id="discoverTime2"
+                                    type="radio" class="form-check-input" style="cursor: pointer;">
+                                <label for="discoverTime2" class="form-check-label fw-medium"
+                                    style="cursor: pointer;">
+                                    <i class="bi bi-clock-history me-2"></i>Around this time
+                                </label>
+                            </div>
+
+                            <div class="ms-4 mb-3" x-show="option === 'range'" x-transition>
+                                <select wire:model="form.discoverRange" :disabled="option !== 'range'"
+                                    class="form-select form-select-lg shadow-sm"
+                                    :class="{ 'bg-light': option !== 'range' }">
+                                    <option value="">-- Select a timeframe --</option>
+                                    <option value="today">Today</option>
+                                    <option value="yesterday">Yesterday</option>
+                                    <option value="this_week">This week</option>
+                                    <option value="last_week">Last week</option>
+                                    <option value="last_month">Last month</option>
+                                    <option value="longer">More than a month ago</option>
+                                </select>
+                                @error('form.discoverRange')
+                                    <div class="alert alert-danger d-flex align-items-center py-2 px-3 mt-2 mb-0"
+                                        role="alert">
+                                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                        <span>{{ $message }}</span>
+                                    </div>
+                                @enderror
+                            </div>
+
+                            {{-- Don't Remember Option --}}
+                            <div class="form-check form-check-custom">
+                                <input x-model="option" name="discoverTime" value="dont_remember" id="discoverTime3"
+                                    type="radio" class="form-check-input" style="cursor: pointer;">
+                                <label for="discoverTime3" class="form-check-label fw-medium"
+                                    style="cursor: pointer;">
+                                    <i class="bi bi-question-circle me-2"></i>I don't remember
+                                </label>
+                            </div>
+
+                            @error('form.discoverTime')
+                                <div class="alert alert-danger d-flex align-items-center py-2 px-3 mt-3 mb-0"
+                                    role="alert">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                    <span>{{ $message }}</span>
+                                </div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    {{-- Additional Information --}}
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-3 d-flex align-items-center">
+                            <i class="bi bi-chat-left-text text-primary me-2"></i>
+                            Additional Information or Witnesses
+                        </h6>
+
+                        <div class="ps-3">
+                            <textarea wire:model="form.addInfo" name="addtionalinformation" id="additionalinformation" cols="30"
+                                rows="5"
+                                placeholder="Please provide any additional information that might help with the investigation, such as:
+• Witness names or contact information
+• Suspicious activities you noticed
+• Timeline of events
+• Any other relevant details"
+                                class="form-control form-control-lg shadow-sm"></textarea>
+                            <small class="form-text text-muted d-flex align-items-center mt-2">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Optional: Include any details that might help locate your items
+                            </small>
+                            @error('form.addInfo')
+                                <div class="alert alert-danger d-flex align-items-center py-2 px-3 mt-2 mb-0"
+                                    role="alert">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                    <span>{{ $message }}</span>
+                                </div>
+                            @enderror
+                        </div>
                     </div>
                 </div>
-            @endif {{-- End Selected Item --}}
+            </div>
 
             {{-- Back/Next Button --}}
-            <div x-data="{ ok: $wire.entangle('form.itemId') }" class="d-flex justify-content-between pt-4 border-top mt-4">
-                <button wire:click.prevent="previousStep" type="button" class="btn btn-outline-secondary px-4">
-                    Back
+            <div class="d-flex justify-content-between gap-3 pt-3 border-top">
+                <button wire:click.prevent="previousStep" type="button"
+                    class="btn btn-outline-secondary btn-lg px-5 py-3 d-flex align-items-center">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    <span>Back</span>
                 </button>
 
-                <button type="button" wire:click.prevent="nextStep" class="btn btn-primary px-4 py-2"
-                    :disabled="!ok">
-                    Confirm Selection
+                <button type="button" wire:click.prevent="nextStep"
+                    class="btn btn-primary btn-lg px-5 py-3 shadow-sm d-flex align-items-center"
+                    style="transition: all 0.3s ease;">
+                    <span>Continue</span>
+                    <i class="bi bi-arrow-right ms-2"></i>
                 </button>
             </div>
         </section>
-    @elseif ($this->currentStep === 3)
-        {{-- Radio 1 --}}
-        <section>
-            <p class="h4 mt-2">When did you last see these items?</p>
-            <div x-data="{ option: @entangle('form.seeTime') }">
 
-                <div class="form-check">
-                    <input x-model="option" name="seeTime" value="specific_date" id="seetime1" type="radio"
-                        class="form-check-input">
-                    <label for="seetime1" class="form-check-label">On a specific date</label>
-                </div>
-                <!-- Specific Date -->
-                <input type="date" wire:model="form.seeDate" :disabled="option !== 'specific_date'"
-                    class="form-control mt-2">
-                @error('form.seeDate')
-                    <div class="text-danger mb-0">{{ $message }}</div>
-                @enderror
+        <style>
+            .form-check-custom {
+                padding: 0.75rem;
+                border-radius: 0.5rem;
+                transition: all 0.2s ease;
+            }
 
-                <div class="form-check mt-3">
-                    <input x-model="option" name="seeTime" value="range" id="seetime2" type="radio"
-                        class="form-check-input">
-                    <label for="seetime2" class="form-check-label">Around this time</label>
-                </div>
-                <!-- Approximate range -->
-                <select wire:model="form.seeRange" :disabled="option !== 'range'" class="form-control mt-2">
-                    <option value="">-- Select one --</option>
-                    <option value="today">Today</option>
-                    <option value="yesterday">Yesterday</option>
-                    <option value="this_week">This week</option>
-                    <option value="last_week">Last week</option>
-                    <option value="last_month">Last month</option>
-                    <option value="longer">More than a month ago</option>
-                </select>
-                @error('form.seeRange')
-                    <div class="text-danger mb-0">{{ $message }}</div>
-                @enderror
+            .form-check-custom:hover {
+                background-color: #f8f9fa;
+            }
 
-                <!-- I don't remember -->
-                <div class="form-check mt-3">
-                    <input x-model="option" name="seeTime" value="dont_remember" id="seetime3" type="radio"
-                        class="form-check-input">
-                    <label for="seetime3" class="form-check-label">I don’t remember</label>
-                </div>
-            </div>
-            @error('form.seeTime')
-                <div class="text-danger mb-0">{{ $message }}</div>
-            @enderror
+            .form-check-input {
+                width: 1.25rem;
+                height: 1.25rem;
+                margin-top: 0.125rem;
+            }
 
-            <hr>
-            <div class="my-2">
-                <p for="last_seen_location" class="h4">Last Seen Location?</p>
-                <input wire:model="form.last_seen_location" type="text" id="last_seen_location"
-                    class="form-control" placeholder="Enter where the item was last seen..." required>
-                <small class="form-text text-muted">
-                    Example: Locker A-12, Main Hall, or Reception Counter
-                </small>
-                @error('form.last_seen_location')
-                    <p class="text-danger mb-0">{{ $message }}</p>
-                @enderror
-            </div>
+            .form-check-input:checked {
+                background-color: var(--bs-primary);
+                border-color: var(--bs-primary);
+            }
 
-            <hr>
-            {{-- Radio 2 --}}
-            <p class="h4 mt-2">When did you discover items was missing?</p>
-            <div x-data="{ option: @entangle('form.discoverTime') }">
+            .form-check-label {
+                margin-left: 0.5rem;
+                user-select: none;
+            }
 
-                <div class="form-check">
-                    <input x-model="option" name="discoverTime" value="specific_date" id="discoverTime1"
-                        type="radio" class="form-check-input">
-                    <label for="discoverTime1" class="form-check-label">On a specific date</label>
-                </div>
-                <!-- Specific Date -->
-                <input type="date" wire:model="form.discoverDate" :disabled="option !== 'specific_date'"
-                    class="form-control mt-2">
-                @error('form.discoverDate')
-                    <div class="text-danger mb-0">{{ $message }}</div>
-                @enderror
+            textarea.form-control {
+                resize: vertical;
+                min-height: 120px;
+            }
 
-                <div class="form-check mt-3">
-                    <input x-model="option" name="discoverTime" value="range" id="discoverTime2" type="radio"
-                        class="form-check-input">
-                    <label for="discoverTime2" class="form-check-label">Around this time</label>
-                </div>
-                <!-- Approximate range -->
-                <select wire:model="form.discoverRange" :disabled="option !== 'range'" class="form-control mt-2">
-                    <option value="">-- Select one --</option>
-                    <option value="today">Today</option>
-                    <option value="yesterday">Yesterday</option>
-                    <option value="this_week">This week</option>
-                    <option value="last_week">Last week</option>
-                    <option value="last_month">Last month</option>
-                    <option value="longer">More than a month ago</option>
-                </select>
-                @error('form.discoverRange')
-                    <div class="text-danger mb-0">{{ $message }}</div>
-                @enderror
+            .btn-outline-secondary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
 
-                <!-- I don't remember -->
-                <div class="form-check mt-3">
-                    <input x-model="option" name="discoverTime" value="dont_remember" id="discoverTime3"
-                        type="radio" class="form-check-input">
-                    <label for="discoverTime3" class="form-check-label">I don’t remember</label>
-                </div>
-            </div>
-            @error('form.discoverTime')
-                <div class="text-danger mb-0">{{ $message }}</div>
-            @enderror
-
-            <hr>
-
-            <p class="h4 mt-2">Relevant Information or Witnesses</p>
-            <textarea wire:model="form.addInfo" name="addtionalinformation" id="additionalinformation" cols="30"
-                rows="5" placeholder="Information to help with further investigation." class="form-control"></textarea>
-            @error('form.addInfo')
-                <div class="text-danger mb-0">{{ $message }}</div>
-            @enderror
-
-            {{-- Back/Next Button --}}
-            <div class="d-flex justify-content-between pt-4 border-top mt-4">
-                <button wire:click.prevent="previousStep" type="button" class="btn btn-outline-secondary px-4">
-                    Back
-                </button>
-
-                <button type="button" wire:click.prevent="nextStep" class="btn btn-primary px-4 py-2">
-                    Next
-                </button>
-            </div>
-        </section>
+            [x-cloak] {
+                display: none !important;
+            }
+        </style>
     @elseif ($this->currentStep === 4)
-        <section>
-            <p class="h4 mt-2">Verify or Update Your Contact Information</p>
-
-            <div class="row">
-                <div class="col-6 mb-3">
-                    <label for="useremail" class="form-label">Email address</label>
-                    <input wire:model="form.userEmail" type="email" class="form-control" id="useremail"
-                        placeholder="name@example.com">
-                    @error('form.userEmail')
-                        <p class="text-danger mb-0">{{ $message }}</p>
-                    @enderror
+        {{-- Contact Verification Form --}}
+        <section class="py-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold d-flex align-items-center">
+                        <i class="bi bi-person-check text-primary me-2"></i>
+                        Verify Your Contact Information
+                    </h5>
+                    <p class="small text-muted mb-0 mt-1">
+                        We'll use this information to contact you about your missing items
+                    </p>
                 </div>
 
-                <div class="col-6 mb-3">
-                    <label for="userphone" class="form-label">Phone Number:</label>
-                    <input wire:model="form.userPhone" type="tel" class="form-control" id="userphone"
-                        placeholder="012-1234567">
-                    @error('form.userPhone')
-                        <p class="text-danger mb-0">{{ $message }}</p>
-                    @enderror
+                <div class="card-body p-4">
+                    <div class="alert alert-info d-flex align-items-start mb-4" role="alert">
+                        <i class="bi bi-info-circle-fill me-3 mt-1 fs-5"></i>
+                        <div>
+                            <strong>Important:</strong> Please ensure your contact information is accurate.
+                            We will use these details to notify you of any updates regarding your missing items.
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        {{-- Email Address --}}
+                        <div class="col-md-6">
+                            <label for="useremail" class="form-label fw-semibold d-flex align-items-center">
+                                <i class="bi bi-envelope text-primary me-2"></i>
+                                Email Address
+                            </label>
+                            <input wire:model="form.userEmail" type="email"
+                                class="form-control form-control-lg shadow-sm" id="useremail"
+                                placeholder="name@example.com">
+                            <small class="form-text text-muted d-flex align-items-center mt-2">
+                                <i class="bi bi-shield-check me-1"></i>
+                                We'll send updates to this email
+                            </small>
+                            @error('form.userEmail')
+                                <div class="alert alert-danger d-flex align-items-center py-2 px-3 mt-2 mb-0"
+                                    role="alert">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                    <span>{{ $message }}</span>
+                                </div>
+                            @enderror
+                        </div>
+
+                        {{-- Phone Number --}}
+                        <div class="col-md-6">
+                            <label for="userphone" class="form-label fw-semibold d-flex align-items-center">
+                                <i class="bi bi-telephone text-primary me-2"></i>
+                                Phone Number
+                            </label>
+                            <input wire:model="form.userPhone" type="tel"
+                                class="form-control form-control-lg shadow-sm" id="userphone"
+                                placeholder="012-3456789">
+                            <small class="form-text text-muted d-flex align-items-center mt-2">
+                                <i class="bi bi-shield-check me-1"></i>
+                                For urgent notifications
+                            </small>
+                            @error('form.userPhone')
+                                <div class="alert alert-danger d-flex align-items-center py-2 px-3 mt-2 mb-0"
+                                    role="alert">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                    <span>{{ $message }}</span>
+                                </div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    {{-- Confirmation Checkbox --}}
+                    <div class="mt-4 pt-4 border-top">
+                        <div class="card bg-light border-0">
+                            <div class="card-body p-4">
+                                <div class="form-check form-check-custom d-flex align-items-start">
+                                    <input wire:model="form.confirmed" class="form-check-input mt-1" type="checkbox"
+                                        name="contactinfo" id="contactinfo" style="cursor: pointer;">
+                                    <label class="form-check-label ms-2 fw-medium" for="contactinfo"
+                                        style="cursor: pointer;">
+                                        <i class="bi bi-check-circle text-success me-2"></i>
+                                        I confirm that all information provided is accurate and complete.
+                                    </label>
+                                </div>
+                                <small class="text-muted d-block mt-2 ms-4 ps-3">
+                                    By checking this box, you verify that the details you've provided in this report are
+                                    truthful
+                                    and accurate to the best of your knowledge.
+                                </small>
+                                @error('form.confirmed')
+                                    <div class="alert alert-danger d-flex align-items-center py-2 px-3 mt-3 mb-0"
+                                        role="alert">
+                                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                        <span>{{ $message }}</span>
+                                    </div>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-check">
-                <input wire:model="form.confirmed" class="form-check-input" type="checkbox" name="contactinfo"
-                    id="contactinfo">
-                <label class="form-check-label" for="contactinfo">
-                    I confirm that all information provided is accurate.
-                </label>
-                @error('form.confirmed')
-                    <p class="text-danger mb-0">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <!-- Submit/Back Buttons -->
-            <div class="d-flex justify-content-between pt-4 border-top mt-4">
-                <button wire:click.prevent="previousStep" type="button" class="btn btn-outline-secondary px-4">
-                    Back
+            {{-- Submit/Back Buttons --}}
+            <div class="d-flex justify-content-between gap-3 pt-3 border-top">
+                <button wire:click.prevent="previousStep" type="button"
+                    class="btn btn-outline-secondary btn-lg px-5 py-3 d-flex align-items-center">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    <span>Back</span>
                 </button>
 
                 <button wire:click.prevent="nextStep" type="button"
-                    class="btn btn-primary px-5 d-flex align-items-center" wire:loading.attr="disabled"
-                    wire:target="submitApplication">
-                    <span wire:loading.remove wire:target="submit">Submit Application</span>
+                    class="btn btn-success btn-lg px-5 py-3 d-flex align-items-center shadow-sm position-relative"
+                    wire:loading.attr="disabled" wire:target="submit"
+                    style="min-width: 220px; transition: all 0.3s ease;">
+                    <span wire:loading.remove wire:target="submit" class="d-flex align-items-center">
+                        <i class="bi bi-send-check me-2"></i>
+                        Submit Application
+                    </span>
                     <span wire:loading wire:target="submit">
                         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                         Submitting...
                     </span>
                 </button>
             </div>
-        </section>
-    @endif {{-- End Step 4 --}}
 
+            {{-- Success Indicator --}}
+            <div class="text-center mt-4" wire:loading wire:target="submit">
+                <div class="card border-primary bg-primary bg-opacity-10">
+                    <div class="card-body py-3">
+                        <p class="text-primary mb-0 d-flex align-items-center justify-content-center">
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            <strong>Processing your application... Please wait.</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <style>
+            .form-check-custom .form-check-input {
+                width: 1.5rem;
+                height: 1.5rem;
+                border-width: 2px;
+            }
+
+            .form-check-custom .form-check-input:checked {
+                background-color: var(--bs-success);
+                border-color: var(--bs-success);
+            }
+
+            .form-check-custom:hover {
+                background-color: rgba(13, 110, 253, 0.05);
+                border-radius: 0.5rem;
+                transition: all 0.2s ease;
+            }
+
+            .btn-success:not(:disabled):hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 16px rgba(25, 135, 84, 0.3);
+            }
+
+            .btn-outline-secondary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .btn:disabled {
+                cursor: not-allowed;
+                opacity: 0.7;
+            }
+
+            .alert {
+                border-left: 4px solid;
+            }
+
+            .alert-info {
+                border-left-color: var(--bs-info);
+            }
+
+            .alert-danger {
+                border-left-color: var(--bs-danger);
+            }
+
+            @keyframes pulse {
+
+                0%,
+                100% {
+                    opacity: 1;
+                }
+
+                50% {
+                    opacity: 0.7;
+                }
+            }
+
+            [wire\:loading] {
+                animation: pulse 1.5s ease-in-out infinite;
+            }
+        </style>
+    @endif {{-- End Step 4 --}}
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .btn-primary:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3) !important;
+        }
+
+        .btn-primary:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .card {
+            transition: all 0.3s ease;
+        }
+    </style>
 </form>

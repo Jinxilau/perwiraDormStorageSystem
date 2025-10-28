@@ -2,6 +2,7 @@
 #sidebar {
     background: #2c2c2e;
     transition: all 300ms ease-in-out;
+    max-width: 260px;
 }
 
 /* Sidebar Navigation Items */
@@ -26,7 +27,7 @@
 }
 
 #sidebarcontent.active {
-    background-color: #8a5cf6d4;
+    background-color: #0d6efd;
     color: #ffffff;
     /* border-left-color: #ffd700; */
     font-weight: 600;
