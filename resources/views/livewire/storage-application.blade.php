@@ -1,9 +1,10 @@
 <div>
     {{-- Knowing others is intelligence; knowing yourself is true wisdom. --}}
-    <h2 class="card-title text-center">Storage Application Process</h2>
-    <p class="text-muted text-center mb-2 small">
-        Follow the steps below to submit your storage request.
-    </p>
+    @include('livewire.includes.student-title', [
+        'title' => 'Storage Application Process',
+        'subtitle' => 'Follow the steps below to submit your storage request.',
+    ])
+
     @if ($showSuccessMessage)
         @include('livewire.includes.application-ok')
     @else
@@ -21,7 +22,7 @@
                                 }">
                                 {{-- Stepper Head --}}
                                 <div class="d-flex flex-column align-items-center justify-content-center align-items-center position-relative text-center"
-                                    style="width: 12vw; min-width: 70px;">
+                                    style="width: 16vw; min-width: 70px;">
                                     {{-- Stepper Icon --}}
                                     <span
                                         class="stepper-head-icon d-flex align-items-center justify-content-center fw-bold rounded-circle">
@@ -30,7 +31,7 @@
                                         @endif
                                     </span>
                                     <div class="stepper-content py-0">
-                                        <p class="text-muted small mb-0">
+                                        <p class="text-muted fw-bold mb-0">
                                             @if ($i == 1)
                                                 Item Details
                                             @elseif($i == 2)

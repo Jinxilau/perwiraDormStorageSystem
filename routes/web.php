@@ -37,6 +37,7 @@ Route::middleware(['auth', EnsureUserIsApproved::class, CheckRole::class . ':stu
     Route::get('/student/my_storage', MyStorage::class)->name('my_storage');
     Route::get('/student/my_report', MyReport::class)->name('my_report');
     Route::get('/student/notification', StudentNotifications::class)->name('student_notification');
+    Route::view('/student/help_and_support', 'help_and_support')->name('help_and_support');
 });
 
 // Staff

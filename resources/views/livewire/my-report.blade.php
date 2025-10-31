@@ -1,15 +1,15 @@
 <div class="container">
     {{-- In work, do what you enjoy. --}}
-    <div class="mb-4">
-        <h1 class="display-5 fw-bold text-dark">My Reports</h1>
-        <p class="text-muted">View and track your missing item reports</p>
-    </div>
+    @include('livewire.includes.student-title2', [
+        'title' => 'My Reports',
+        'subtitle' => 'View and track your missing item reports',
+    ])
 
     @if ($this->studentStorageApplication)
         @php
             $reports = $this->studentStorageApplication->storedItems->pluck('missingReport');
         @endphp
-        
+
         @forelse ($reports as $report)
             <div class="card mb-3 shadow-sm">
                 <div class="card-body">

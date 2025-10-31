@@ -6,6 +6,7 @@ use App\Models\QRCode;
 use App\Models\StorageApplication;
 use App\Models\StorageRoom;
 use App\Models\User;
+use App\Notifications\ApproveStorageApplicationNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -95,6 +96,9 @@ class StorageApplicationPending extends Component
 
             $this->dispatch('show_toast', message: 'Application approved successfully!', type: 'success');
             $this->reset();
+
+            $student = User::findOrFail($application->applicant_id);
+            $student->notify(new ApproveStorageApplicationNotification($application));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             $this->dispatch('show_toast', message: 'Application not found.', type: 'fail');
         } catch (\Exception $e) {
@@ -137,7 +141,7 @@ class StorageApplicationPending extends Component
     public function bulkReject()
     {
         $this->validate(['rejectionNote' => 'nullable|string|max:500']);
-        
+
         try {
             StorageApplication::whereIn('id', $this->selectedApplications)->update([
                 'storage_application_status' => 'rejected',

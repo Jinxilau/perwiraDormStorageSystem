@@ -26,6 +26,6 @@ class MissingReport extends Model
 
     public function storedItems()
     {
-        return $this->hasMany(StoredItem::class);
+        return $this->hasMany(StoredItem::class, 'missing_report_id');
     }
 }

@@ -7,8 +7,12 @@ use App\Models\UserRole;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
+#[Layout('layouts.guest')]
+#[Title('Perwira Dorm Storage System')]
 class AccountApplication extends Component
 {
     public $first_name = '';
@@ -21,7 +25,6 @@ class AccountApplication extends Component
     public $email = '';
     public $password = '';
     public $password_confirmation = '';
-    public $agree_terms = false;
 
     public $years = [];
     public $semesters = [];
@@ -61,7 +64,6 @@ class AccountApplication extends Component
             'phone_number' => 'required|string|regex:/^01[0-9]-[0-9]{7,8}$/|unique:users,phone_number',
             'email' => 'required|email|unique:users,email',
             'password' => ['required', 'confirmed', Password::min(8)],
-            'agree_terms' => 'accepted',
         ];
     }
 
@@ -82,7 +84,6 @@ class AccountApplication extends Component
             'email.unique' => 'This email is already registered.',
             'password.required' => 'Password is required.',
             'password.confirmed' => 'Password confirmation does not match.',
-            'agree_terms.accepted' => 'You must agree to the Terms of Service and Privacy Policy.',
         ];
     }
 
@@ -118,14 +119,13 @@ class AccountApplication extends Component
             session()->flash('success', 'Account application submitted successfully! Please wait for admin approval.');
             $this->reset();
             $this->resetValidation();
-
+            $this->redirectRoute('login');
         } catch (\Exception $e) {
             Log::error('Account Application Submission Error: ' . $e->getMessage());
             session()->flash('error', 'An error occurred while submitting your application. Please try again.');
         }
     }
 
-    
     public function render()
     {
         return view('livewire.account-application');

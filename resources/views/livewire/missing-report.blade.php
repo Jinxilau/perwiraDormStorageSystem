@@ -1,9 +1,9 @@
 <div>
     {{-- If your happiness depends on money, you will never be happy with yourself. --}}
-    <h2 class="card-title text-center mb-2">Report Missing Item</h2>
-    <p class="text-muted text-center mb-2 small">
-        Follow the steps below to submit your report.
-    </p>
+    @include('livewire.includes.student-title', [
+        'title' => 'Report Missing Item',
+        'subtitle' => 'Follow the steps below to submit your report.',
+    ])
 
     @if ($this->studentApplications->isNotEmpty())
         @if ($showSuccessMessage)

@@ -9,7 +9,7 @@
 .stepper.actived .stepper-head-icon {
     background-color: #0d6efd;
     color: white;
-    transform: scale(1.1);
+    transform: scale(1.15) rotate(-2deg);
 }
 .stepper.completed .stepper-head-icon {
     background-color: #1c9a00 !important;

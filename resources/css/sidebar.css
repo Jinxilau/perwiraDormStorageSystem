@@ -27,7 +27,7 @@
 }
 
 #sidebarcontent.active {
-    background-color: #0d6efd;
+    background-image: linear-gradient(135deg, #0045ac 0%, #1b75fc 50%, #77aeff 100%);
     color: #ffffff;
     /* border-left-color: #ffd700; */
     font-weight: 600;

@@ -11,6 +11,8 @@ class AdminNotification extends Component
 {
     use WithPagination;
 
+    protected $listeners = ['notificationReceived' => '$refresh'];
+    
     public function markAllAsRead()
     {
         $this->notifications->markAsRead();

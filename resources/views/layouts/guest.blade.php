@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,30 +15,19 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     {{-- Boostrap --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body class="font-sans text-body bg-light" style="padding-top: 0;">
-    <nav id="navbar" class="" style="z-index: 1051; padding: 24px 10px; background-color: aqua">
-        <div class="d-flex align-items-center justify-content-center gap-4">
-            <img src="{{ Vite::asset('resources\images\icons\perwira_logo.png') }}" alt="Logo" class="img-fluid" style="width: 200px; height: auto; object-fit: cover;">
-            <div class="text-dark text-center">
-                <h1 class="" style="font-weight: bold; font-size: clamp(12px, 2.3vw, 40px);">Perwira Dorm Storage System</h1>
-                <p class="text-muted fs-5">Universiti Tun Hussein Onn Malaysia</p>
-            </div>
+    <div class=" d-flex flex-column justify-content-sm-center align-items-center pt-5 pt-sm-0"
+        style="min-height: 80vh;">
 
-            {{-- <x-application-logo class="w-20 h-20 text-secondary" /> --}}
-        </div>
-
-    </nav>
-
-    <div class=" d-flex flex-column justify-content-sm-center align-items-center pt-5 pt-sm-0" style="min-height: 80vh;">
-
-    {{ $slot }}
+        {{ $slot }}
     </div>
-    
+
     <!-- Footer -->
     <footer class="bg-dark py-4 rounded">
         <div class="container">
@@ -47,11 +37,15 @@
                 <div class="rounded-circle bg-secondary" style="width: 0.8rem; height: 0.8rem;"></div>
                 <div class="rounded-circle bg-secondary" style="width: 0.8rem; height: 0.8rem;"></div>
             </div>
-            <p class="text-center text-white mb-0">© 2024 Universiti Tun Hussein Onn Malaysia | Perwira Dorm Storage System</p>
+            <p class="text-center text-white mb-0">© {{ date('Y') }} Universiti Tun Hussein Onn Malaysia | Perwira Dorm Storage
+                System</p>
         </div>
     </footer>
 
     <!-- Bootstrap JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous">
+    </script>
 </body>
+
 </html>

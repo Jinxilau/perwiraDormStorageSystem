@@ -816,6 +816,20 @@
         </section>
 
         <style>
+            .form-control,
+            .form-select {
+                border: 2px solid #dee2e6;
+                border-radius: 8px;
+                padding: 12px 16px;
+                transition: all 0.3s ease;
+            }
+
+            .form-control:focus,
+            .form-select:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15);
+            }
+
             .form-check-custom .form-check-input {
                 width: 1.5rem;
                 height: 1.5rem;

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }}</title>
-    @vite(['resources\css\student.css', 'resources\css\sidebar.css', 'resources\css\notification.css', 'resources\css\header.css'])
+    @vite(['resources\css\student.css', 'resources\css\sidebar.css', 'resources\css\header.css', 'resources\css\notification.css', 'resources\css\footer.css'])
     @stack('styles')
     {{-- Livewire Style --}}
     @livewireStyles
@@ -64,12 +64,12 @@
             [
                 'icon' => 'bi-info-circle',
                 'title' => 'Help & Support',
-                'url' => 'student_help',
-                'path' => 'student/help',
+                'url' => route('help_and_support'),
+                'path' => 'student/help_and_support',
             ],
         ]" />
         <!-- Main Content -->
-        <main id="maincontent" class="col-md-9 p-4">
+        <main id="maincontent" class="col-md-9 px-4 pe-lg-5 pt-4" style="padding-bottom: 60px;">
             {{ $slot }}
         </main>
     </div>

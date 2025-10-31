@@ -1,10 +1,10 @@
 <div class="container">
     {{-- The best athlete wants his opponent at his best. --}}
 
-    <div class="mb-4">
-        <h1 class="display-5 fw-bold text-dark">My Storage</h1>
-        <p class="text-muted">View and track your storage application requests</p>
-    </div>
+    @include('livewire.includes.student-title2', [
+        'title' => 'My Storage',
+        'subtitle' => 'View and track your storage application requests',
+    ])
 
     @forelse ($this->studentStorageApplications as $application)
         <div class="card mb-3 shadow-sm">

@@ -250,7 +250,7 @@
 #navbar a,
 .dropdown-item-custom {
     position: relative;
-    overflow: hidden;
+    /* overflow: hidden; */
 }
 
 /* Ripple effect on dropdown items */
