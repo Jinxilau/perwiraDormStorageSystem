@@ -4,7 +4,6 @@ namespace App\Livewire;
 
 use App\Livewire\Forms\MissingItemForm;
 use App\Models\MissingReport as ModelsMissingReport;
-use App\Models\QRCode;
 use App\Models\StorageApplication;
 use App\Models\StoredItem;
 use App\Models\User;
@@ -13,9 +12,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Lazy;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 
+#[Layout('components.layouts.student')]
+#[Title('Missing Report')]
+#[Lazy()]
 class MissingReport extends Component
 {
     use WithFileUploads;
@@ -219,6 +224,6 @@ class MissingReport extends Component
 
     public function render()
     {
-        return view('livewire.missing-report')->layout('layouts.student')->title('Student - Missing Item Report');
+        return view('livewire.missing-report');
     }
 }

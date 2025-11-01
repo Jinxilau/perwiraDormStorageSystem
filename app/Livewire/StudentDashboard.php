@@ -5,15 +5,17 @@ namespace App\Livewire;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.student')]
-#[Title('Student - Dashboard')]
+#[Layout('components.layouts.student')]
+#[Title('Dashboard')]
+#[Lazy()]
 class StudentDashboard extends Component
 {
     protected $listeners = ['notificationReceived' => '$refresh'];
-    
+
     public function markAsRead($notificationId)
     {
         $noti = Auth::user()->notifications()->where('id', $notificationId)->first();

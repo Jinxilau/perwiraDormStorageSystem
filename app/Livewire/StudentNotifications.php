@@ -4,15 +4,21 @@ namespace App\Livewire;
 
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Lazy;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Layout('components.layouts.student')]
+#[Title('Notifications')]
+#[Lazy()]
 class StudentNotifications extends Component
 {
     use WithPagination;
-    
+
     protected $listeners = ['notificationReceived' => '$refresh'];
-    
+
     public function markAllAsRead()
     {
         $this->notifications->markAsRead();
@@ -51,6 +57,6 @@ class StudentNotifications extends Component
 
     public function render()
     {
-        return view('livewire.student-notifications')->layout('layouts.student')->title('Student - Notifications');
+        return view('livewire.student-notifications');
     }
 }

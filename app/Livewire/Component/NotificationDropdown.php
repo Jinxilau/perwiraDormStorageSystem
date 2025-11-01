@@ -26,12 +26,17 @@ class NotificationDropdown extends Component
 
         if ($notification) {
             $notification->markAsRead();
+            $this->dispatch('show_toast', message: "Notification marked as read.", type: "success");
+        } else {
+            $this->dispatch('show_toast', message: "Notification not found.", type: 'fail');
         }
     }
 
     public function markAllAsRead($id)
     {
         Auth::user()->unreadNotifications->markAsRead();
+
+        $this->dispatch('show_toast', message: "All notifications marked as read.", type: "success");
     }
 
     #[Computed()]

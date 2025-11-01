@@ -3,11 +3,13 @@
 namespace App\Livewire;
 
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-#[Layout('layouts.admin')]
-#[Title('Admin - Dashboard')]
+#[Layout('components.layouts.admin')]
+#[Title('Dashboard')]
+#[Lazy()]
 class AdminDashboard extends Component
 {
 

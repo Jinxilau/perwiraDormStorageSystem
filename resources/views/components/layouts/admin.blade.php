@@ -1,10 +1,12 @@
+@props(['title' => 'Perwira Dorm Storage System'])
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title }}</title>
+    <title>{{ $title . " | Perwira Dorm Storage System" }}</title>
     @vite(['resources\css\admin.css', 'resources\css\sidebar2.css', 'resources\css\notification.css', 'resources\css\modal.css'])
     @stack('styles')
     {{-- Livewire Style --}}
@@ -38,10 +40,10 @@
             'path' => 'room/*',
         ],
         [
-            'title' => 'User Account',
-            'url' => route('manage_user'),
-            'icon' => 'bi-people',
-            'path' => 'admin/user',
+            'title' => 'Scan QR Code',
+            'url' => route('scan_qr'),
+            'icon' => 'bi-qr-code-scan',
+            'path' => 'scanqr',
         ],
         [
             'title' => 'Scan Logs',
@@ -50,22 +52,10 @@
             'path' => 'scan_log',
         ],
         [
-            'title' => 'System Activity Log',
-            'url' => route('admin_dashboard'),
-            'icon' => 'bi-graph-up',
-            'path' => 'admin/dashboard',
-        ],
-        [
-            'title' => 'Notifications',
-            'url' => route('admin_notification'),
-            'icon' => 'bi-bell',
-            'path' => 'admin/notifications',
-        ],
-        [
-            'title' => 'Scan QR Code',
-            'url' => route('scan_qr'),
-            'icon' => 'bi-qr-code-scan',
-            'path' => 'scanqr',
+            'title' => 'User Account',
+            'url' => route('manage_user'),
+            'icon' => 'bi-people',
+            'path' => 'admin/user',
         ],
         [
             'title' => 'Missing Items Report',
@@ -74,10 +64,22 @@
             'path' => 'admin/missing_report',
         ],
         [
+            'title' => 'Notifications',
+            'url' => route('admin_notification'),
+            'icon' => 'bi-bell',
+            'path' => 'admin/notifications',
+        ],
+        [
             'title' => 'Generate Report',
             'url' => route('scan_qr'),
             'icon' => 'bi-clipboard2-data-fill',
             'path' => 'scanqr',
+        ],
+        [
+            'title' => 'System Activity Log',
+            'url' => route('admin_dashboard'),
+            'icon' => 'bi-graph-up',
+            'path' => 'admin/dashboard',
         ],
         [
             'title' => 'Setting',

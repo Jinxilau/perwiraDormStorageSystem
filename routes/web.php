@@ -31,19 +31,13 @@ Route::view('/role-error', 'role_error')->name('role_error');
 
 // Student
 Route::middleware(['auth', EnsureUserIsApproved::class, CheckRole::class . ':student'])->group(function () {
-    Route::get('/student/dashboard', StudentDashboard::class)->name('student_dashboard'); # Use livewire as full page instead
+    Route::get('/student/dashboard', StudentDashboard::class)->name('student_dashboard');
     Route::get('/student/storage', StorageApplication::class)->name('storage');
     Route::get('/student/missing_report', MissingReport::class)->name('missing_report');
     Route::get('/student/my_storage', MyStorage::class)->name('my_storage');
     Route::get('/student/my_report', MyReport::class)->name('my_report');
     Route::get('/student/notification', StudentNotifications::class)->name('student_notification');
     Route::view('/student/help_and_support', 'help_and_support')->name('help_and_support');
-});
-
-// Staff
-Route::middleware(['auth', CheckRole::class . ':staff'])->group(function () {
-    Route::get('/staff/dashboard', StaffDashboard::class)->name('staff_dashboard');
-    // Route::get('staff/notification', )->name('staff_notification');
 });
 
 // Administrator
@@ -56,10 +50,21 @@ Route::middleware(['auth', CheckRole::class . ':administrator'])->group(function
 
 // Staff/Admin
 Route::middleware(['auth', CheckRole::class . ':staff,administrator'])->group(function () {
-    Route::get('/storage_application', ManageStorageApplication::class)->name('manage_storage_application');
-    Route::get('/room/{room?}', ManageStorageRoom::class)->name('storage_room');
-    Route::get('/scanqr', ScanQr::class)->name('scan_qr');
-    Route::get('/scan_log', ScanLog::class)->name('scan_log');
+    // Have problem when doing full page livewire, because the layout needs to be dynamic, so lazy wont work as the layouts apply late.
+    Route::view('/storage_application', 'admin.manage_storage_application')->name('manage_storage_application');
+
+    Route::get('/room/{room?}', function ($room = null) {
+        return view('admin.manage_storage_room', ['room' => $room]);
+    })->name('storage_room');
+
+    Route::view('/scanqr', 'admin.scan_qr')->name('scan_qr');
+    Route::view('/scan_log', 'admin.scan_log')->name('scan_log');
+});
+
+// Staff
+Route::middleware(['auth', CheckRole::class . ':staff'])->group(function () {
+    Route::get('/staff/dashboard', StaffDashboard::class)->name('staff_dashboard');
+    // Route::get('staff/notification', )->name('staff_notification');
 });
 
 require __DIR__ . '/auth.php';

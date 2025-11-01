@@ -5,8 +5,14 @@ namespace App\Livewire;
 use App\Models\StorageApplication;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Lazy;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
+#[Layout('components.layouts.student')]
+#[Title('My Missing Report')]
+#[Lazy()]
 class MyReport extends Component
 {
     #[Computed()]
@@ -17,6 +23,6 @@ class MyReport extends Component
 
     public function render()
     {
-        return view('livewire.my-report')->layout('layouts.student')->title('Student - My Report');
+        return view('livewire.my-report');
     }
 }

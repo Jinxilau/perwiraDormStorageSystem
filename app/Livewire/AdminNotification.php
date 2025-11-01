@@ -4,9 +4,15 @@ namespace App\Livewire;
 
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Lazy;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+#[Layout('components.layouts.admin')]
+#[Title('Notifications')]
+#[Lazy()]
 class AdminNotification extends Component
 {
     use WithPagination;
@@ -50,6 +56,6 @@ class AdminNotification extends Component
 
     public function render()
     {
-        return view('livewire.admin-notification')->layout('layouts.admin')->title('Admin - Notifications');
+        return view('livewire.admin-notification');
     }
 }

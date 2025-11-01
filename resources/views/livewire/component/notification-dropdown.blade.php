@@ -1,7 +1,7 @@
-<div x-data="{ open: false, show: false, notification: null }" @click="open = !open"
+<div x-data="{ open: false, show: false, notification: null }"
     @show_notification.window="show = true; notification = $event.detail.notification; setTimeout(() => show = false, 5000)"
     class="notification-dropdown">
-    <button class="notification-button position-relative">
+    <button class="notification-button position-relative" @click="open = !open">
         <span class="notification-icon">🔔</span>
         @if ($this->countUnread > 0)
             <span class="notification-badge">
@@ -11,7 +11,7 @@
     </button>
 
     {{-- Dropdown --}}
-    <div x-show="open" @click.away="open = false" @keydown.escape.window="open = false" x-transition
+    <div x-show="open" @click.outside="open = false" @keydown.escape.window="open = false" x-transition
         class="notification-dropdown-menu" style="display: none">
 
         <div class="notification-header">
@@ -35,6 +35,7 @@
                             </svg>
                         </div>
                         <div class="notification-text">
+                            <p class="mb-0 fw-bold">{{ $notification->data['title'] }}</p>
                             {{ $notification->data['message'] }}
                             @if (isset($notification->created_at))
                                 <span class="notification-time">

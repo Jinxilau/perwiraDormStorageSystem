@@ -1,4 +1,4 @@
-<div class="text-center mb-1 pb-3 border-bottom border-light">
+<div class="text-center mb-1 pb-3 border-bottom border-light mb-3">
     <style>
         .border-light {
             border-color: #e9ecef !important;

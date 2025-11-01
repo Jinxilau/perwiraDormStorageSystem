@@ -8,14 +8,16 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-#[Layout('layouts.admin')]
-#[Title('Admin - User')]
+#[Layout('components.layouts.admin')]
+#[Title('Manage User Account')]
+#[Lazy()]
 class ManageUser extends Component
 {
     use WithPagination;

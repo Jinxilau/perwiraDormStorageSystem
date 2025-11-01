@@ -4,8 +4,14 @@ namespace App\Livewire;
 
 use App\Models\MissingReport;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Lazy;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
+#[Layout('components.layouts.admin')]
+#[Title('Manage Missing Report')]
+#[Lazy()]
 class ManageMissingReport extends Component
 {
     public $selectedReports = [];
@@ -26,6 +32,6 @@ class ManageMissingReport extends Component
 
     public function render()
     {
-        return view('livewire.manage-missing-report')->layout('layouts.admin')->title('Admin - Manage Missing Report');
+        return view('livewire.manage-missing-report');
     }
 }

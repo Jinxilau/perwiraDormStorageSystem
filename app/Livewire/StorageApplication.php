@@ -15,12 +15,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 
-#[Layout('layouts.student')]
-#[Title('Student - Storage')]
+#[Layout('components.layouts.student')]
+#[Title('Storage Application')]
+#[Lazy()]
 class StorageApplication extends Component
 {
     use WithFileUploads;
@@ -284,7 +286,7 @@ class StorageApplication extends Component
             $this->resetAllForms();
             $this->showSuccessMessage = true;
 
-            foreach(User::whereIn('role_id', [1, 2])->get() as $staff) {
+            foreach (User::whereIn('role_id', [1, 2])->get() as $staff) {
                 $staff->notify(new StorageApplicationMadeNotification($storageApplication));
             }
         } catch (\Exception $e) {
