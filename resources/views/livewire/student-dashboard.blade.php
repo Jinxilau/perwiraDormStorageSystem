@@ -387,9 +387,11 @@
                     </div>
                 </div>
             @empty
+            <div class="d-flex flex-column align-items-center">
                 <div style="font-size: 4rem;">📭</div>
                 <h3 class="mt-3">No Notifications</h3>
                 <p class="text-muted">You're all caught up! Check back later for new updates.</p>
+            </div>
             @endforelse
         </div>
     </div>

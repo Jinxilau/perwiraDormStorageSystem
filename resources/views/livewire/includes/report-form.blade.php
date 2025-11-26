@@ -21,8 +21,8 @@
 
             <div class="mb-3">
                 <label for="storageSelect" class="form-label fw-semibold">Storage Location</label>
-                <select id="storageSelect" wire:model="form.storageApplicationId"
-                    class="form-select form-select-lg shadow-sm">
+                <select id="storageSelect" wire:model="form.storageApplicationId" wire:loading.attr="disabled"
+                    wire:target="nextStep" class="form-select form-select-lg shadow-sm">
                     <option value="">-- Choose a storage location --</option>
                     @forelse ($this->studentApplications as $application)
                         <option value="{{ $application->id }}">Storage #{{ ucfirst($application->id) }}</option>
@@ -164,8 +164,8 @@
                         <label for="itemSelect" class="form-label fw-semibold">
                             <i class="bi bi-search me-1"></i>Select an Item
                         </label>
-                        <select id="itemSelect" wire:model.live="form.itemId"
-                            class="form-select form-select-lg shadow-sm">
+                        <select id="itemSelect" wire:model.live="form.itemId" wire:loading.attr="disabled"
+                            wire:target="nextStep" class="form-select form-select-lg shadow-sm">
                             <option value="">-- Choose an item --</option>
                             @foreach ($this->selectedApplication->storedItems as $item)
                                 <option value="{{ $item->id }}">{{ ucfirst($item->item_name) }}</option>
@@ -182,7 +182,13 @@
 
                     {{-- Show Detail of Selected Item --}}
                     @if (!empty($this->form->itemId))
-                        <div class="card border-primary shadow-sm animate-fade-in">
+                        <span wire:loading wire:target='form.itemId'>
+                            <div class="spinner-border spinner-border-sm me-2" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </span>
+                        <div class="card border-primary shadow-sm animate-fade-in" wire:loading.remove
+                            wire:target="form.itemId">
                             <div class="card-header bg-primary bg-opacity-10 border-primary">
                                 <h6 class="mb-0 fw-semibold text-primary">
                                     <i class="bi bi-info-circle me-2"></i>Item Information
@@ -328,11 +334,16 @@
                     <span>Back</span>
                 </button>
 
-                <button type="button" wire:click.prevent="nextStep"
+                <button type="button" wire:click.prevent="nextStep" wire:loading.attr="disabled"
                     class="btn btn-primary btn-lg px-5 py-3 shadow-sm d-flex align-items-center" :disabled="!ok"
                     style="transition: all 0.3s ease;">
+                    <i class="bi bi-check-lg me-2 fs-5" wire:loading.remove wire:target='nextStep'></i>
+                    <span wire:loading wire:target='nextStep'>
+                        <div class="spinner-border spinner-border-sm me-2" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </span>
                     <span>Confirm Selection</span>
-                    <i class="bi bi-arrow-right ms-2"></i>
                 </button>
             </div>
         </section>
@@ -405,14 +416,15 @@
                     <div class="mb-5">
                         <h6 class="fw-bold mb-3 d-flex align-items-center">
                             <i class="bi bi-eye text-primary me-2"></i>
-                            When did you last see these items?
+                            When did you last see these items? <span class="text-danger">*</span>
                         </h6>
 
                         <div x-data="{ option: @entangle('form.seeTime') }" class="ps-3">
                             {{-- Specific Date Option --}}
                             <div class="form-check form-check-custom mb-3">
                                 <input x-model="option" name="seeTime" value="specific_date" id="seetime1"
-                                    type="radio" class="form-check-input" style="cursor: pointer;">
+                                    type="radio" class="form-check-input" style="cursor: pointer;"
+                                    wire:loading.attr="disabled" wire:target="nextStep">
                                 <label for="seetime1" class="form-check-label fw-medium" style="cursor: pointer;">
                                     <i class="bi bi-calendar-date me-2"></i>On a specific date
                                 </label>
@@ -422,7 +434,8 @@
                                 <input type="date" wire:model="form.seeDate"
                                     :disabled="option !== 'specific_date'"
                                     class="form-control form-control-lg shadow-sm"
-                                    :class="{ 'bg-light': option !== 'specific_date' }">
+                                    :class="{ 'bg-light': option !== 'specific_date' }" wire:loading.attr="disabled"
+                                    wire:target="nextStep">
                                 @error('form.seeDate')
                                     <div class="alert alert-danger d-flex align-items-center py-2 px-3 mt-2 mb-0"
                                         role="alert">
@@ -435,7 +448,8 @@
                             {{-- Time Range Option --}}
                             <div class="form-check form-check-custom mb-3">
                                 <input x-model="option" name="seeTime" value="range" id="seetime2" type="radio"
-                                    class="form-check-input" style="cursor: pointer;">
+                                    class="form-check-input" style="cursor: pointer;" wire:loading.attr="disabled"
+                                    wire:target="nextStep">
                                 <label for="seetime2" class="form-check-label fw-medium" style="cursor: pointer;">
                                     <i class="bi bi-clock-history me-2"></i>Around this time
                                 </label>
@@ -444,7 +458,8 @@
                             <div class="ms-4 mb-3" x-show="option === 'range'" x-transition>
                                 <select wire:model="form.seeRange" :disabled="option !== 'range'"
                                     class="form-select form-select-lg shadow-sm"
-                                    :class="{ 'bg-light': option !== 'range' }">
+                                    :class="{ 'bg-light': option !== 'range' }" wire:loading.attr="disabled"
+                                    wire:target="nextStep">
                                     <option value="">-- Select a timeframe --</option>
                                     <option value="today">Today</option>
                                     <option value="yesterday">Yesterday</option>
@@ -466,7 +481,8 @@
                             <div class="form-check form-check-custom">
                                 <input x-model="option" name="seeTime" value="dont_remember" id="seetime3"
                                     type="radio" class="form-check-input" style="cursor: pointer;">
-                                <label for="seetime3" class="form-check-label fw-medium" style="cursor: pointer;">
+                                <label for="seetime3" class="form-check-label fw-medium" style="cursor: pointer;"
+                                    wire:loading.attr="disabled" wire:target="nextStep">
                                     <i class="bi bi-question-circle me-2"></i>I don't remember
                                 </label>
                             </div>
@@ -485,13 +501,14 @@
                     <div class="mb-5 pb-4 border-bottom">
                         <h6 class="fw-bold mb-3 d-flex align-items-center">
                             <i class="bi bi-geo-alt text-primary me-2"></i>
-                            Last Seen Location
+                            Last Seen Location <span class="text-danger">*</span>
                         </h6>
 
                         <div class="ps-3">
                             <input wire:model="form.last_seen_location" type="text" id="last_seen_location"
                                 class="form-control form-control-lg shadow-sm"
-                                placeholder="e.g., Locker A-12, Main Hall, or Reception Counter" required>
+                                placeholder="e.g., Locker A-12, Main Hall, or Reception Counter" required
+                                wire:loading.attr="disabled" wire:target="nextStep">
                             <small class="form-text text-muted d-flex align-items-center mt-2">
                                 <i class="bi bi-info-circle me-1"></i>
                                 Be as specific as possible to help with the investigation
@@ -510,14 +527,15 @@
                     <div class="mb-5 pb-4 border-bottom">
                         <h6 class="fw-bold mb-3 d-flex align-items-center">
                             <i class="bi bi-exclamation-triangle text-primary me-2"></i>
-                            When did you discover the items were missing?
+                            When did you discover the items were missing? <span class="text-danger">*</span>
                         </h6>
 
                         <div x-data="{ option: @entangle('form.discoverTime') }" class="ps-3">
                             {{-- Specific Date Option --}}
                             <div class="form-check form-check-custom mb-3">
                                 <input x-model="option" name="discoverTime" value="specific_date" id="discoverTime1"
-                                    type="radio" class="form-check-input" style="cursor: pointer;">
+                                    type="radio" class="form-check-input" style="cursor: pointer;"
+                                    wire:loading.attr="disabled" wire:target="nextStep">
                                 <label for="discoverTime1" class="form-check-label fw-medium"
                                     style="cursor: pointer;">
                                     <i class="bi bi-calendar-date me-2"></i>On a specific date
@@ -528,7 +546,8 @@
                                 <input type="date" wire:model="form.discoverDate"
                                     :disabled="option !== 'specific_date'"
                                     class="form-control form-control-lg shadow-sm"
-                                    :class="{ 'bg-light': option !== 'specific_date' }">
+                                    :class="{ 'bg-light': option !== 'specific_date' }" wire:loading.attr="disabled"
+                                    wire:target="nextStep">
                                 @error('form.discoverDate')
                                     <div class="alert alert-danger d-flex align-items-center py-2 px-3 mt-2 mb-0"
                                         role="alert">
@@ -541,7 +560,8 @@
                             {{-- Time Range Option --}}
                             <div class="form-check form-check-custom mb-3">
                                 <input x-model="option" name="discoverTime" value="range" id="discoverTime2"
-                                    type="radio" class="form-check-input" style="cursor: pointer;">
+                                    type="radio" class="form-check-input" style="cursor: pointer;"
+                                    wire:loading.attr="disabled" wire:target="nextStep">
                                 <label for="discoverTime2" class="form-check-label fw-medium"
                                     style="cursor: pointer;">
                                     <i class="bi bi-clock-history me-2"></i>Around this time
@@ -551,7 +571,8 @@
                             <div class="ms-4 mb-3" x-show="option === 'range'" x-transition>
                                 <select wire:model="form.discoverRange" :disabled="option !== 'range'"
                                     class="form-select form-select-lg shadow-sm"
-                                    :class="{ 'bg-light': option !== 'range' }">
+                                    :class="{ 'bg-light': option !== 'range' }" wire:loading.attr="disabled"
+                                    wire:target="nextStep">
                                     <option value="">-- Select a timeframe --</option>
                                     <option value="today">Today</option>
                                     <option value="yesterday">Yesterday</option>
@@ -572,7 +593,8 @@
                             {{-- Don't Remember Option --}}
                             <div class="form-check form-check-custom">
                                 <input x-model="option" name="discoverTime" value="dont_remember" id="discoverTime3"
-                                    type="radio" class="form-check-input" style="cursor: pointer;">
+                                    type="radio" class="form-check-input" style="cursor: pointer;"
+                                    wire:loading.attr="disabled" wire:target="nextStep">
                                 <label for="discoverTime3" class="form-check-label fw-medium"
                                     style="cursor: pointer;">
                                     <i class="bi bi-question-circle me-2"></i>I don't remember
@@ -598,7 +620,7 @@
 
                         <div class="ps-3">
                             <textarea wire:model="form.addInfo" name="addtionalinformation" id="additionalinformation" cols="30"
-                                rows="5"
+                                rows="5" wire:loading.attr="disabled" wire:target="nextStep"
                                 placeholder="Please provide any additional information that might help with the investigation, such as:
 • Witness names or contact information
 • Suspicious activities you noticed
@@ -629,11 +651,16 @@
                     <span>Back</span>
                 </button>
 
-                <button type="button" wire:click.prevent="nextStep"
+                <button type="button" wire:click.prevent="nextStep" wire:loading.attr="disabled"
                     class="btn btn-primary btn-lg px-5 py-3 shadow-sm d-flex align-items-center"
                     style="transition: all 0.3s ease;">
+                    <i class="bi bi-check-lg me-2 fs-5" wire:loading.remove wire:target='nextStep'></i>
+                    <span wire:loading wire:target='nextStep'>
+                        <div class="spinner-border spinner-border-sm me-2" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </span>
                     <span>Continue</span>
-                    <i class="bi bi-arrow-right ms-2"></i>
                 </button>
             </div>
         </section>
@@ -711,7 +738,7 @@
                             </label>
                             <input wire:model="form.userEmail" type="email"
                                 class="form-control form-control-lg shadow-sm" id="useremail"
-                                placeholder="name@example.com">
+                                placeholder="name@example.com" wire:loading.attr="disabled" wire:target="nextStep">
                             <small class="form-text text-muted d-flex align-items-center mt-2">
                                 <i class="bi bi-shield-check me-1"></i>
                                 We'll send updates to this email
@@ -733,7 +760,7 @@
                             </label>
                             <input wire:model="form.userPhone" type="tel"
                                 class="form-control form-control-lg shadow-sm" id="userphone"
-                                placeholder="012-3456789">
+                                placeholder="012-3456789" wire:loading.attr="disabled" wire:target="nextStep">
                             <small class="form-text text-muted d-flex align-items-center mt-2">
                                 <i class="bi bi-shield-check me-1"></i>
                                 For urgent notifications
@@ -754,10 +781,10 @@
                             <div class="card-body p-4">
                                 <div class="form-check form-check-custom d-flex align-items-start">
                                     <input wire:model="form.confirmed" class="form-check-input mt-1" type="checkbox"
-                                        name="contactinfo" id="contactinfo" style="cursor: pointer;">
+                                        name="contactinfo" id="contactinfo" style="cursor: pointer;"
+                                        wire:loading.attr="disabled" wire:target="nextStep">
                                     <label class="form-check-label ms-2 fw-medium" for="contactinfo"
                                         style="cursor: pointer;">
-                                        <i class="bi bi-check-circle text-success me-2"></i>
                                         I confirm that all information provided is accurate and complete.
                                     </label>
                                 </div>
@@ -789,29 +816,17 @@
 
                 <button wire:click.prevent="nextStep" type="button"
                     class="btn btn-success btn-lg px-5 py-3 d-flex align-items-center shadow-sm position-relative"
-                    wire:loading.attr="disabled" wire:target="submit"
+                    wire:loading.attr="disabled" wire:target="nextStep"
                     style="min-width: 220px; transition: all 0.3s ease;">
-                    <span wire:loading.remove wire:target="submit" class="d-flex align-items-center">
+                    <span wire:loading.remove wire:target="nextStep" class="d-flex align-items-center">
                         <i class="bi bi-send-check me-2"></i>
                         Submit Application
                     </span>
-                    <span wire:loading wire:target="submit">
+                    <span wire:loading wire:target="nextStep">
                         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                         Submitting...
                     </span>
                 </button>
-            </div>
-
-            {{-- Success Indicator --}}
-            <div class="text-center mt-4" wire:loading wire:target="submit">
-                <div class="card border-primary bg-primary bg-opacity-10">
-                    <div class="card-body py-3">
-                        <p class="text-primary mb-0 d-flex align-items-center justify-content-center">
-                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                            <strong>Processing your application... Please wait.</strong>
-                        </p>
-                    </div>
-                </div>
             </div>
         </section>
 

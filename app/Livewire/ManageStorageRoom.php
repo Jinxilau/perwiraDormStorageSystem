@@ -136,11 +136,6 @@ class ManageStorageRoom extends Component
 
     public function render()
     {
-        $layout = Auth::user()->role_id === 1 ? 'layouts.admin' : 'layouts.staff';
-        $title = Auth::user()->role_id === 1 ? 'Admin' : 'Staff';
-
-        return view('livewire.manage-storage-room')
-            ->layout($layout)
-            ->title($title . ' - Storage Room');
+        return view('livewire.manage-storage-room');
     }
 }

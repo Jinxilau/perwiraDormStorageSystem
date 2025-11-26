@@ -45,52 +45,131 @@
                                     <div style="white-space: nowrap;">#{{ $report->id }}</div>
                                 </td>
                                 <td> {{-- User Details --}}
-                                    <div style="white-space: nowrap;">
-                                        {{ $report->storedItems[0]->storageApplication->applicant->id }}
-                                    </div>
-                                    <div style="white-space: nowrap;">
-                                        {{ $report->storedItems[0]->storageApplication->applicant->name }}
-                                    </div>
-                                    <div style="white-space: nowrap;">
-                                        {{ $report->storedItems[0]->storageApplication->applicant->matric_no }}
-                                    </div>
-                                    <div style="white-space: nowrap;">
-                                        {{ ucfirst($user->gender) }}
+                                    <div class="d-flex align-items-center">
+                                        {{-- Avatar --}}
+                                        <div class="rounded-circle bg-secondary-subtle d-flex justify-content-center align-items-center flex-shrink-0"
+                                            style="height: 30px; width: 30px;">
+                                            {{ strtoupper(substr($report->storedItems[0]->storageApplication->applicant->name ?? 'NA', 0, 2)) }}
+                                        </div>
+
+                                        {{-- User Info --}}
+                                        <div class="d-flex flex-column">
+                                            <span class="fw-semibold text-dark" style="white-space: nowrap;">
+                                                {{ $report->storedItems[0]->storageApplication->applicant->name ?? 'N/A' }}
+                                            </span>
+                                            <small class="text-muted" style="white-space: nowrap;">
+                                                ID: {{ $report->storedItems[0]->storageApplication->applicant->id }} •
+                                                {{ $report->storedItems[0]->storageApplication->applicant->matric_no }}
+                                            </small>
+                                        </div>
                                     </div>
                                 </td>
                                 <td> {{-- Contact --}}
-                                    <div style="white-space: nowrap;">
-                                        Email:
-                                        {{ $report->storedItems[0]->storageApplication->applicant->email ?? 'N/A' }}
-                                    </div>
-                                    <div>
-                                        Phone:
-                                        {{ $report->storedItems[0]->storageApplication->applicant->phone_number ?? 'N/A' }}
+                                    <div class="d-flex flex-column gap-1">
+                                        <div class="d-flex align-items-center">
+                                            <span class="text-muted small fw-medium" style="min-width: 50px;">
+                                                Email:
+                                            </span>
+                                            <span class="text-dark" style="white-space: nowrap;">
+                                                {{ $report->storedItems[0]->storageApplication->applicant->email ?? 'N/A' }}
+                                            </span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <span class="text-muted small fw-medium"
+                                                style="min-width: 50px;">Phone:</span>
+                                            <span class="text-dark" style="white-space: nowrap;">
+                                                {{ $report->storedItems[0]->storageApplication->applicant->phone_number ?? 'N/A' }}
+                                            </span>
+                                        </div>
                                     </div>
                                 </td>
                                 <td> {{-- Missing Item --}}
-                                    @foreach ($report->storedItems as $item)
-                                        <div>
-                                            Item {{ $loops->iteration }}: {{ $item->name }}
-                                        </div>
-                                    @endforeach
+                                    <div>
+                                        <span class="badge bg-primary">
+                                            {{ $report->storedItems->count() }}
+                                            {{ Str::plural('Item', $report->storedItems->count()) }}
+                                        </span>
+                                    </div>
+                                    <div class="d-flex flex-column gap-2">
+                                        @foreach ($report->storedItems as $item)
+                                            <div wire:key="item-{{ $item->id }}"
+                                                class="border-start border-3 border-primary ps-3">
+                                                <div class="d-flex align-items-center justify-content-between gap-2">
+                                                    <div class="flex-grow-1">
+                                                        <div class="fw-semibold text-dark">
+                                                            {{ ucfirst($item->item_name) }}
+                                                        </div>
+                                                        <span class="badge bg-light text-secondary border">
+                                                            <i class="bi bi-tag-fill me-1"></i>
+                                                            {{ ucfirst($item->item_type) }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 </td>
                                 <td> {{-- Storage Details --}}
-                                    <div>
-                                        Room #{{ $report->storedItems[0]->storageApplication->storageRoom->id }}
-                                    </div>
-                                    <div>
-                                        Room Name:
-                                        {{ $report->storedItems[0]->storageApplication->storageRoom->room_name }}
-                                    </div>
-                                    <div>
-                                        Room Status:
-                                        {{ $report->storedItems[0]->storageApplication->storageRoom->room_status }}
+                                    <div class="d-flex flex-column">
+                                        {{-- ID Badge --}}
+                                        <div>
+                                            <span class="badge bg-secondary">
+                                                ID: {{ $report->storedItems[0]->storageApplication->id }}
+                                            </span>
+                                        </div>
+
+                                        {{-- Storage Location Info --}}
+                                        <div class="d-flex flex-column">
+                                            @if (
+                                                !empty($report->storedItems[0]->storageApplication->open_area_id) &&
+                                                    !empty($report->storedItems[0]->storageApplication->locker_id))
+                                                <div class="fw-semibold text-dark">
+                                                    {{ $report->storedItems[0]->storageApplication->openArea?->storageRoom?->room_name }}
+                                                </div>
+                                                <span class="d-inline-flex align-items-center gap-1 text-primary">
+                                                    <svg class="bi" width="16" height="16"
+                                                        fill="currentColor" viewBox="0 0 16 16">
+                                                        <path
+                                                            d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
+                                                    </svg>
+                                                    <small>Locker + Open Area</small>
+                                                </span>
+                                            @elseif (!empty($report->storedItems[0]->storageApplication->locker_id))
+                                                <div class="fw-semibold text-dark">
+                                                    {{ $report->storedItems[0]->storageApplication->locker?->storageRoom?->room_name }}
+                                                </div>
+                                                <span class="d-inline-flex align-items-center gap-1 text-info">
+                                                    <svg class="bi" width="16" height="16"
+                                                        fill="currentColor" viewBox="0 0 16 16">
+                                                        <path
+                                                            d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
+                                                    </svg>
+                                                    <small>Locker</small>
+                                                </span>
+                                            @elseif (!empty($report->storedItems[0]->storageApplication->open_area_id))
+                                                <div class="fw-semibold text-dark">
+                                                    {{ $report->storedItems[0]->storageApplication->openArea?->storageRoom?->room_name }}
+                                                </div>
+                                                <span class="d-inline-flex align-items-center gap-1 text-success">
+                                                    <svg class="bi" width="16" height="16"
+                                                        fill="currentColor" viewBox="0 0 16 16">
+                                                        <path
+                                                            d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5 10V4h6v8H5z" />
+                                                    </svg>
+                                                    <small>Open Area</small>
+                                                </span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </td>
                                 <td>{{-- Report Date --}}
-                                    <div>
-                                        {{ $report->created_at }}
+                                    <div class="d-flex flex-column">
+                                        <span class="text-dark fw-medium" style="white-space: nowrap;">
+                                            {{ $report->created_at->format('M d, Y') }}
+                                        </span>
+                                        <small class="text-muted">
+                                            {{ $report->created_at->format('h:i A') }}
+                                        </small>
                                     </div>
                                 </td>
                                 <td> {{-- Status --}}

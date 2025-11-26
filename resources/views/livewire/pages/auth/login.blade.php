@@ -78,11 +78,11 @@ new #[Layout('layouts.guest')] class extends Component {
                                     {{ __('Welcome back! Please enter your credentials.') }}
                                 </p>
                             </div>
-
+                            
                             <!-- Session Status -->
                             <x-auth-session-status class="mb-4" :status="session('status')" />
 
-                            @if (session('registered'))
+                            @if (session('success'))
                                 <div class="alert alert-success d-flex align-items-center" role="alert">
                                     <svg class="me-2" width="20" height="20" fill="currentColor"
                                         viewBox="0 0 20 20">
@@ -90,7 +90,7 @@ new #[Layout('layouts.guest')] class extends Component {
                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                             clip-rule="evenodd" />
                                     </svg>
-                                    <span>You have successfully registered! Please log in.</span>
+                                    <span>You have successfully applied! You will receive an email once your account is approved.</span>
                                 </div>
                             @endif
 

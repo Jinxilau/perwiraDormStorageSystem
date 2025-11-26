@@ -129,9 +129,6 @@ class ScanLog extends Component
 
     public function render()
     {
-        $layout = Auth::user()->role_id === 1 ? 'layouts.admin' : 'layouts.staff';
-        $title = Auth::user()->role_id === 1 ? 'Admin' : 'Staff';
-
-        return view('livewire.scan-log')->layout($layout)->title($title . ' - Scan Logs');
+        return view('livewire.scan-log');
     }
 }

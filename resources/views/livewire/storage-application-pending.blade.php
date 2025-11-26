@@ -469,16 +469,16 @@
                                 style="height: 30px; width:30px">
                                 {{ substr($application->applicant->name ?? 'N/A', 0, 2) }}
                             </div>
-                            <div>
-                                <div>
+                            <div class="d-flex flex-column">
+                                <span class="fw-semibold text-dark" style="white-space: nowrap;">
                                     {{ $application->applicant->name ?? 'N/A' }}
-                                </div>
-                                <div>
+                                </span>
+                                <small class="text-muted" style="white-space: nowrap;">
+                                    ID: {{ $application->applicant->matric_no ?? 'N/A' }} •
+                                </small>
+                                <small class="text-muted" style="white-space: nowrap;">
                                     {{ $application->applicant->email ?? 'N/A' }}
-                                </div>
-                                <div>
-                                    ID: {{ $application->applicant->matric_no ?? 'N/A' }}
-                                </div>
+                                </small>
                             </div>
                         </div>
                     </td>

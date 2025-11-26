@@ -1,5 +1,3 @@
-@props(['title' => 'Perwira Dorm Storage System'])
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -69,23 +67,23 @@
             'icon' => 'bi-bell',
             'path' => 'admin/notifications',
         ],
-        [
-            'title' => 'Generate Report',
-            'url' => route('scan_qr'),
-            'icon' => 'bi-clipboard2-data-fill',
-            'path' => 'scanqr',
-        ],
+        // [
+        //     'title' => 'Generate Report',
+        //     'url' => route('scan_qr'),
+        //     'icon' => 'bi-clipboard2-data-fill',
+        //     'path' => 'scanqr',
+        // ],
         [
             'title' => 'System Activity Log',
-            'url' => route('admin_dashboard'),
+            'url' => route('activity_log'),
             'icon' => 'bi-graph-up',
-            'path' => 'admin/dashboard',
+            'path' => 'activity_log',
         ],
         [
             'title' => 'Setting',
-            'url' => route('scan_qr'),
+            'url' => route('setting'),
             'icon' => 'bi-gear',
-            'path' => 'scanqr',
+            'path' => 'admin/setting',
         ],
     ]" />
 

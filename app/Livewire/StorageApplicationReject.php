@@ -183,9 +183,6 @@ class StorageApplicationReject extends Component
 
     public function render()
     {
-        $layout = Auth::user()->role_id === 1 ? 'layouts.admin' : 'layouts.staff';
-        $title = Auth::user()->role_id === 1 ? 'Admin' : 'Staff';
-
         return view('livewire.storage-application-reject');
     }
 }

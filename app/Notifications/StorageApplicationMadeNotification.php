@@ -51,7 +51,7 @@ class StorageApplicationMadeNotification extends Notification implements ShouldQ
         return [
             'type' => 'message',
             'title' => 'New Storage Application Made!',
-            'message' => 'New storage application by ' . $this->application->applicant_id,
+            'message' => 'New storage application by ' . ($this->application->applicant->name ?? "a user"),
             'application_id' => $this->application->id,
             'url' => $this->url,
         ];
@@ -61,7 +61,7 @@ class StorageApplicationMadeNotification extends Notification implements ShouldQ
     {
         return new BroadcastMessage([
             'title' => 'New Storage Application Made!',
-            'message' => 'New storage application by ' . $this->application->applicant_id,
+            'message' => 'New storage application by ' . ($this->application->applicant->name ?? "a user"),
             'application_id' => $this->application->id,
             'url' => $this->url,
         ]);

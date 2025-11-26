@@ -1,3 +1,3 @@
-<x-layouts.admin>
-    <livewire:scan-qr lazy />
+<x-layouts.admin title="Scan QR">
+    <livewire:scan-qr />
 </x-layouts.admin>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title }}</title>
+    <title>{{ $title . ' | Perwira Dorm Storage System' }}</title>
     @vite(['resources\css\student.css', 'resources\css\sidebar.css', 'resources\css\header.css', 'resources\css\notification.css', 'resources\css\footer.css'])
     @stack('styles')
     {{-- Livewire Style --}}

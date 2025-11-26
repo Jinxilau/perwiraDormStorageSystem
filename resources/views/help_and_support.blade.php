@@ -1,4 +1,4 @@
-<x-layouts.student title="Student - Help and Support">
+<x-layouts.student title="Help and Support">
     <style>
         .card-number {
             /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */

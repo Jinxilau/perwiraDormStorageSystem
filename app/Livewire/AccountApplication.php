@@ -8,11 +8,13 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Layout('layouts.guest')]
 #[Title('Perwira Dorm Storage System')]
+#[Lazy()]
 class AccountApplication extends Component
 {
     public $first_name = '';
@@ -126,6 +128,10 @@ class AccountApplication extends Component
         }
     }
 
+    public function placeholder() {
+        return view('livewire.placeholder.spinner');
+    }
+    
     public function render()
     {
         return view('livewire.account-application');

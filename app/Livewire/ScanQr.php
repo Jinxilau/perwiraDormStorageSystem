@@ -14,7 +14,7 @@ class ScanQr extends Component
 {
     public $qrId;
 
-    #[Validate('required|uuid')]
+    #[Validate('nullable|uuid')]
     public $scannedToken;
 
     public function validateQR($token = null)
@@ -130,10 +130,6 @@ class ScanQr extends Component
 
     public function render()
     {
-        $layout = Auth::user()->role_id === 1 ? 'layouts.admin' : 'layouts.staff';
-        $title = Auth::user()->role_id === 1 ? 'Admin' : 'Staff';
-
-        return view('livewire.scan-qr')
-            ->layout($layout)->title($title . ' - Scan QR');
+        return view('livewire.scan-qr');
     }
 }

@@ -1,6 +1,6 @@
 /* Sidebar Base Styles */
 #sidebar {
-    background: #2c2c2e;
+    background: #ecf0f1;
     transition: all 300ms ease-in-out;
     max-width: 260px;
 }
@@ -10,8 +10,8 @@
     overflow-wrap: normal;
     white-space: nowrap;
     text-overflow: ellipsis;
-    color: rgba(255, 255, 255, 0.85);
-    border: none;
+    color: rgba(0, 0, 0, 0.85);
+    /* border: none; */
     background-color: transparent;
     padding: 1rem 1.25rem;
     font-weight: 500;
@@ -21,15 +21,13 @@
 
 #sidebarcontent:hover {
     background-color: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-    border-left-color: #ffffff;
+    color: #4462c5;
     transform: translateX(4px);
 }
 
 #sidebarcontent.active {
     background-image: linear-gradient(135deg, #0045ac 0%, #1b75fc 50%, #77aeff 100%);
     color: #ffffff;
-    /* border-left-color: #ffd700; */
     font-weight: 600;
 }
 

@@ -13,14 +13,14 @@ use App\Livewire\MyReport;
 use App\Livewire\MyStorage;
 use App\Livewire\ScanLog;
 use App\Livewire\ScanQr;
+use App\Livewire\Setting;
 use App\Livewire\StaffDashboard;
 use App\Livewire\StorageApplication;
 use App\Livewire\StudentDashboard;
 use App\Livewire\StudentNotifications;
 use Illuminate\Support\Facades\Route;
-use Livewire\Volt\Volt;
 
-Volt::route('/', 'pages.auth.login')->name('login');
+Route::redirect('/', '/login');
 
 Route::view('dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -46,9 +46,10 @@ Route::middleware(['auth', CheckRole::class . ':administrator'])->group(function
     Route::get('/admin/user', ManageUser::class)->name('manage_user');
     Route::get('/admin/missing_report', ManageMissingReport::class)->name('manage_missing');
     Route::get('/admin/notifications', AdminNotification::class)->name('admin_notification');
+    Route::get('/admin/setting', Setting::class)->name('setting');
 });
 
-// Staff/Admin
+// Both Staff and Admin
 Route::middleware(['auth', CheckRole::class . ':staff,administrator'])->group(function () {
     // Have problem when doing full page livewire, because the layout needs to be dynamic, so lazy wont work as the layouts apply late.
     Route::view('/storage_application', 'admin.manage_storage_application')->name('manage_storage_application');
@@ -59,6 +60,7 @@ Route::middleware(['auth', CheckRole::class . ':staff,administrator'])->group(fu
 
     Route::view('/scanqr', 'admin.scan_qr')->name('scan_qr');
     Route::view('/scan_log', 'admin.scan_log')->name('scan_log');
+    Route::view('/activity_log', 'admin.activity_log')->name('activity_log');
 });
 
 // Staff

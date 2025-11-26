@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\ActivityLog;
 use App\Models\QRCode;
 use App\Models\StorageApplication;
 use App\Models\StorageRoom;
@@ -97,8 +98,16 @@ class StorageApplicationPending extends Component
             $this->dispatch('show_toast', message: 'Application approved successfully!', type: 'success');
             $this->reset();
 
-            $student = User::findOrFail($application->applicant_id);
-            $student->notify(new ApproveStorageApplicationNotification($application));
+            // Notification
+            $application->applicant->notify(new ApproveStorageApplicationNotification($application));
+
+            // Logs activity to the system
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'approve_storage_application',
+                'description' => "Approved application ID: {$application->id}",
+                'ip_address' => request()->ip(),
+            ]);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             $this->dispatch('show_toast', message: 'Application not found.', type: 'fail');
         } catch (\Exception $e) {
@@ -128,6 +137,17 @@ class StorageApplicationPending extends Component
                 } elseif ($application->open_area_id) {
                     $application->openArea->update(['status' => 'reserved']);
                 }
+
+                // Notification
+                $application->applicant->notify(new ApproveStorageApplicationNotification($application));
+                
+                // Logs activity to the system
+                ActivityLog::create([
+                    'user_id' => Auth::id(),
+                    'action' => 'approve_storage_application',
+                    'description' => "Approved application ID: {$application->id}",
+                    'ip_address' => request()->ip(),
+                ]);
             }
 
             $this->dispatch('show_toast', message: 'Application approved successfully!', type: 'success');
