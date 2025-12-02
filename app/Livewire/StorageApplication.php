@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Livewire\Forms\StorageApplicationItem;
 use App\Livewire\Forms\StorageApplicationRoom;
+use App\Models\Locker;
 use App\Models\OpenArea;
 use App\Models\StorageApplication as ModelsStorageApplication;
 use App\Models\StorageRoom;
@@ -68,19 +69,25 @@ class StorageApplication extends Component
 
         $this->sizes = [
             'small' => [
-                'name' => 'Small',
-                'description' => 'Books, clothes, small electronics, small-sized box',
-                'icon' => '📦'
+                'name' => 'Small Item',
+                'icon' => '🎒', // Or use an SVG/FontAwesome class
+                'color' => 'success', // Bootstrap color
+                'context' => 'Fits on a standard shelf',
+                'examples' => ['Backpack', 'Shoe box', 'Laptop bag', 'Helmet']
             ],
             'medium' => [
-                'name' => 'Medium',
-                'description' => 'Appliances, sports gear, medium-sized box',
-                'icon' => '📋'
+                'name' => 'Medium Item',
+                'icon' => '🧳',
+                'color' => 'primary',
+                'context' => 'Fits in a car trunk',
+                'examples' => ['Carry-on luggage', 'Plastic storage bin', 'Microwave box']
             ],
             'large' => [
-                'name' => 'Large',
-                'description' => 'Chairs, lamps, full-size standing fan, large appliances, bicycle, shoe rack, large luggage',
-                'icon' => '🗄️'
+                'name' => 'Large Item',
+                'icon' => '🚲',
+                'color' => 'warning',
+                'context' => 'Requires floor space',
+                'examples' => ['Large suitcase (28"+)', 'Bicycle', 'Mattress', 'Guitar case']
             ]
         ];
 
@@ -278,6 +285,12 @@ class StorageApplication extends Component
 
             // Create stored items for each item in the application
             $this->itemForm->createAllItem($storageApplication->id);
+
+            if ($this->roomForm->selectedLockerId) {
+                Locker::where('id', $this->roomForm->selectedLockerId)->update([
+                    'status' => 'reserved',
+                ]);
+            }
 
             DB::commit();
 

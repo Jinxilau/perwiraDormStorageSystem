@@ -4,7 +4,7 @@
 <aside id="sidebar" class="shadow-lg text-light d-flex flex-column">
     {{-- Sidebar Header --}}
     <div id="sidebar-header" class="p-3 d-flex justify-content-between align-items-center">
-        <h1 class="h5 fw-bold mb-0">Perwira Dorm Storage System</h1>
+        <h1 class="h5 fw-bold mb-0" style="letter-spacing: 1px;">Perwira Dorm Storage System</h1>
         <button id="sidebar-toggle-btn" class="navbar-toggler" style="width: 22px; height: 22px;">
             <i class="bi bi-x-lg fs-4" id="hambur"></i>
         </button>

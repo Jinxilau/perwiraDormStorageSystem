@@ -123,6 +123,11 @@ class ManageStorageRoom extends Component
     {
         return $this->storageRoom->lockers->where('status', 'occupied')->count();
     }
+    #[Computed()]
+    public function reservedLockers()
+    {
+        return $this->storageRoom->lockers->where('status', 'reserved')->count();
+    }
 
     #[Computed()]
     public function openAreaStoredItems()

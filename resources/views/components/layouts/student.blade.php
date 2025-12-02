@@ -91,6 +91,9 @@
     </script>
     @stack('scripts')
 
+    {{-- Alpine js --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    
     <script>
         document.addEventListener('livewire:navigated', () => {
             const sidebar = document.getElementById('sidebar');

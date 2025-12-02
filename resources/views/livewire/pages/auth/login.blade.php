@@ -127,7 +127,7 @@ new #[Layout('layouts.guest')] class extends Component {
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <div class="form-check">
                                     <input wire:model="form.remember" id="remember" type="checkbox"
-                                        class="form-check-input" name="remember">
+                                        class="form-check-input border border-dark" name="remember">
                                     <label for="remember" class="form-check-label">
                                         {{ __('Remember me') }}
                                     </label>

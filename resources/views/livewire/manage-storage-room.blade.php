@@ -8,7 +8,7 @@
                     <h5 class="card-title">
                         Locker Status
                         <span
-                            class="badge px-3 py-1 {{ match ($this->locker->status) {'available' => 'bg-success','occupied' => 'bg-danger','under_maintenance' => 'bg-secondary'} }}">
+                            class="badge px-3 py-1 {{ match ($this->locker->status) {'available' => 'bg-success','occupied' => 'bg-danger', 'reserved' => 'bg-warning',default => 'bg-secondary'} }}">
                             {{ ucfirst($this->locker->status) }}
                         </span>
                     </h5>
@@ -27,7 +27,15 @@
                         {{ $this->locker->status === 'occupied' ? 'checked disabled' : '' }}>
                     <label class="btn btn-danger" for="option2">
                         <i class="fas fa-exclamation-triangle me-2"></i>
-                        Mark as Full
+                        Mark as Occupied
+                    </label>
+
+                    <input type="radio" class="btn-check" name="locker_status" id="option4" autocomplete="off"
+                        wire:model="lockerStatus" value="reserved"
+                        {{ $this->locker->status === 'reserved' ? 'checked disabled' : '' }}>
+                    <label class="btn btn-warning" for="option4">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Mark as Reserved
                     </label>
 
                     <input type="radio" class="btn-check" name="locker_status" id="option3" autocomplete="off"
@@ -114,8 +122,7 @@
                                 <i class="fas fa-exclamation-triangle me-2"></i>
                                 Mark as Full
                             </label>
-                            <input type="radio" class="btn-check" name="options" id="option3"
-                                autocomplete="off"
+                            <input type="radio" class="btn-check" name="options" id="option3" autocomplete="off"
                                 wire:confirm="Are you sure you want to update the status of open area?"
                                 wire:click="toggleAreaStatus('under_maintenance')"
                                 {{ $this->storageRoom->openAreas->area_status === 'under_maintenance' ? 'checked' : '' }}>
@@ -156,8 +163,11 @@
                                 <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger"
                                     style="width: {{ ($this->occupiedLockers / $this->totalLockers) * 100 }}%">
                                 </div>
+                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning"
+                                    style="width: {{ (($this->reservedLockers) / $this->totalLockers) * 100 }}%">
+                                </div>
                                 <div class="progress-bar progress-bar-striped progress-bar-animated bg-secondary"
-                                    style="width: {{ (($this->unavailableLockers - $this->occupiedLockers) / $this->totalLockers) * 100 }}%">
+                                    style="width: {{ (($this->unavailableLockers - $this->occupiedLockers - $this->reservedLockers) / $this->totalLockers) * 100 }}%">
                                 </div>
                             @endif
                         </div>
@@ -175,22 +185,28 @@
                                 <span>Available</span>
                             </div>
                             <div>
-                                <div class="rounded-circle bg-secondary d-inline-block"
+                                <div class="rounded-circle bg-warning d-inline-block"
                                     style="width: 10px; height: 10px;">
                                 </div>
-                                <span>In Maintenance</span>
+                                <span>Reserved</span>
                             </div>
                             <div>
                                 <div class="rounded-circle bg-danger d-inline-block"
                                     style="width: 10px; height: 10px;">
                                 </div>
-                                <span>Not Available</span>
+                                <span>Occupied</span>
+                            </div>
+                            <div>
+                                <div class="rounded-circle bg-secondary d-inline-block"
+                                    style="width: 10px; height: 10px;">
+                                </div>
+                                <span>In Maintenance</span>
                             </div>
                         </div>
                         <div id='grid'>
                             @foreach ($this->storageRoom->lockers as $locker)
                                 <button type="button"
-                                    class="btn {{ match ($locker->status) {'available' => 'btn-success','occupied' => 'btn-danger',default => 'btn-secondary'} }} d-flex justify-content-center align-items-center border border-dark border-3 text-white"
+                                    class="btn {{ match ($locker->status) {'available' => 'btn-success','reserved' => 'btn-warning','occupied' => 'btn-danger',default => 'btn-secondary'} }} d-flex justify-content-center align-items-center border border-dark border-3 text-white"
                                     style="border-style: inset;"
                                     @click="$dispatch('show-modal', { id: {{ $locker->id }} })">
                                     {{ $locker->id }}

@@ -1,7 +1,7 @@
 @props([
     'items' => [],
 ])
-<aside id="sidebar" class="col-md-3 p-0 mb-4 mb-md-0 custom-vh-100 shadow-lg">
+<aside id="sidebar" class="col-md-3 p-0 mb-4 mb-md-0 custom-vh-100 shadow-lg border-end border-secondary-subtle">
     <nav>
         <div class="list-group">
             @foreach ($items as $item)

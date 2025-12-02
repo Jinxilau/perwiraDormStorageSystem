@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('missing_reports', function (Blueprint $table) {
             $table->id();
 
-            $table->enum('status', ['pending', 'investigating', 'resolved', 'closed'])->default('pending');
+            $table->enum('status', ['pending', 'investigating', 'found', 'lost', 'rejected'])->default('pending');
 
             // Last see the item?
             $table->enum('last_seen_type', ['specific_date', 'dont_remember', 'range']);

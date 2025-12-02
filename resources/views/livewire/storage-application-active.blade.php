@@ -9,7 +9,13 @@
             <span class="visually-hidden">Loading...</span>
         </div>
         @php
-            $modalApplication = App\Models\StorageApplication::with(['applicant', 'approver', 'storedItems', 'openArea.storageRoom', 'locker.storageRoom'])->find($this->modalData);
+            $modalApplication = App\Models\StorageApplication::with([
+                'applicant',
+                'approver',
+                'storedItems',
+                'openArea.storageRoom',
+                'locker.storageRoom',
+            ])->find($this->modalData);
         @endphp
         <div wire:loading.remove="modalData" class="text-start">
             @if ($modalApplication)
@@ -131,149 +137,109 @@
         ]" />
 
         {{-- Filtering Options --}}
-        <div class="row border-bottom border-top border-dark bg-white mb-3">
-            {{-- Search --}}
-            <div class="bg-white rounded p-3 d-flex gap-2 align-items-center">
-                <div class="flex-grow-1 flex-shrink-1 position-relative">
-                    <i class="bi bi-search fs-5 position-absolute"
-                        style="left: 16px; top: 50%;transform: translateY(-50%);"></i>
-                    <input wire:model="search" type="text" class="w-100" id="searchInput"
-                        style="padding: 14px 16px 14px 48px; border: 2px solid #e5e7eb; border-radius: 8px;"
-                        placeholder="Search applications by applicant name, matric no, or ID...">
-                </div>
-                <button type="button" class="btn btn-primary fw-bold">Search</button>
+        <x-filter-options>
+            {{-- Room --}}
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">Room</label>
+                <select class="form-select bg-light border-0" wire:model="room">
+                    <option value="">All Room</option>
+                    @foreach ($this->rooms as $room)
+                        <option value="{{ $room->id }}">{{ $room->room_name }}</option>
+                    @endforeach
+                </select>
             </div>
-            {{-- Dropdowns --}}
-            <div class="bg-white border-rounded p-3 shadow-sm">
-                <div class="row row-cols-3 mb-3">
-                    <div>
-                        <label class="small text-muted form-label d-inline-block w-100 text-start">Room</label>
-                        <select class="form-select mb-3" wire:model="room">
-                            <option value="">All Room</option>
-                            @foreach ($this->rooms as $room)
-                                <option value="{{ $room->id }}">Room {{ $room->room_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
 
-                    <div>
-                        <label class="small text-muted form-label d-inline-block w-100 text-start">
-                            Storage Type
-                        </label>
-                        <select class="form-select mb-3" wire:model="storageType">
-                            <option value="">All Type</option>
-                            <option value="locker">Locker</option>
-                            <option value="openArea">Open Area</option>
-                            <option value="lockerOpenArea">Locker + Open Area</option>
-                        </select>
-                    </div>
+            {{-- Storage Type --}}
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">Type</label>
+                <select class="form-select bg-light border-0" wire:model="storageType">
+                    <option value="">All Types</option>
+                    <option value="locker">Locker</option>
+                    <option value="openArea">Open Area</option>
+                    <option value="lockerOpenArea">Locker + Open Area</option>
+                </select>
+            </div>
 
-                    <div>
-                        <label class="small text-muted form-label d-inline-block w-100 text-start">
-                            Check In Date
-                        </label>
-                        <input type="date" max="{{ Date::now()->toDateString() }}" wire:model="checkinDate"
-                            class="form-control">
-                    </div>
+            {{-- Check in --}}
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">Check In Date</label>
+                <input type="date" max="{{ Date::now()->toDateString() }}" wire:model="checkinDate"
+                    class="form-control bg-light border-0">
+            </div>
 
-                    <div>
-                        <label class="small text-muted form-label d-inline-block w-100 text-start">
-                            Check Out Date
-                        </label>
-                        <input type="date" max="{{ Date::now()->toDateString() }}" wire:model="checkoutDate"
-                            class="form-control">
-                    </div>
+            {{-- Check out --}}
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">Check Out Date</label>
+                <input type="date" max="{{ Date::now()->toDateString() }}" wire:model="checkoutDate"
+                    class="form-control bg-light border-0">
+            </div>
 
-                    <div>
-                        <label class="small text-muted form-label d-inline-block w-100 text-start">
-                            Sort By Application Date
-                        </label>
-                        <select class="form-select mb-3 " wire:model="sortDate">
-                            <option value="latest">Latest</option>
-                            <option value="oldest">Oldest</option>
-                        </select>
-                    </div>
+            {{-- Sort By Date --}}
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">
+                    Sort By Application Date
+                </label>
+                <select class="form-select bg-light border-0" wire:model="sortDate">
+                    <option value="latest">Latest</option>
+                    <option value="oldest">Oldest</option>
+                </select>
+            </div>
 
-                    <div>
-                        <label class="small text-muted form-label d-inline-block w-100 text-start">
-                            Sort By Applicant Name
-                        </label>
-                        <select class="form-select mb-3" wire:model="sortName">
-                            <option value="asc">Ascending</option>
-                            <option value="desc">Descending</option>
-                        </select>
-                    </div>
+            {{-- Sort By Name --}}
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">
+                    Sort By Applicant Name
+                </label>
+                <select class="form-select bg-light border-0" wire:model="sortName">
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                </select>
+            </div>
 
-                    <div x-data="{ show: false }" class="position-relative">
-                        <label class="small text-muted form-label d-inline-block w-100 text-start">
-                            Show/Hide Columns
-                        </label>
-                        <button @click.prevent="show = !show" class="form-select text-start"
-                            x-text="cols.length === 5 ? 'All Columns' : 'Custom Columns'"></button>
-                        <div x-show="show" @click.away="show = false"
-                            class="position-absolute bg-white border rounded shadow-sm p-2 mt-1 z-50"
-                            style="display: none; min-width: 200px; left: 0;">
+            {{-- Column Display --}}
+            <div class="col-md-4 col-lg-3" x-data="{ show: false }">
+                <label class="form-label small text-muted fw-bold">Columns</label>
+                <div class="position-relative">
+                    <button @click.prevent="show = !show"
+                        class="form-select bg-light border-0 text-start d-flex justify-content-between align-items-center">
+                        <span x-text="cols.length === 4 ? 'All Visible' : 'Custom'"></span>
+                    </button>
+                    {{-- Dropdown --}}
+                    <div x-show="show" @click.away="show = false" x-transition.opacity.duration.200ms
+                        class="position-absolute bg-white border rounded-3 shadow p-3 mt-1 z-3"
+                        style="display: none; min-width: 220px; z-index: 1050;">
 
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" name="allCol" id="displayCol1"
-                                    x-model="allCol" @change="toggleAll()">
-                                <label class="form-check-label" for="displayCol1">All Columns</label>
-                            </div>
-
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" name="displayCols" id="displayCol2"
-                                    value="studentInfo" x-model="cols" @change="checkIfAllSelected()">
-                                <label class="form-check-label" for="displayCol2">Student Info</label>
-                            </div>
-
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" name="displayCols" id="displayCol3"
-                                    value="storageDetails" x-model="cols" @change="checkIfAllSelected()">
-                                <label class="form-check-label" for="displayCol3">Storage Details</label>
-                            </div>
-
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" name="displayCols" id="displayCol4"
-                                    value="item" x-model="cols" @change="checkIfAllSelected()">
-                                <label class="form-check-label" for="displayCol4">Items</label>
-                            </div>
-
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" name="displayCols" id="displayCol5"
-                                    value="applicationDate" x-model="cols" @change="checkIfAllSelected()">
-                                <label class="form-check-label" for="displayCol5">Application Date</label>
-                            </div>
-
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" name="displayCols" id="displayCol6"
-                                    value="status" x-model="cols" @change="checkIfAllSelected()">
-                                <label class="form-check-label" for="displayCol6">Status</label>
-                            </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="allCol" x-model="allCol"
+                                @change="toggleAll()">
+                            <label class="form-check-label small" for="allCol">Select All</label>
                         </div>
-                    </div>
+                        <hr class="my-2">
 
-                    <div>
-                        <label class="small text-muted form-label d-inline-block w-100 text-start">
-                            Application Per Page <span class="text-muted small">(Pagination)</span>
-                        </label>
-                        <select class="form-select mb-3" wire:model="paginationInt">
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                        </select>
+                        @foreach (['studentInfo' => 'Student Info', 'storageDetails' => 'Storage Details', 'item' => 'Items', 'applicationDate' => 'Application Date', 'status' => 'Status'] as $val => $label)
+                            <div class="form-check form-switch mb-1">
+                                <input class="form-check-input" type="checkbox" value="{{ $val }}"
+                                    x-model="cols" @change="checkIfAllSelected()">
+                                <label class="form-check-label small">{{ $label }}</label>
+                            </div>
+                        @endforeach
                     </div>
-                </div>
-
-                <div class="d-flex justify-content-center align-items-center gap-3 pt-2 border-top">
-                    <button class="btn btn-danger fw-bold" wire:click.prevent="clearFilters"
-                        @click="allCol = true; toggleAll()">Clear All</button>
                 </div>
             </div>
 
-        </div>
+            {{-- Pagination --}}
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">Per Page</label>
+                <select class="form-select bg-light border-0" wire:model="paginationInt">
+                    <option value="10">10 Rows</option>
+                    <option value="25">25 Rows</option>
+                    <option value="50">50 Rows</option>
+                    <option value="100">100 Rows</option>
+                </select>
+            </div>
+        </x-filter-options>
 
-
+        {{-- Table --}}
         <x-table>
             <x-slot:header>
                 <th class="align-middle py-2">

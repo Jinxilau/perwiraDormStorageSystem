@@ -180,112 +180,88 @@
             ],
         ]" />
 
-        {{-- Filter Options --}}
-        <div class="bg-light row border-bottom border-top border-dark mb-3">
-            {{-- Search --}}
-            <div class="rounded p-3 d-flex gap-2 align-items-center">
-                <div class="flex-grow-1 flex-shrink-1 position-relative">
-                    <i class="bi bi-search fs-5 position-absolute"
-                        style="left: 16px; top: 50%;transform: translateY(-50%);"></i>
-                    <input wire:model.live="search" type="text" class="w-100" id="searchInput"
-                        style="padding: 14px 16px 14px 48px; border: 2px solid #e5e7eb; border-radius: 8px;"
-                        placeholder="Search applications by applicant name, matric no, or ID...">
-                </div>
-                <button type="button" class="btn btn-primary fw-bold">Search</button>
-            </div>
-            {{-- Dropdowns --}}
-            <div class="border-rounded p-3 shadow-sm">
-                <div class="row row-cols-3 mb-3">
-
-                    <div>
-                        <label class="small text-muted form-label d-inline-block w-100 text-start">
-                            User Role
-                        </label>
-                        <select class="form-select mb-3" wire:model.live="role">
-                            <option value="">All Type</option>
-                            <option value="1">Administrator</option>
-                            <option value="2">Staff</option>
-                            <option value="3">Student</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="small text-muted form-label d-inline-block w-100 text-start">
-                            User Status
-                        </label>
-                        <select class="form-select mb-3" wire:model.live="accStatus">
-                            <option value="">All Type</option>
-                            <option value="approved">Approved</option>
-                            <option value="pending">Pending</option>
-                            <option value="rejected">Rejected</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="small text-muted form-label d-inline-block w-100 text-start">
-                            Gender
-                        </label>
-                        <select class="form-select mb-3" wire:model.live="userGender">
-                            <option value="">All Gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="small text-muted form-label d-inline-block w-100 text-start">
-                            From Application Date Range
-                        </label>
-                        <input type="date" wire:model.live="fromRange" class="form-control">
-                    </div>
-
-                    <div>
-                        <label class="small text-muted form-label d-inline-block w-100 text-start">
-                            To Application Date Range
-                        </label>
-                        <input type="date" wire:model.live="toRange" class="form-control">
-                    </div>
-
-                    <div>
-                        <label class="small text-muted form-label d-inline-block w-100 text-start">
-                            Sort By Application Date
-                        </label>
-                        <select class="form-select mb-3 " wire:model.live="sortDate">
-                            <option value="latest">Latest</option>
-                            <option value="oldest">Oldest</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="small text-muted form-label d-inline-block w-100 text-start">
-                            Sort By User Name
-                        </label>
-                        <select class="form-select mb-3" wire:model.live="sortName">
-                            <option value="asc">Ascending</option>
-                            <option value="desc">Descending</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="small text-muted form-label d-inline-block w-100 text-start">
-                            Application Per Page <span class="text-muted small">(Pagination)</span>
-                        </label>
-                        <select class="form-select mb-3" wire:model.live="paginationInt">
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-center align-items-center gap-3 pt-2 border-top">
-                    <button class="btn btn-danger fw-bold" wire:click.prevent="clearFilters"
-                        @click="allCol = true; toggleAll()">Clear All</button>
-                </div>
+        <x-filter-options>
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">
+                    User Role
+                </label>
+                <select class="form-select bg-light border-0" wire:model.live="role">
+                    <option value="">All Type</option>
+                    <option value="1">Administrator</option>
+                    <option value="2">Staff</option>
+                    <option value="3">Student</option>
+                </select>
             </div>
 
-        </div>
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">
+                    User Status
+                </label>
+                <select class="form-select bg-light border-0" wire:model.live="accStatus">
+                    <option value="">All Type</option>
+                    <option value="approved">Approved</option>
+                    <option value="pending">Pending</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </div>
+
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">
+                    Gender
+                </label>
+                <select class="form-select bg-light border-0" wire:model.live="userGender">
+                    <option value="">All Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">
+                    From Application Date Range
+                </label>
+                <input type="date" wire:model.live="fromRange" class="form-control bg-light border-0">
+            </div>
+
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">
+                    To Application Date Range
+                </label>
+                <input type="date" wire:model.live="toRange" class="form-control bg-light border-0">
+            </div>
+
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">
+                    Sort By Application Date
+                </label>
+                <select class="form-select bg-light border-0" wire:model.live="sortDate">
+                    <option value="latest">Latest</option>
+                    <option value="oldest">Oldest</option>
+                </select>
+            </div>
+
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">
+                    Sort By User Name
+                </label>
+                <select class="form-select bg-light border-0" wire:model.live="sortName">
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                </select>
+            </div>
+
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">
+                    Application Per Page <span class="text-muted small">(Pagination)</span>
+                </label>
+                <select class="form-select bg-light border-0" wire:model.live="paginationInt">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+        </x-filter-options>
 
         {{-- Bulk Actions Bar --}}
         <div class="bg-primary-subtle border-bottom border-primary rounded-top px-3 py-2">

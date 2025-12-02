@@ -117,16 +117,32 @@
                                             wire:model.live="itemForm.estimated_size">
                                         <label for="{{ $size_key }}" class="size-card d-block p-4 rounded-3">
                                             <div class="text-center">
-                                                <div
-                                                    class="size-icon rounded-circle d-flex align-items-center justify-content-center fs-2 bg-secondary bg-gradient">
+                                                <div class="mx-auto mb-3 rounded-circle d-flex align-items-center justify-content-center fs-2"
+                                                    style="width: 60px; height: 60px; background-color: var(--bs-{{ $size_info['color'] }}-bg-subtle);">
                                                     {{ $size_info['icon'] }}
                                                 </div>
-                                                <h3 class="h5 mb-2 fw-bold text-dark">
+
+                                                <h3 class="h5 mb-1 fw-bold text-dark">
                                                     {{ $size_info['name'] }}
                                                 </h3>
-                                                <p class="small text-muted mb-0">
-                                                    {{ $size_info['description'] }}
-                                                </p>
+
+                                                <div
+                                                    class="badge bg-{{ $size_info['color'] }} bg-opacity-10 text-{{ $size_info['color'] }} mb-3">
+                                                    {{ $size_info['context'] }}
+                                                </div>
+
+                                                <div class="text-muted small border-top pt-3 mt-2">
+                                                    <span class="fw-semibold text-dark">Common Examples:</span>
+                                                    <ul class="list-unstyled mb-0 mt-1">
+                                                        @foreach ($size_info['examples'] as $ex)
+                                                            <li class="mb-1">
+                                                                <i
+                                                                    class="bi bi-check2 text-{{ $size_info['color'] }}"></i>
+                                                                {{ $ex }}
+                                                            </li>
+                                                        @endforeach
+                                                    </ul>
+                                                </div>
                                             </div>
                                         </label>
                                     </div>
@@ -140,8 +156,9 @@
 
                     <!-- Item Photo -->
                     <div class="mb-4">
-                        <label class="form-label mb-3">Item Photo <span
-                                class="text-muted fw-normal">(Optional)</span></label>
+                        <label class="form-label mb-3">
+                            Item Photo <span class="text-muted fw-normal">(Optional)</span>
+                        </label>
 
                         @if ($this->itemForm->item_photo)
                             <div class="text-center mb-3">
@@ -501,6 +518,7 @@
                                         {{ $locker['status'] === 'available' ? 'available' : '' }}
                                         {{ $locker['status'] === 'under_maintenance' ? 'maintenance' : '' }}
                                         {{ $locker['status'] === 'occupied' ? 'occupied' : '' }}
+                                        {{ $locker['status'] === 'reserved' ? 'occupied' : '' }}
                                         {{ $this->roomForm->selectedLockerId == $locker['id'] ? 'selected' : '' }}"
                                                     @if ($locker['status'] === 'available') wire:click="selectLocker({{ $locker['id'] }})" @endif>
                                                     {{ $locker['locker_number'] }}
@@ -946,8 +964,10 @@
                                 <ul>
                                     <li>Storage service is available only for:</li>
                                     <ul>
-                                        <li>New students (February 2025 intake) residing in Perwira Residential College.</li>
-                                        <li>Senior students who have received accommodation approval and completed pre-registration for Semester 1, Session 2025/2026 via HOMS.</li>
+                                        <li>New students (February 2025 intake) residing in Perwira Residential College.
+                                        </li>
+                                        <li>Senior students who have received accommodation approval and completed
+                                            pre-registration for Semester 1, Session 2025/2026 via HOMS.</li>
                                     </ul>
                                     <li>Storage under another person’s name is strictly prohibited.</li>
                                 </ul>
@@ -959,13 +979,15 @@
                                 </div>
                                 <ul>
                                     <li>Each student may store up to three (3) boxes or bags only.</li>
-                                    <li>All items must be recorded in the official Storage Record Book for Semester II, Session 2024/2025.</li>
+                                    <li>All items must be recorded in the official Storage Record Book for Semester II,
+                                        Session 2024/2025.</li>
                                     <li>Items must not include:</li>
                                     <ul>
                                         <li>Food or perishable goods</li>
                                         <li>Illegal or dangerous materials</li>
                                         <li>Flammable, explosive, or hazardous materials</li>
-                                        <li>Valuable items (cash, jewelry, electronics) — storage of such items is at your own risk.</li>
+                                        <li>Valuable items (cash, jewelry, electronics) — storage of such items is at
+                                            your own risk.</li>
                                     </ul>
                                 </ul>
                             </div>
@@ -975,9 +997,12 @@
                                     3. Storage and Retrieval Schedule
                                 </div>
                                 <ul>
-                                    <li><strong>Storage Period:</strong> 21 – 25 July 2025 (9:00 a.m.–11:00 a.m. & 2:30 p.m.–4:00 p.m.)</li>
-                                    <li><strong>Retrieval Period:</strong> 4 – 10 October 2025 (refer to detailed schedule on noticeboard or PDSS system).</li>
-                                    <li>Storage outside these periods requires prior arrangement with KKLK staff or the Student Leadership Council (MKP).</li>
+                                    <li><strong>Storage Period:</strong> 21 – 25 July 2025 (9:00 a.m.–11:00 a.m. & 2:30
+                                        p.m.–4:00 p.m.)</li>
+                                    <li><strong>Retrieval Period:</strong> 4 – 10 October 2025 (refer to detailed
+                                        schedule on noticeboard or PDSS system).</li>
+                                    <li>Storage outside these periods requires prior arrangement with KKLK staff or the
+                                        Student Leadership Council (MKP).</li>
                                 </ul>
                             </div>
 
@@ -986,7 +1011,8 @@
                                     4. Liability
                                 </div>
                                 <ul>
-                                    <li>The management will not be held responsible for any damage or loss of items during the storage period.</li>
+                                    <li>The management will not be held responsible for any damage or loss of items
+                                        during the storage period.</li>
                                     <li>Storage is <strong>at the student’s own risk.</strong></li>
                                 </ul>
                             </div>
@@ -1007,7 +1033,8 @@
                                     6. Unclaimed Items
                                 </div>
                                 <ul>
-                                    <li>Any items not collected within one (1) week after Semester 1, Session 2025/2026 begins will be disposed of by the management.</li>
+                                    <li>Any items not collected within one (1) week after Semester 1, Session 2025/2026
+                                        begins will be disposed of by the management.</li>
                                 </ul>
                             </div>
 
@@ -1016,7 +1043,8 @@
                                     7. QR Code and Check-In Procedure
                                 </div>
                                 <ul>
-                                    <li>A QR code will be generated after approval and must be presented during check-in.</li>
+                                    <li>A QR code will be generated after approval and must be presented during
+                                        check-in.</li>
                                     <li>The QR code is non-transferable and tied to your registration record.</li>
                                 </ul>
                             </div>
@@ -1036,7 +1064,8 @@
                                     8. Acknowledgement
                                 </div>
                                 <ul>
-                                    <li>By checking the agreement box and submitting this form, you confirm that you have read, understood, and agreed to these terms.</li>
+                                    <li>By checking the agreement box and submitting this form, you confirm that you
+                                        have read, understood, and agreed to these terms.</li>
                                 </ul>
                             </div>
                         </div>

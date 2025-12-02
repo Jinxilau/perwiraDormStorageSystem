@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title . " | Perwira Dorm Storage System" }}</title>
+    <title>{{ $title . ' | Perwira Dorm Storage System' }}</title>
     @vite(['resources\css\admin.css', 'resources\css\sidebar2.css', 'resources\css\notification.css', 'resources\css\modal.css'])
     @stack('styles')
     {{-- Livewire Style --}}
@@ -104,6 +104,8 @@
     </script>
     {{-- QR Reader --}}
     <script src="https://unpkg.com/html5-qrcode"></script>
+    {{-- Alpine js --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
 
     @stack('scripts')
     <script>
