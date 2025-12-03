@@ -2,11 +2,16 @@
     {{-- Close your eyes. Count to one. That is how long forever feels. --}}
     <x-custom-modal>
         <x-slot:title>
-            Application #{{ $this->modalData }}
+            <div class="d-flex justify-content-between align-items-center gap-1 w-100">
+                <span>Application Details</span>
+                <span class="badge bg-secondary rounded-pill fs-6">#{{ $this->modalData }}</span>
+            </div>
         </x-slot:title>
 
-        <div wire:loading="modalData" class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
+        <div class="d-flex justify-content-center">
+            <div wire:loading="modalData" class="spinner-border my-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </div>
         @php
             $modalApplication = App\Models\StorageApplication::with([
@@ -131,9 +136,9 @@
     }" x-init="toggleAll()" class="bg-white shadow-sm rounded-lg overflow-hidden">
 
         <x-card-matrix :items="[
-            ['title' => $this->countTotalActive, 'subtitle' => 'Total Active Application'],
-            ['title' => $this->countLocker, 'subtitle' => 'Total Locker Application'],
-            ['title' => $this->countOpenArea, 'subtitle' => 'Total Open Area Application'],
+            ['title' => $this->activeCounts['total'], 'subtitle' => 'Total Active Application'],
+            ['title' => $this->activeCounts['locker'], 'subtitle' => 'Total Locker Application'],
+            ['title' => $this->activeCounts['open_area'], 'subtitle' => 'Total Open Area Application'],
         ]" />
 
         {{-- Filtering Options --}}

@@ -2,11 +2,16 @@
     {{-- If you look to others for fulfillment, you will never truly be fulfilled. --}}
     <x-custom-modal>
         <x-slot:title>
-            Application #<span>{{ $this->modalData }}</span>
+            <div class="d-flex justify-content-between align-items-center gap-1 w-100">
+                <span>Application Details</span>
+                <span class="badge bg-secondary rounded-pill fs-6">#{{ $this->modalData }}</span>
+            </div>
         </x-slot:title>
 
-        <div wire:loading="modalData" class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
+        <div wire:loading="modalData2" class="text-center w-100 py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </div>
         @php
             $modalApplication = App\Models\StorageApplication::with([
@@ -162,10 +167,15 @@
 
     <x-custom-modal2>
         <x-slot:title>
-            Reject Application #{{ $this->modalData2 }}
+            <div class="d-flex justify-content-between align-items-center gap-1 w-100">
+                <span>Reject Application</span>
+                <span class="badge bg-secondary rounded-pill fs-6">#{{ $this->modalData2 }}</span>
+            </div>
         </x-slot:title>
-        <div wire:loading="modalData2" class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
+        <div class="d-flex justify-content-center">
+            <div wire:loading="modalData" class="spinner-border my-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </div>
         <div wire:loading.remove="modalData2" class="pb-3">
             <form wire:submit.prevent="rejectApplication({{ $this->modalData2 }})">
@@ -267,9 +277,9 @@
     }" x-init="toggleAll()" class="shadow-sm rounded-lg overflow-hidden">
 
         <x-card-matrix :items="[
-            ['title' => $this->countTotalPending, 'subtitle' => 'Total Pending Application'],
-            ['title' => $this->countLocker, 'subtitle' => 'Total Locker Application'],
-            ['title' => $this->countOpenArea, 'subtitle' => 'Total Open Area Application'],
+            ['title' => $this->storageCounts['total'], 'subtitle' => 'Total Pending Application'],
+            ['title' => $this->storageCounts['locker'], 'subtitle' => 'Total Locker Application'],
+            ['title' => $this->storageCounts['open_area'], 'subtitle' => 'Total Open Area Application'],
         ]" />
 
         <x-filter-options>
@@ -296,13 +306,21 @@
             </div>
 
             {{-- Date Range (Grouped Visually) --}}
-            <div class="col-md-4 col-lg-3">
-                <label class="form-label small text-muted fw-bold">Date Range (Start)</label>
-                <input type="date" wire:model="fromRange" class="form-control bg-light border-0">
-            </div>
-            <div class="col-md-4 col-lg-3">
-                <label class="form-label small text-muted fw-bold">Date Range (End)</label>
-                <input type="date" wire:model="toRange" class="form-control bg-light border-0">
+            <div class="col-md-6 col-lg-5">
+                <label class="form-label small text-muted fw-bold">Date Range</label>
+
+                <div class="input-group">
+                    {{-- Start Date --}}
+                    <input type="date" wire:model.live="fromRange" class="form-control bg-light border-0"
+                        placeholder="Start Date" aria-label="Start Date">
+
+                    {{-- Separator --}}
+                    <span class="input-group-text bg-light border-0 text-secondary">to</span>
+
+                    {{-- End Date --}}
+                    <input type="date" wire:model.live="toRange" class="form-control bg-light border-0"
+                        placeholder="End Date" aria-label="End Date">
+                </div>
             </div>
 
             {{-- Sort Options --}}
@@ -381,6 +399,7 @@
                         Approve Selected
                     </button>
                     <button type="button" wire:click="$dispatch('display_modal3');"
+                        wire:confirm="Are you sure you want to reject the selected applications?"
                         @empty($this->selectedApplications) disabled @endempty class="btn btn-danger">
                         Reject Selected
                     </button>
@@ -427,7 +446,7 @@
                         #{{ $application->id }}
                     </td> {{-- Student Info --}}
                     <td x-show="cols.includes('studentInfo')">
-                        <div class="d-flex items-center gap-1">
+                        <div class="d-flex items-center">
                             <div class="rounded-circle bg-secondary-subtle d-flex justify-content-center align-items-center"
                                 style="height: 30px; width:30px">
                                 {{ substr($application->applicant->name ?? 'N/A', 0, 2) }}
@@ -437,10 +456,11 @@
                                     {{ $application->applicant->name ?? 'N/A' }}
                                 </span>
                                 <small class="text-muted" style="white-space: nowrap;">
-                                    ID: {{ $application->applicant->matric_no ?? 'N/A' }} •
+                                    ID: {{ $application->applicant->matric_no ?? 'N/A' }}
+                                    {{ $application->applicant->matric_no }}
                                 </small>
                                 <small class="text-muted" style="white-space: nowrap;">
-                                    {{ $application->applicant->email ?? 'N/A' }}
+                                    •{{ $application->applicant->email ?? 'N/A' }}
                                 </small>
                             </div>
                         </div>
@@ -493,21 +513,21 @@
                         <div class="flex items-center space-x-2" style="white-space: nowrap">
                             <button
                                 wire:click="$set('modalData', {{ $application->id }}); $dispatch('display_modal');"
-                                title="View Details" class="btn btn-sm border border-secondary"
+                                title="View Details" class="btn btn-sm btn-outline-secondary border-0"
                                 style="padding: 0 2px;" type="button">
                                 <i class="bi bi-eye"></i>
                             </button>
 
                             <button wire:click="approveApplication({{ $application->id }})"
                                 wire:confirm="Are you sure you want to approve this application?"
-                                class="text-success btn btn-sm border border-success" style="padding: 0 2px;"
+                                class="text-success btn btn-sm  btn-outline-success border-0" style="padding: 0 2px;"
                                 title="Approve">
                                 <i class="bi bi-check"></i>
                             </button>
 
                             <button
                                 wire:click="$set('modalData2', {{ $application->id }}); $dispatch('display_modal2');"
-                                class="text-danger btn btn-sm border border-danger" style="padding: 0 2px;"
+                                class="text-danger btn btn-sm  btn-outline-danger border-0" style="padding: 0 2px;"
                                 title="Reject">
                                 <i class="bi bi-x"></i>
                             </button>

@@ -140,7 +140,7 @@ class StorageApplicationPending extends Component
 
                 // Notification
                 $application->applicant->notify(new ApproveStorageApplicationNotification($application));
-                
+
                 // Logs activity to the system
                 ActivityLog::create([
                     'user_id' => Auth::id(),
@@ -267,22 +267,17 @@ class StorageApplicationPending extends Component
         return StorageRoom::all();
     }
 
-    #[Computed()]
-    public function countTotalPending()
+    // TODO: Counts
+    #[Computed]
+    public function storageCounts()
     {
-        return StorageApplication::where('storage_application_status', 'pending')->count();
-    }
+        $pending = StorageApplication::where('storage_application_status', 'pending');
 
-    #[Computed()]
-    public function countLocker()
-    {
-        return StorageApplication::where('storage_application_status', 'pending')->whereNotNull('locker_id')->count();
-    }
-
-    #[Computed()]
-    public function countOpenArea()
-    {
-        return StorageApplication::where('storage_application_status', 'pending')->whereNotNull('open_area_id')->count();
+        return [
+            'total' => $pending->count(),
+            'locker' => $pending->whereNotNull('locker_id')->count(),
+            'open_area' => $pending->whereNotNull('open_area_id')->count(),
+        ];
     }
 
     public function placeholder()

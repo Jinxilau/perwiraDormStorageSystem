@@ -73,7 +73,7 @@ class ManageStorageRoom extends Component
 
             $this->dispatch('status_updated', message: "The open area status is changed to {$value}.", type: "success");
         } catch (Exception $e) {
-            $this->dispatch('status_updated', message: "Something went wrong. Please tyr again.", type: "fail");
+            $this->dispatch('status_updated', message: "Something went wrong. Please try again.", type: "fail");
             Log::error($e->getMessage());
         }
     }

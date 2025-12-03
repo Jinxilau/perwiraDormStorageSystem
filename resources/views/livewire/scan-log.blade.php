@@ -33,14 +33,21 @@
                 </select>
             </div>
 
-            <div class="col-md-4 col-lg-3">
-                <label class="form-label small text-muted fw-bold">From Application Date Range</label>
-                <input type="date" wire:model.live="fromRange" class="form-control bg-light border-0">
-            </div>
+            <div class="col-md-6 col-lg-5">
+                <label class="form-label small text-muted fw-bold">Date Range</label>
 
-            <div class="col-md-4 col-lg-3">
-                <label class="form-label small text-muted fw-bold">To Application Date Range</label>
-                <input type="date" wire:model.live="toRange" class="form-control bg-light border-0">
+                <div class="input-group">
+                    {{-- Start Date --}}
+                    <input type="date" wire:model.live="fromRange" class="form-control bg-light border-0"
+                        placeholder="Start Date" aria-label="Start Date">
+
+                    {{-- Separator --}}
+                    <span class="input-group-text bg-light border-0 text-secondary">to</span>
+
+                    {{-- End Date --}}
+                    <input type="date" wire:model.live="toRange" class="form-control bg-light border-0"
+                        placeholder="End Date" aria-label="End Date">
+                </div>
             </div>
 
             <div class="col-md-4 col-lg-3">
@@ -50,7 +57,7 @@
                     <option value="oldest">Oldest</option>
                 </select>
             </div>
-            
+
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Sort By User Name</label>
                 <select class="form-select bg-light border-0" wire:model.live="sortName">
@@ -142,8 +149,8 @@
                                                 {{ $log->qrCode->storageApplication->openArea?->storageRoom?->room_name }}
                                             </div>
                                             <span class="d-inline-flex align-items-center gap-1 text-success">
-                                                <svg class="bi" width="16" height="16"
-                                                    fill="currentColor" viewBox="0 0 16 16">
+                                                <svg class="bi" width="16" height="16" fill="currentColor"
+                                                    viewBox="0 0 16 16">
                                                     <path
                                                         d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5 10V4h6v8H5z" />
                                                 </svg>

@@ -2,11 +2,16 @@
     {{-- Modal --}}
     <x-custom-modal>
         <x-slot:title>
-            Application #{{ $modalData }}
+            <div class="d-flex justify-content-between align-items-center gap-1 w-100">
+                <span>Application Details</span>
+                <span class="badge bg-secondary rounded-pill fs-6">#{{ $this->modalData }}</span>
+            </div>
         </x-slot:title>
 
-        <div wire:loading="modalData" class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
+        <div class="d-flex justify-content-center">
+            <div wire:loading="modalData" class="spinner-border my-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </div>
         @php
             $modalApplication = App\Models\StorageApplication::with([

@@ -2,11 +2,14 @@
     {{-- Care about people's approval and you will be their prisoner. --}}
     <x-custom-modal>
         <x-slot:title>
-            User #<span>{{ $this->userId }}</span>
+            <div class="d-flex justify-content-between align-items-center gap-1 w-100">
+                <span>User Details</span>
+                <span class="badge bg-secondary rounded-pill fs-6">#{{ $this->userId }}</span>
+            </div>
         </x-slot:title>
 
         <div class="d-flex justify-content-center">
-            <div wire:loading="userId" class="spinner-border" role="status">
+            <div wire:loading="userId" class="spinner-border my-3" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
         </div>
@@ -216,18 +219,21 @@
                 </select>
             </div>
 
-            <div class="col-md-4 col-lg-3">
-                <label class="form-label small text-muted fw-bold">
-                    From Application Date Range
-                </label>
-                <input type="date" wire:model.live="fromRange" class="form-control bg-light border-0">
-            </div>
+            <div class="col-md-6 col-lg-5">
+                <label class="form-label small text-muted fw-bold">Date Range</label>
 
-            <div class="col-md-4 col-lg-3">
-                <label class="form-label small text-muted fw-bold">
-                    To Application Date Range
-                </label>
-                <input type="date" wire:model.live="toRange" class="form-control bg-light border-0">
+                <div class="input-group">
+                    {{-- Start Date --}}
+                    <input type="date" wire:model.live="fromRange" class="form-control bg-light border-0"
+                        placeholder="Start Date" aria-label="Start Date">
+
+                    {{-- Separator --}}
+                    <span class="input-group-text bg-light border-0 text-secondary">to</span>
+
+                    {{-- End Date --}}
+                    <input type="date" wire:model.live="toRange" class="form-control bg-light border-0"
+                        placeholder="End Date" aria-label="End Date">
+                </div>
             </div>
 
             <div class="col-md-4 col-lg-3">

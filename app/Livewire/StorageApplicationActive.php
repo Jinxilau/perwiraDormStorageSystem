@@ -186,21 +186,16 @@ class StorageApplicationActive extends Component
         return $query->paginate($this->paginationInt);
     }
 
-    #[Computed()]
-    public function countTotalActive()
+    #[Computed]
+    public function activeCounts()
     {
-        return StorageApplication::where('storage_application_status', 'approved')->count();
+        return StorageApplication::selectRaw("
+            COUNT(*) as total,
+            COUNT(locker_id) as locker,
+            COUNT(open_area_id) as open_area
+        ")->where('storage_application_status', 'approved')->first()->toArray();
     }
-    #[Computed()]
-    public function countLocker()
-    {
-        return StorageApplication::where('storage_application_status', 'approved')->whereNotNull('locker_id')->count();
-    }
-    #[Computed()]
-    public function countOpenArea()
-    {
-        return StorageApplication::where('storage_application_status', 'approved')->whereNotNull('open_area_id')->count();
-    }
+
     #[Computed()]
     public function rooms()
     {

@@ -21,6 +21,7 @@ class MissingReport extends Model
         'discovered_missing_date',
         'discovered_missing_range',
         'witnesses_and_info',
+        'admin_note',
         // 'qr_code_id',
     ];
 

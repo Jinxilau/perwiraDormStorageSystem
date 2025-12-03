@@ -99,6 +99,7 @@ class MissingItemForm extends Form
             'seeTime' => 'required|in:specific_date,range,dont_remember',
             'seeDate' => ['nullable', 'date', 'before_or_equal:today', Rule::requiredIf(fn() => $this->seeTime === 'date')],
             'seeRange' => ['nullable', 'in:today,yesterday,this_week,last_week,last_month,longer', Rule::requiredIf(fn() => $this->seeTime === 'range')],
+            'last_seen_location' => 'required|string|max:255',
             'discoverTime' => 'required|in:specific_date,range,dont_remember',
             'discoverDate' => ['nullable', 'date', 'before_or_equal:today', Rule::requiredIf(fn() => $this->discoverTime === 'date')],
             'discoverRange' => ['nullable', 'in:today,yesterday,this_week,last_week,last_month,longer', Rule::requiredIf(fn() => $this->discoverTime === 'range')],
