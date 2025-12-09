@@ -32,7 +32,7 @@
     <div x-show="filtersOpen" x-cloak x-collapse.duration.500ms style="display: none;">
 
         <div class="card-body p-4 border-top mt-3 mx-4"> {{-- Section Label --}}
-            <h6 class="text-uppercase text-muted fw-bold mb-3" style="font-size: 0.75rem; letter-spacing: 1px;">
+            <h6 class="text-uppercase text-muted fw-bold mb-3 text-center" style="font-size: 0.75rem; letter-spacing: 1px;">
                 <i class="bi bi-funnel-fill me-1"></i> Filter Options
             </h6>
 

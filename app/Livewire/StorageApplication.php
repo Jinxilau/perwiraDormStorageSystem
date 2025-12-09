@@ -6,6 +6,7 @@ use App\Livewire\Forms\StorageApplicationItem;
 use App\Livewire\Forms\StorageApplicationRoom;
 use App\Models\Locker;
 use App\Models\OpenArea;
+use App\Models\Setting;
 use App\Models\StorageApplication as ModelsStorageApplication;
 use App\Models\StorageRoom;
 use App\Models\User;
@@ -265,6 +266,11 @@ class StorageApplication extends Component
     {
         if (!$this->termsAccepted) {
             session()->flash('error', 'Please accept the terms and conditions to proceed.');
+            return;
+        }
+
+        if (!Setting::get('storage_application_enabled')) {
+            session()->flash('error', 'Storage application submission is currently disabled.');
             return;
         }
 

@@ -10,12 +10,11 @@ return new class extends Migration
     {
         Schema::create('scan_logs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('qr_code_id')->constrained('q_r_codes');            
             
             $table->enum('event_type', ['check_in', 'check_out']);
             
             $table->timestamps();
-            
-            $table->foreignId('qr_code_id')->constrained('q_r_codes');            
         });
     }
 

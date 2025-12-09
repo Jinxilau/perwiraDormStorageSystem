@@ -14,6 +14,8 @@
         integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    {{-- ApexChart --}}
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 
 <body class="d-md-flex min-vh-100">
@@ -76,8 +78,14 @@
         [
             'title' => 'System Activity Log',
             'url' => route('activity_log'),
-            'icon' => 'bi-graph-up',
+            'icon' => 'bi-card-list',
             'path' => 'activity_log',
+        ],
+        [
+            'title' => 'Storage Insight',
+            'url' => route('storage_insight'),
+            'icon' => 'bi-graph-up-arrow',
+            'path' => 'admin/storage_insight',
         ],
         [
             'title' => 'Setting',
@@ -91,6 +99,9 @@
     <main id="main-content">
         {{ $slot }}
     </main>
+
+    {{-- Toast Message --}}
+    <x-toast-message />
 
     {{-- Livewire --}}
     @livewireScripts

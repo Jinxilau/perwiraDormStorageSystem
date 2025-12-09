@@ -332,14 +332,6 @@
                 </select>
             </div>
 
-            <div class="col-md-4 col-lg-3">
-                <label class="form-label small text-muted fw-bold">Sort: Name</label>
-                <select class="form-select bg-light border-0" wire:model="sortName">
-                    <option value="asc">A-Z</option>
-                    <option value="desc">Z-A</option>
-                </select>
-            </div>
-
             {{-- Pagination --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Per Page</label>

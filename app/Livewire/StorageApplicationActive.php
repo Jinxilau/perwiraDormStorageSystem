@@ -43,7 +43,7 @@ class StorageApplicationActive extends Component
         $this->storageType = '';
         $this->checkinDate = '';
         $this->checkoutDate = '';
-        $this->sortDate = '';
+        $this->sortDate = 'latest';
         $this->sortName = '';
 
         $this->paginationInt = 10; # Pagination Amount

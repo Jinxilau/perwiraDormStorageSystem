@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('room_name', 100);
             $table->enum('room_status', ['open', 'closed', 'under_maintenance'])->default('open');
             
-            $table->timestamps();
+            // $table->timestamps();
         });
     }
 

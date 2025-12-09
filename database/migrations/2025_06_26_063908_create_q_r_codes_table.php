@@ -13,15 +13,15 @@ return new class extends Migration
     {
         Schema::create('q_r_codes', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('storage_application_id')->constrained('storage_applications')->onDelete('cascade')->after('id');
             
             $table->text('qr_token');
             $table->enum('status', ['not_scanned', 'checked_in', 'checked_out', 'expired'])->default('not_scanned');
             $table->unsignedInteger('scanned_count')->default(0);
             
             $table->timestamp('qr_expires_at')->nullable();
-            $table->timestamps();
             
-            $table->foreignId('storage_application_id')->constrained('storage_applications')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 

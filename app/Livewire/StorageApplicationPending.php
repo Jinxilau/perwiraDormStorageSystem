@@ -67,7 +67,7 @@ class StorageApplicationPending extends Component
         $this->storageType = '';
         $this->fromRange = '';
         $this->toRange = '';
-        $this->sortDate = '';
+        $this->sortDate = 'latest';
         $this->sortName = '';
 
         $this->paginationInt = 10; # Pagination Amount
@@ -102,9 +102,9 @@ class StorageApplicationPending extends Component
             $application->applicant->notify(new ApproveStorageApplicationNotification($application));
 
             // Logs activity to the system
-            ActivityLog::create([
+            $application->activityLogs()->create([
                 'user_id' => Auth::id(),
-                'action' => 'approve_storage_application',
+                'action' => 'approved',
                 'description' => "Approved application ID: {$application->id}",
                 'ip_address' => request()->ip(),
             ]);
@@ -237,11 +237,11 @@ class StorageApplicationPending extends Component
         }
 
         if ($this->fromRange && $this->toRange) {
-            $query->whereBetween('create_at', [$this->fromRange, $this->toRange]);
+            $query->whereBetween('created_at', [$this->fromRange, $this->toRange]);
         } elseif ($this->fromRange) {
-            $query->whereDate('create_at', '>=', $this->fromRange);
+            $query->whereDate('created_at', '>=', $this->fromRange);
         } elseif ($this->toRange) {
-            $query->whereDate('create_at', '<=', $this->toRange);
+            $query->whereDate('created_at', '<=', $this->toRange);
         }
 
         if ($this->sortDate === 'latest') {

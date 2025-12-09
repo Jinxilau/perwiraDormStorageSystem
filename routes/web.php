@@ -16,6 +16,7 @@ use App\Livewire\ScanQr;
 use App\Livewire\Setting;
 use App\Livewire\StaffDashboard;
 use App\Livewire\StorageApplication;
+use App\Livewire\StorageInsight;
 use App\Livewire\StudentDashboard;
 use App\Livewire\StudentNotifications;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +48,7 @@ Route::middleware(['auth', CheckRole::class . ':administrator'])->group(function
     Route::get('/admin/missing_report', ManageMissingReport::class)->name('manage_missing');
     Route::get('/admin/notifications', AdminNotification::class)->name('admin_notification');
     Route::get('/admin/setting', Setting::class)->name('setting');
+    Route::get('/admin/storage_insight', StorageInsight::class)->name('storage_insight');
 });
 
 // Both Staff and Admin

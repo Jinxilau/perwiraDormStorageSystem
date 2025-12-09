@@ -461,9 +461,6 @@
         </x-table>
     </div>
 
-
-    <!-- Toast Notifications -->
-    <x-toast-message />
 </div>
 
 @assets

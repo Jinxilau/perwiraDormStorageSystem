@@ -425,7 +425,6 @@
 
     </div>
 
-    <x-toast-message />
 </div>
 @assets
     <style>

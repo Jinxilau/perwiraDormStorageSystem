@@ -6,10 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class ActivityLog extends Model
 {
-    protected $fillable = ['user_id', 'action', 'description', 'ip_address'];
+    protected $fillable = [
+        'action',
+        'description',
+        'ip_address',
+        'user_id',
+        'subject_type',
+        'subject_id'
+    ];
 
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function subject()
+    {
+        return $this->morphTo();
     }
 }

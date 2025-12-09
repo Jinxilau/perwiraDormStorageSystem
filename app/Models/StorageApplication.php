@@ -57,6 +57,11 @@ class StorageApplication extends Model
         return $this->hasOne(QRCode::class, 'storage_application_id');
     }
 
+    public function activityLogs()
+    {
+        return $this->morphMany(ActivityLog::class, 'subject');
+    }
+
     public function getStorageRoomAttribute()
     {
         if ($this->relationLoaded('locker') && $this->locker?->relationLoaded('storageRoom')) {

@@ -14,14 +14,13 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             
             $table->foreignId('role_id')->constrained('user_roles')->onDelete('restrict')->after('id')->default(3); // TODO
-
-            $table->string('matric_no')->unique()->after('role_id');
-            $table->enum('gender', ['male', 'female', 'other'])->nullable();
-            $table->enum('account_status', ['active', 'inactive'])->default('inactive'); # used for soft delete
-            $table->enum('application_status', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->string('phone_number')->unique()->nullable();
-            $table->tinyInteger('year_of_study')->unsigned()->nullable();
-            $table->tinyInteger('semester')->unsigned()->nullable();
+            $table->foreignId('semester_id')->constrained('semesters')->onDelete('cascade')->after('role_id');
+            
+            $table->string('matric_no')->unique()->after('semester_id')->nullable()->after('semester_id'); // Student matriculation number, sometime optional for admin/staff
+            $table->enum('gender', ['male', 'female', 'other'])->nullable()->after('matric_no');
+            $table->string('phone_number')->unique()->nullable()->after('gender');
+            $table->tinyInteger('year_of_study')->unsigned()->nullable()->after('phone_number');
+            $table->enum('application_status', ['pending', 'approved', 'rejected'])->default('pending')->after('year_of_study'); // Student account application status
         });
     }
 

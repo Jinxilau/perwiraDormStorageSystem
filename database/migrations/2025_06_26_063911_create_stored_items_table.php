@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('stored_items', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('storage_application_id')->constrained('storage_applications')->onDelete('cascade');
+            $table->foreignId('missing_report_id')->nullable()->constrained('missing_reports')->onDelete('set null'); // TODO
 
             $table->string('item_name', 100);
             $table->enum('estimated_size', ['small', 'medium', 'large']);
@@ -21,9 +23,6 @@ return new class extends Migration
             $table->string('item_photo_path')->nullable();
 
             $table->timestamps();
-
-            $table->foreignId('storage_application_id')->constrained('storage_applications')->onDelete('cascade');
-            $table->foreignId('missing_report_id')->nullable()->constrained('missing_reports')->onDelete('set null'); // TODO
         });
     }
 

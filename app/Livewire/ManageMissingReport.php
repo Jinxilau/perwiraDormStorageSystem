@@ -34,8 +34,6 @@ class ManageMissingReport extends Component
     public $toRange = '';
     #[Url(except: '')]
     public $sortDate = '';
-    #[Url(except: '')]
-    public $sortName = '';
 
     public $paginationInt = 10;
 
@@ -74,8 +72,8 @@ class ManageMissingReport extends Component
         $this->statusFilter = '';
         $this->fromRange = '';
         $this->toRange = '';
-        $this->sortDate = '';
-        $this->sortName = '';
+        $this->sortDate = 'latest';
+        
         $this->paginationInt = 10;
     }
 
@@ -143,25 +141,17 @@ class ManageMissingReport extends Component
         }
 
         if ($this->fromRange && $this->toRange) {
-            $query->whereBetween('create_at', [$this->fromRange, $this->toRange]);
+            $query->whereBetween('created_at', [$this->fromRange, $this->toRange]);
         } elseif ($this->fromRange) {
-            $query->whereDate('create_at', '>=', $this->fromRange);
+            $query->whereDate('created_at', '>=', $this->fromRange);
         } elseif ($this->toRange) {
-            $query->whereDate('create_at', '<=', $this->toRange);
+            $query->whereDate('created_at', '<=', $this->toRange);
         }
 
         if ($this->sortDate === 'latest') {
             $query->latest();
         } elseif ($this->sortDate === 'oldest') {
             $query->oldest();
-        }
-
-        if ($this->sortName) {
-            $query->orderBy(
-                User::select('name')
-                    ->whereColumn('users.id', 'storage_applications.applicant_id'),
-                $this->sortName === 'desc' ? 'desc' : 'asc'
-            );
         }
 
         return $query->paginate($this->paginationInt);

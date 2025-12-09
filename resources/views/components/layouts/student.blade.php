@@ -69,11 +69,13 @@
             ],
         ]" />
         <!-- Main Content -->
-        <main id="maincontent" class="col-md-9 px-4 pe-lg-5 pt-4" style="padding-bottom: 60px;">
+        <main id="maincontent" class="col-md-9 px-4 pe-lg-5 pt-4 bg-light" style="padding-bottom: 60px;">
             {{ $slot }}
         </main>
     </div>
 
+    {{-- Toast Message --}}
+    <x-toast-message />
 
     {{-- Footer --}}
     @include('livewire.includes.footer')

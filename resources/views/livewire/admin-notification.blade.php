@@ -5,7 +5,7 @@
     ])
 
     <div class="container my-5">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center mb-2">
             <button wire:click="markAllAsRead" class="btn btn-primary btn-mark-all rounded-pill px-4 py-2 shadow-sm"
                 @if ($this->notifications->where('read_at', null)->count() <= 0) disabled @endif>
                 <i class="bi bi-check-all me-2"></i>Mark All as Read

@@ -104,29 +104,6 @@
             </div>
             <div class="card-body">
                 <form wire:submit.prevent="save">
-                    <!-- Operating Hours Section -->
-                    <h5 class="section-title">
-                        <i class="bi bi-clock"></i>
-                        Operating Hours
-                    </h5>
-                    @foreach ($this->storageRooms as $room)
-                        <fieldset>
-                            <legend class="form-label">Room {{ $room->room_name }}</legend>
-                            <div class="row" wire:key="row-{{ $room->id }}">
-                                <div class="col-md-6 mb-3">
-                                    <label for="openingHour" class="form-label small text-muted">Opening Hour</label>
-                                    <input type="time" wire:model.live="rooms.{{ $room->id }}.opening_hour"
-                                        class="form-control" id="openingHour">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="closingHour" class="form-label small text-muted">Closing Hour</label>
-                                    <input type="time" wire:model="rooms.{{ $room->id }}.closing_hour"
-                                        class="form-control" id="closingHour">
-                                </div>
-                            </div>
-                        </fieldset>
-                    @endforeach
-
                     <!-- Feature Management Section -->
                     <h5 class="section-title">
                         <i class="bi bi-toggles"></i>
@@ -151,8 +128,31 @@
                         </div>
                     </div>
 
-                    <!-- Announcement & Timeline Section -->
-                    <h5 class="section-title">
+                    <!-- Operating Hours Section -->
+                    {{-- <h5 class="section-title">
+                        <i class="bi bi-clock"></i>
+                        Operating Hours
+                    </h5>
+                    @foreach ($this->storageRooms as $room)
+                        <fieldset>
+                            <legend class="form-label">Room {{ $room->room_name }}</legend>
+                            <div class="row" wire:key="row-{{ $room->id }}">
+                                <div class="col-md-6 mb-3">
+                                    <label for="openingHour" class="form-label small text-muted">Opening Hour</label>
+                                    <input type="time" wire:model.live="rooms.{{ $room->id }}.opening_hour"
+                                        class="form-control" id="openingHour">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="closingHour" class="form-label small text-muted">Closing Hour</label>
+                                    <input type="time" wire:model="rooms.{{ $room->id }}.closing_hour"
+                                        class="form-control" id="closingHour">
+                                </div>
+                            </div>
+                        </fieldset>
+                    @endforeach --}}
+
+                    <!-- Announcement & Timeline Section, this section is replaced using whatsapp workflow -->
+                    {{-- <h5 class="section-title">
                         <i class="bi bi-megaphone"></i>
                         Announcement & Timeline
                     </h5>
@@ -165,17 +165,18 @@
                         <label for="timelineDetails" class="form-label">Storage & Receiving Timeline Details</label>
                         <textarea wire:model="timeline_details" class="form-control" id="timelineDetails" rows="3"
                             placeholder="Enter timeline details for storage and receiving process...">Items received before 2 PM will be processed on the same day.</textarea>
-                    </div>
+                    </div> --}}
 
+                    {{-- Save Button --}}
                     <div class="card-footer d-flex justify-content-between align-items-center">
                         <span class="last-updated">
                             <i class="bi bi-clock-history me-1"></i>Last updated:
                             {{ optional(\App\Models\Setting::latest('updated_at')->first())->updated_at?->diffForHumans() ?? 'Never' }}
                         </span>
-                        <button type="submit" class="btn btn-primary" onclick="showSuccess(event)">
+                        <button type="submit" class="btn btn-primary" wire:click="save">
                             <i class="bi bi-check-lg me-2"></i>Save Changes
                         </button>
-                    </div>
+                    </div> 
                 </form>
             </div>
         </div>

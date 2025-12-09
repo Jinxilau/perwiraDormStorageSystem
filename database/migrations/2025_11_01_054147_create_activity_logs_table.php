@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
-            
-            $table->string('action');
-            $table->text('description')->nullable();
-            $table->ipAddress('ip_address')->nullable();
-            
-            $table->timestamps();
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null'); //The admin/staff who performed the action (Nullable incase the systme perform some action)
+            $table->morphs('subject'); // The model that the action was performed on
 
-            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->string('action'); // A short key describing the action
+            $table->text('description')->nullable(); // Human readable text
+            $table->ipAddress('ip_address')->nullable();
+
+            $table->timestamps();
         });
     }
 

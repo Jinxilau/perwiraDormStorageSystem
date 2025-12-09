@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('lockers', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('storage_room_id')->constrained('storage_rooms')->onDelete('cascade');
             
             $table->string('size', 50); 
             $table->enum('status', ['available', 'reserved', 'occupied', 'under_maintenance'])->default('available');
             
             $table->timestamps();
             
-            $table->foreignId('storage_room_id')->constrained('storage_rooms')->onDelete('cascade');
         });
     }
 

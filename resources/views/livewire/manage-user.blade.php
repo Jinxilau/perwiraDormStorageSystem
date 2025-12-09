@@ -424,8 +424,4 @@
         </div>
     </div>
 
-    <!-- Toast Notifications -->
-    <x-toast-message />
-
-
 </div>

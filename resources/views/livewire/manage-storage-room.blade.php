@@ -217,7 +217,6 @@
                 </section>
             </div>
         </div>
-        <x-toast-message />
     </div>
 </div>
 @assets

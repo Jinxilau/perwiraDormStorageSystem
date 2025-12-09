@@ -266,8 +266,6 @@
         </section>
     </div>
 
-    <x-toast-message />
-
 </div>
 
 {{-- HTML5QRCODE --}}
