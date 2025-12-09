@@ -19,17 +19,16 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'role_id',
+        'semester_id',
+        'matric_no',
         'name',
         'email',
         'password',
-        'role_id',
-        'account_status',
-        'application_status',
         'phone_number',
         'gender',
         'year_of_study',
-        'semester',
-        'matric_no',
+        'application_status',
     ];
 
     /**
@@ -68,6 +67,10 @@ class User extends Authenticatable
     }
 
     // Eloquent Model Relationship
+    public function semester()
+    {
+        return $this->belongsTo(Semester::class, 'semester_id');
+    }
     public function userRole()
     {
         return $this->belongsTo(UserRole::class, 'role_id');

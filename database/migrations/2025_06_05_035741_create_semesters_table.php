@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
 
             $table->year('academic_year'); // Example: "2024/2025"
-            $table->string('semester_no')->unique(); // 1 or 2
+            $table->tinyInteger('semester_no'); // 1 or 2
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->boolean('is_current')->default(false);
-            
+
             $table->timestamps();
 
             // Check to ensure unique academic year and semester number combination

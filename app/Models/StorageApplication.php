@@ -17,6 +17,7 @@ class StorageApplication extends Model
         'approver_id',
         'open_area_id',
         'locker_id',
+        'semester_id',
     ];
 
     protected $casts = [
@@ -30,6 +31,11 @@ class StorageApplication extends Model
     public function applicant()
     {
         return $this->belongsTo(User::class, 'applicant_id');
+    }
+
+    public function semester()
+    {
+        return $this->belongsTo(Semester::class, 'semester_id');
     }
 
     public function approver()

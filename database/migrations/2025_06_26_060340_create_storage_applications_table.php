@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('storage_applications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('semester_id')->constrained('semesters')->onDelete('cascade');
+            $table->foreignId('semester_id')->nullable()->constrained('semesters')->nullOnDelete();
             $table->foreignId('applicant_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('approver_id')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('open_area_id')->nullable()->constrained('open_areas')->onDelete('set null');

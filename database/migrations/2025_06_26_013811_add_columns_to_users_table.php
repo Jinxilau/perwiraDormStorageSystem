@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            
+
             $table->foreignId('role_id')->constrained('user_roles')->onDelete('restrict')->after('id')->default(3); // TODO
-            $table->foreignId('semester_id')->constrained('semesters')->onDelete('cascade')->after('role_id');
-            
+            $table->foreignId('semester_id')->nullable()->after('role_id')->constrained('semesters')->nullOnDelete(); // Current semester of the user, optional for admin/staff
+
             $table->string('matric_no')->unique()->after('semester_id')->nullable()->after('semester_id'); // Student matriculation number, sometime optional for admin/staff
             $table->enum('gender', ['male', 'female', 'other'])->nullable()->after('matric_no');
             $table->string('phone_number')->unique()->nullable()->after('gender');
