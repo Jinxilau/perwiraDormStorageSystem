@@ -19,6 +19,14 @@ return new class extends Migration
             $table->string('item_name', 100);
             $table->enum('estimated_size', ['small', 'medium', 'large']);
             $table->enum('item_type', ['electronic', 'furniture', 'container', 'luggage', 'clothing', 'home_appliance', 'other'])->default('other');
+            
+            $table->enum('item_condition', [
+                'fragile', // Items that require special handling. Useful for staff to sort and place safely.
+                'bulky', // Takes larger volume or unusual shape Affects storage space planning
+                'boxed', // Easiest to stack and store. Fit well into shelves Good for efficient space use
+                'misc' // Everything else. Prevents overcomplicating classification
+            ])->default('misc');
+            
             $table->text('item_description')->nullable();
             $table->string('item_photo_path')->nullable();
 

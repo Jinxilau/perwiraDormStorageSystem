@@ -1,185 +1,96 @@
 <div>
-    <style>
-        /* Card Styling */
-        .card {
-            border: none;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.06);
-            border-radius: 10px;
-            margin-bottom: 1.5rem;
-        }
-
-        .card-header {
-            color: white;
-            border: none;
-            border-radius: 10px 10px 0 0 !important;
-            padding: 1.25rem 1.5rem;
-        }
-
-        .card-header h5 {
-            margin: 0;
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        .card-body {
-            padding: 2rem;
-        }
-
-        /* Section Titles */
-        .section-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #212529;
-            margin: 2rem 0 1rem 0;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #e9ecef;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .section-title:first-child {
-            margin-top: 0;
-        }
-
-        .section-title i {
-            color: #667eea;
-            font-size: 1.2rem;
-        }
-
-        /* Form Controls */
-
-        .form-control:focus,
-        .form-select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-
-        /* Checkbox Cards */
-        .form-check-card .form-check-input {
-            width: 1.2rem;
-            height: 1.2rem;
-            cursor: pointer;
-        }
-
-        .form-check-card .form-check-input:checked {
-            background-color: #667eea;
-            border-color: #667eea;
-        }
-
-        .form-check-card .form-check-label {
-            cursor: pointer;
-            font-weight: 500;
-            margin-left: 0.5rem;
-        }
-
-        /* Button Styling */
-        .btn-primary {
-            border: none;
-            padding: 0.75rem 2rem;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-            transition: all 0.2s;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
-        }
-
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-    </style>
-
     @include('livewire.includes.header2', [
         'title' => 'Setting',
         'subtitle' => 'Configure general settings, operating hours, and system features.',
     ])
-    <div class="container">
 
-        <div class="card">
-            <div class="card-header bg-dark">
-                <h5><i class="bi bi-sliders me-2"></i>General Configuration</h5>
+    <div class="container py-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white d-flex align-items-center">
+                <i class="bi bi-sliders me-2"></i>
+                <h5 class="mb-0">General Configuration</h5>
             </div>
+
             <div class="card-body">
                 <form wire:submit.prevent="save">
-                    <!-- Feature Management Section -->
-                    <h5 class="section-title">
-                        <i class="bi bi-toggles"></i>
-                        Feature Management
+                    
+                    {{-- Section 1: Features --}}
+                    <h5 class="text-secondary border-bottom pb-2 mb-3">
+                        <i class="bi bi-toggles me-2"></i>Feature Management
                     </h5>
-                    <div class="mb-3">
-                        <div class="form-check form-check-card">
-                            <input class="form-check-input" type="checkbox" wire:model="storage_application_enabled"
-                                id="storageCheck">
-                            <label class="form-check-label" for="storageCheck">
-                                Enable Storage Application
-                            </label>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <div class="form-check form-check-card">
-                            <input class="form-check-input" type="checkbox" wire:model="missing_report_enabled"
-                                id="missingCheck">
-                            <label class="form-check-label" for="missingCheck">
-                                Enable Missing Report
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Operating Hours Section -->
-                    {{-- <h5 class="section-title">
-                        <i class="bi bi-clock"></i>
-                        Operating Hours
-                    </h5>
-                    @foreach ($this->storageRooms as $room)
-                        <fieldset>
-                            <legend class="form-label">Room {{ $room->room_name }}</legend>
-                            <div class="row" wire:key="row-{{ $room->id }}">
-                                <div class="col-md-6 mb-3">
-                                    <label for="openingHour" class="form-label small text-muted">Opening Hour</label>
-                                    <input type="time" wire:model.live="rooms.{{ $room->id }}.opening_hour"
-                                        class="form-control" id="openingHour">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="closingHour" class="form-label small text-muted">Closing Hour</label>
-                                    <input type="time" wire:model="rooms.{{ $room->id }}.closing_hour"
-                                        class="form-control" id="closingHour">
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card bg-light border-0 h-100">
+                                <div class="card-body d-flex align-items-center">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" wire:model="storage_application_enabled" id="storageCheck" style="transform: scale(1.2);">
+                                        <label class="form-check-label fw-bold ms-2" for="storageCheck">
+                                            Enable Storage Application
+                                        </label>
+                                        <div class="text-muted small mt-1">Allows students to submit new storage requests.</div>
+                                    </div>
                                 </div>
                             </div>
-                        </fieldset>
-                    @endforeach --}}
-
-                    <!-- Announcement & Timeline Section, this section is replaced using whatsapp workflow -->
-                    {{-- <h5 class="section-title">
-                        <i class="bi bi-megaphone"></i>
-                        Announcement & Timeline
-                    </h5>
-                    <div class="mb-3">
-                        <label for="announcementText" class="form-label">Announcement Text</label>
-                        <textarea wire:model="announcement_text" class="form-control" id="announcementText" rows="3"
-                            placeholder="Enter announcement message for users...">System maintenance scheduled for this weekend.</textarea>
+                        </div>
+                        <div class="col-md-6 mt-3 mt-md-0">
+                            <div class="card bg-light border-0 h-100">
+                                <div class="card-body d-flex align-items-center">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" wire:model="missing_report_enabled" id="missingCheck" style="transform: scale(1.2);">
+                                        <label class="form-check-label fw-bold ms-2" for="missingCheck">
+                                            Enable Missing Report
+                                        </label>
+                                        <div class="text-muted small mt-1">Allows students to report missing items.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="timelineDetails" class="form-label">Storage & Receiving Timeline Details</label>
-                        <textarea wire:model="timeline_details" class="form-control" id="timelineDetails" rows="3"
-                            placeholder="Enter timeline details for storage and receiving process...">Items received before 2 PM will be processed on the same day.</textarea>
-                    </div> --}}
 
-                    {{-- Save Button --}}
-                    <div class="card-footer d-flex justify-content-between align-items-center">
-                        <span class="last-updated">
-                            <i class="bi bi-clock-history me-1"></i>Last updated:
-                            {{ optional(\App\Models\Setting::latest('updated_at')->first())->updated_at?->diffForHumans() ?? 'Never' }}
+                    {{-- Section 2: Semester --}}
+                    <h5 class="text-secondary border-bottom pb-2 mb-3 mt-4">
+                        <i class="bi bi-calendar-range me-2"></i>Academic Session
+                    </h5>
+
+                    <div class="mb-4">
+                        <div class="alert alert-info d-flex align-items-start" role="alert">
+                            <i class="bi bi-info-circle-fill me-2 mt-1"></i>
+                            <div>
+                                <strong>Important:</strong> Changing the active semester will automatically route all new student applications to the selected session.
+                            </div>
+                        </div>
+
+                        <label for="semesterSelect" class="form-label fw-bold">Current Active Semester</label>
+                        <select wire:model="selectedSemesterId" id="semesterSelect" class="form-select form-select-lg">
+                            <option value="" disabled>-- Select Active Semester --</option>
+                            @foreach ($semesters as $semester)
+                                <option value="{{ $semester->id }}">
+                                    {{ $semester->academic_year }} - Semester {{ $semester->semester_no }}
+                                    @if ($semester->is_current) (Currently Active) @endif
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="form-text">Ensure this matches the university's official current semester.</div>
+                    </div>
+
+                    {{-- Footer / Save --}}
+                    <hr class="my-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">
+                            <i class="bi bi-clock-history me-1"></i>Last updated: 
+                            <span class="fw-semibold">
+                                {{ optional(\App\Models\Setting::latest('updated_at')->first())->updated_at?->diffForHumans() ?? 'Never' }}
+                            </span>
                         </span>
-                        <button type="submit" class="btn btn-primary" wire:click="save">
+                        
+                        <button type="submit" class="btn btn-primary px-4">
                             <i class="bi bi-check-lg me-2"></i>Save Changes
                         </button>
-                    </div> 
+                    </div>
+
                 </form>
             </div>
         </div>
     </div>
-
 </div>

@@ -6,6 +6,7 @@ use App\Livewire\Forms\StorageApplicationItem;
 use App\Livewire\Forms\StorageApplicationRoom;
 use App\Models\Locker;
 use App\Models\OpenArea;
+use App\Models\Semester;
 use App\Models\Setting;
 use App\Models\StorageApplication as ModelsStorageApplication;
 use App\Models\StorageRoom;
@@ -274,19 +275,25 @@ class StorageApplication extends Component
             return;
         }
 
+        if (Auth::user()->applyStorage()->exists()) {
+            session()->flash('error', 'You already have a storage application.');
+            return;
+        }
+
         $openAreaId = in_array('open_area', $this->roomForm->selectedStorageType) ? $this->roomForm->openArea->id : null;
 
         try {
             DB::beginTransaction();
             // Create the main storage application
             $storageApplication = ModelsStorageApplication::create([
+                'semester_id' => Semester::where('is_current', true)->first()->id,
                 'applicant_id' => Auth::id(),
                 'approver_id' => null,
                 'open_area_id' => $openAreaId,
                 'locker_id' => $this->roomForm->selectedLockerId,
                 'storage_application_status' => 'pending',
-                'start_date' => Date::now(),
-                'end_date' => Date::now()->addDays(30) // TODO
+                // 'start_date' => Date::now(),
+                // 'end_date' => Date::now()->addDays(30) // TODO
             ]);
 
             // Create stored items for each item in the application

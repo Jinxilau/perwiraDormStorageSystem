@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('semesters', function (Blueprint $table) {
             $table->id();
 
-            $table->year('academic_year'); // Example: "2024/2025"
+            $table->string('academic_year'); // Example: "2024/2025"
             $table->tinyInteger('semester_no'); // 1 or 2
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();

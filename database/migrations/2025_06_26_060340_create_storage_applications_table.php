@@ -21,8 +21,8 @@ return new class extends Migration
 
             $table->enum('storage_application_status', ['pending', 'approved', 'rejected']);
             $table->text('note')->nullable(); # Admin's note
-            $table->date('start_date');
-            $table->date('end_date'); // TODO
+            // $table->date('start_date'); // this is change to the semester start and end date
+            // $table->date('end_date'); // TODO
 
             $table->timestamps();
 

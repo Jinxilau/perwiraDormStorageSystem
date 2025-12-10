@@ -66,19 +66,19 @@
 
                                 <div class="row g-3">
                                     <!-- First Name -->
-                                    <div class="col-md-6 col-lg-4">
-                                        <label for="first_name" class="form-label fw-semibold">First Name <span
+                                    <div class="col-md-6">
+                                        <label for="name" class="form-label fw-semibold">Name <span
                                                 class="text-danger">*</span></label>
-                                        <input type="text" id="first_name" wire:model="first_name"
-                                            class="form-control @error('first_name') is-invalid @enderror"
-                                            placeholder="e.g., Lau">
-                                        @error('first_name')
+                                        <input type="text" id="name" wire:model="name"
+                                            class="form-control @error('name') is-invalid @enderror"
+                                            placeholder="e.g., Lau Jin Xi">
+                                        @error('name')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
 
                                     <!-- Last Name -->
-                                    <div class="col-md-6 col-lg-4">
+                                    {{-- <div class="col-md-6 col-lg-4">
                                         <label for="last_name" class="form-label fw-semibold">Last Name <span
                                                 class="text-danger">*</span></label>
                                         <input type="text" id="last_name" wire:model="last_name"
@@ -87,10 +87,10 @@
                                         @error('last_name')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
-                                    </div>
+                                    </div> --}}
 
                                     <!-- Gender -->
-                                    <div class="col-md-6 col-lg-4">
+                                    <div class="col-md-6">
                                         <label for="gender" class="form-label fw-semibold">Gender <span
                                                 class="text-danger">*</span></label>
                                         <select id="gender" wire:model="gender"
@@ -169,20 +169,22 @@
                                     </div>
 
                                     <!-- Semester -->
-                                    <div class="col-md-6 col-lg-4">
+                                    {{-- <div class="col-md-6 col-lg-4">
                                         <label for="semester" class="form-label fw-semibold">Semester <span
                                                 class="text-danger">*</span></label>
                                         <select id="semester" wire:model="semester"
                                             class="form-select @error('semester') is-invalid @enderror">
                                             <option value="">Select semester</option>
-                                            @foreach ($semesters as $value => $label)
-                                                <option value="{{ $value }}">{{ $label }}</option>
+                                            @foreach ($this->semesters as $eachsemester)
+                                                <option value="{{ $eachsemester->id }}">
+                                                    {{ $eachsemester->academic_year }} – Semester {{ $eachsemester->semester_no }}
+                                                </option>
                                             @endforeach
                                         </select>
                                         @error('semester')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
 

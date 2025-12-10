@@ -59,16 +59,6 @@
 
                     {{-- Action Buttons --}}
                     <div class="d-grid gap-2">
-                        {{-- Go Back Button --}}
-                        <button onclick="window.history.back()"
-                            class="btn btn-outline-secondary d-flex align-items-center justify-content-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="me-2" width="16" height="16"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                            </svg>
-                            Go Back
-                        </button>
                         {{-- Home Button --}}
                         @auth
                             <a href="@if (Auth::user()->role_id === 1) {{ route('admin_dashboard') }} @elseif(Auth::user()->role_id === 2) {{ route('staff_dashboard') }} @elseif(Auth::user()->role_id === 3) {{ route('student_dashboard') }} @endif"

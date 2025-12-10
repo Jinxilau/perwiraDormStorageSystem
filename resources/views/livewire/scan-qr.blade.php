@@ -369,11 +369,20 @@
 
         startbtn.addEventListener('click', startScanner);
         stopbtn.addEventListener('click', stopScanner);
-        document.addEventListener('livewire:initialized', () => {
-            startScanner();
-        });
+
         document.addEventListener('livewire:navigate', () => {
             stopScanner();
+        });
+
+        document.addEventListener('livewire:initialized', () => {
+            if (scanner.getState() !== 2) {
+                startScanner();
+            }
+        });
+        document.addEventListener('livewire:navigated', () => {
+            if (scanner.getState() !== 2) {
+                startScanner();
+            }
         });
     </script>
 @endscript

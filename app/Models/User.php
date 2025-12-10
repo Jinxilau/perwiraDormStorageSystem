@@ -20,7 +20,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'role_id',
-        'semester_id',
+        // 'semester_id',
         'matric_no',
         'name',
         'email',
@@ -67,10 +67,10 @@ class User extends Authenticatable
     }
 
     // Eloquent Model Relationship
-    public function semester()
-    {
-        return $this->belongsTo(Semester::class, 'semester_id');
-    }
+    // public function semester()
+    // {
+    //     return $this->belongsTo(Semester::class, 'semester_id');
+    // }
     public function userRole()
     {
         return $this->belongsTo(UserRole::class, 'role_id');
