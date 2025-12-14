@@ -3,123 +3,171 @@
    =========================== */
 
 #navbar {
-    background: #1C1C1E;
-    padding: 0.75rem 0;
+    background: #ffffff;
+    padding: 0 0 0.75rem 0;
     max-height: 90px;
     width: 100%;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.365);
     transition: all 0.3s ease;
+    z-index: 1030;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.368);
 }
 
 #navbar .container-fluid {
-    padding: 0 1.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
 }
 
 /* ===========================
    Toggle Button
    =========================== */
-
-#toggle-btn {
-    border: none;
-    background: transparent;
-    padding: 0.5rem;
-    cursor: pointer;
+.navbar-toggler {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    transition: all 0.3s ease;
 }
 
-#toggle-btn:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
-    border-radius: 0.25rem;
+.navbar-toggler:hover {
+    background: #9898983b !important;
+    border-color: #667eea !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.295);
 }
+/* 
+.navbar-toggler:hover #hambur {
+    color: white !important;
+} */
 
-#hambur {
-    margin: 0;
-    transition: color 0.2s ease;
-}
-
-#toggle-btn:hover #hambur {
-    color: #f0f0f0 !important;
+.navbar-toggler:active {
+    transform: translateY(0);
 }
 
 /* ===========================
    Logo and Brand
    =========================== */
-
-#navbar a {
-    text-decoration: none;
-    overflow: visible;
-}
-
-#brand {
-    color: white;
-    font-size: 1.25rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
+.brand-link {
+    margin: 0 auto;
     transition: all 0.3s ease;
-    padding: 0.5rem 0;
-    overflow: visible;
 }
 
-#navbar a:hover #brand {
-    color: #f0f0f0;
+.brand-link:hover {
+    transform: translateY(-1px);
+}
+
+.brand-logo {
+    height: 70px;
+    width: auto;
+    object-fit: contain;
+    transition: all 0.3s ease;
+}
+
+.brand-link:hover .brand-logo {
     transform: scale(1.02);
 }
 
-/* Responsive text size */
-@media (max-width: 768px) {
-    #brand {
-        font-size: 1rem;
-    }
+.brand-content {
+    color: #2d3748;
 }
 
-@media (max-width: 576px) {
-    #brand {
-        font-size: 0.9rem;
-    }
+.brand-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+    background: linear-gradient(135deg, #333333 0%, #00183bf1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.brand-subtitle {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    color: #718096;
+    text-transform: uppercase;
 }
 
 /* ===========================
    User Dropdown
    =========================== */
-
-.user-dropdown {
-    position: relative;
-}
-
-.user-dropdown .btn-outline-light {
-    border: 2px solid rgba(255, 255, 255, 0.8);
-    padding: 0.5rem 1rem;
-    transition: all 0.3s ease;
-}
-
-.user-dropdown .btn-outline-light:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-color: white;
-    transform: translateY(-1px);
-    color: white;
-}
-
-.user-dropdown .btn-outline-light:focus {
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
-}
-
-/* Avatar Circle */
 .avatar-circle {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: linear-gradient(135deg, #333333 0%, #4a73b1bd 100%);
+    color: white;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    font-size: 0.875rem;
-    color: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 0.9rem;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    transition: all 0.3s ease;
 }
 
-/* Dropdown Arrow Rotation */
+.user-avatar-large {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #333333 0%, #4a73b1bd 100%);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+    border: 3px solid rgba(102, 126, 234, 0.2);
+    margin: 0 auto;
+}
+
+.btn-user-profile {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    color: #2d3748;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50px;
+    padding: 0.35rem 0.75rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.btn-user-profile:hover {
+    background: rgba(126, 126, 126, 0.637) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    transform: translateY(-1px), scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-user-profile:active {
+    transform: translateY(0);
+}
+
+.btn-user-profile .username {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #2d3748;
+    transition: color 0.3s ease;
+}
+
+.dropdown-arrow {
+    font-size: 0.75rem;
+    transition: all 0.3s ease;
+    color: #718096;
+}
+
+.btn-user-profile:hover .username {
+    color: white;
+}
+.btn-user-profile:hover .dropdown-arrow {
+    color: white;
+}
+.btn-user-profile .avatar-circle:hover {
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: scale(1.05);
+}
+
 .rotate-180 {
     transform: rotate(180deg);
 }
@@ -132,163 +180,126 @@
     position: absolute;
     top: calc(100% + 0.5rem);
     right: 0;
+    min-width: 280px;
     background: white;
-    border-radius: 0.75rem;
-    min-width: 250px;
-    padding: 0.5rem 0;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 0.5rem;
     z-index: 1050;
-    border: 1px solid rgba(159, 159, 159, 0.58)
+    transform-origin: top right;
 }
 
-/* Dropdown Header */
 .dropdown-header-custom {
-    padding: 1rem 1.25rem;
+    padding: 1rem;
+    text-align: center;
+    border-radius: 8px;
+    background: linear-gradient(
+        135deg,
+        rgba(102, 126, 234, 0.1) 0%,
+        rgba(118, 75, 162, 0.1) 100%
+    );
 }
 
-.dropdown-header-custom .fw-semibold {
+.dropdown-header-custom .text-dark {
     font-size: 1rem;
     margin-bottom: 0.25rem;
 }
 
 .dropdown-header-custom .text-muted {
-    font-size: 0.875rem;
-    display: block;
+    font-size: 0.8rem;
 }
 
-/* Dropdown Divider */
-.custom-dropdown-menu hr {
+.dropdown-divider {
     margin: 0.5rem 0;
-    opacity: 0.1;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-/* Dropdown Items */
+/* ========== Dropdown Items ========== */
 .dropdown-item-custom {
-    padding: 0.75rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
     color: #333;
     text-decoration: none;
+    border-radius: 8px;
     transition: all 0.2s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
     cursor: pointer;
-    font-size: 0.95rem;
-}
-
-.dropdown-item-custom:hover {
-    background-color: #f8f9fa;
-    padding-left: 1.5rem;
 }
 
 .dropdown-item-custom i {
-    width: 24px;
+    font-size: 1.1rem;
+    width: 20px;
     text-align: center;
 }
 
-.dropdown-item-custom.text-danger:hover {
-    background-color: #fff5f5;
-    color: #dc3545 !important;
+.dropdown-item-custom:hover {
+    background: rgba(102, 126, 234, 0.08);
+    color: #667eea;
+    transform: translateX(2px);
 }
 
-/* ===========================
-   Alpine.js Transitions
-   =========================== */
-
-[x-cloak] {
-    display: none !important;
+.dropdown-item-danger {
+    color: #dc3545;
 }
 
-/* Fade and slide down animation */
-.custom-dropdown-menu[x-show] {
-    transition: all 0.2s ease-out;
-    transform-origin: top right;
+.dropdown-item-danger:hover {
+    background: rgba(220, 53, 69, 0.08);
+    color: #dc3545;
 }
 
-/* ===========================
-   Responsive Design
-   =========================== */
-
-@media (max-width: 576px) {
-    #navbar .container-fluid {
-        padding: 0 1rem;
+/* ========== Responsive Styles ========== */
+@media (max-width: 768px) {
+    .brand-title {
+        font-size: 1rem;
     }
 
-    #logo-perwira {
-        height: 35px;
+    .brand-subtitle {
+        font-size: 0.65rem;
     }
 
-    .user-dropdown .btn-outline-light {
-        padding: 0.4rem 0.75rem;
+    .brand-logo {
+        height: 32px;
+    }
+
+    .custom-dropdown-menu {
+        min-width: 260px;
+        right: -0.5rem;
     }
 
     .avatar-circle {
-        width: 28px;
-        height: 28px;
-        font-size: 0.75rem;
+        width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 576px) {
+    #navbar .container-fluid {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+
+    .brand-content {
+        max-width: 180px;
     }
 
     .custom-dropdown-menu {
-        min-width: 220px;
-        right: -0.5rem;
+        min-width: calc(100vw - 2rem);
+        right: 0;
+        left: 0;
+        margin: 0 1rem;
     }
 }
 
-@media (max-width: 400px) {
-    .custom-dropdown-menu {
-        min-width: 200px;
-    }
-
-    .dropdown-header-custom,
-    .dropdown-item-custom {
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
-}
-
-/* ===========================
-   Hover Effects & Animations
-   =========================== */
-
-/* Smooth hover transition for all interactive elements */
-#navbar button,
-#navbar a,
-.dropdown-item-custom {
-    position: relative;
-    /* overflow: hidden; */
-}
-
-/* Ripple effect on dropdown items */
-.dropdown-item-custom::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.05);
-    transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
-}
-
-.dropdown-item-custom:active::before {
-    width: 300px;
-    height: 300px;
-}
-
-/* ===========================
-   Accessibility Improvements
-   =========================== */
-
-/* Focus visible for keyboard navigation */
-.user-dropdown .btn-outline-light:focus-visible,
-.dropdown-item-custom:focus-visible,
-#toggle-btn:focus-visible {
-    outline: 2px solid #fff;
-    outline-offset: 2px;
-}
-
-/* Ensure text remains readable */
-@media (prefers-reduced-motion: reduce) {
-    * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
+/* ========== Notification Wrapper ========== */
+.notification-wrapper {
+    display: flex;
+    align-items: center;
 }

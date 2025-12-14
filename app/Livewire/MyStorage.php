@@ -15,10 +15,30 @@ use Livewire\Component;
 #[Title('My Storage')]
 class MyStorage extends Component
 {
+    public function goToEdit($id)
+    {
+        return redirect()->route('storage_edit', ['application' => $id]);
+    }
+
+    public function cancelApplication($id)
+    {
+        $app = StorageApplication::findOrFail($id);
+
+        if ($app->applicant_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $app->update([
+            'storage_application_status' => 'cancelled'
+        ]);
+
+        $this->dispatch('show_toast', message: 'Application cancelled.', type: 'success');
+    }
+
     #[Computed()]
     public function studentStorageApplications()
     {
-        return StorageApplication::where('applicant_id', Auth::user()->id)->with(['storedItems', 'locker.storageRoom', 'openArea.storageRoom', 'qrCode.scanLogs'])->get();
+        return StorageApplication::where('applicant_id', Auth::user()->id)->with(['storedItems', 'locker.storageRoom', 'openArea.storageRoom', 'qrCode.scanLogs', 'semester'])->get();
     }
 
     public function render()

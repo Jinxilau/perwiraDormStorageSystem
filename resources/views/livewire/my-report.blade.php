@@ -60,7 +60,7 @@
                                 <div class="mt-3">
                                     <p class="text-muted small mb-2 fw-semibold">Photo Item</p>
                                     <div class="d-flex flex-wrap gap-2">
-                                        <a href="{{ asset('storage/' . $item->item_photo_path) }}" target="_blank"
+                                        <a href="{{ \Storage::disk('public')->url($item->item_photo_path) }}" target="_blank"
                                             class="btn btn-sm btn-outline-primary">
                                             <i class="bi bi-paperclip"></i> View Photo
                                         </a>

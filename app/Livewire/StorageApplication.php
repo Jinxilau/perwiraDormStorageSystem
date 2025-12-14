@@ -12,23 +12,20 @@ use App\Models\StorageApplication as ModelsStorageApplication;
 use App\Models\StorageRoom;
 use App\Models\User;
 use App\Notifications\StorageApplicationMadeNotification;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Computed;
-use Livewire\Attributes\Layout;
-use Livewire\Attributes\Lazy;
-use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 
-#[Layout('components.layouts.student')]
-#[Title('Storage Application')]
-#[Lazy()]
 class StorageApplication extends Component
 {
     use WithFileUploads;
+
+    public ?ModelsStorageApplication $application = null;
 
     public $currentStep = 1;
     public $totalSteps = 3;
@@ -49,15 +46,15 @@ class StorageApplication extends Component
     public $lockerSize = '45×90×55cm (120-150 liters)';
     public $applicantData;
 
-    public $purpose = ''; # Not using
-    public $expected_check_in = ''; # Not using
+    // public $purpose = ''; # Not using
+    // public $expected_check_in = ''; # Not using
 
     protected $messages = [
         'purpose.required' => 'Please provide the purpose for storage.',
         'expected_check_in.after' => 'Check-in date must be in the future.',
     ];
 
-    public function mount()
+    public function mount(?ModelsStorageApplication $application = null)
     {
         $this->categories = [
             'electronic' => 'Electronic',
@@ -93,27 +90,45 @@ class StorageApplication extends Component
             ]
         ];
 
-        $this->operatingHour = [
-            'start' => 'Morning: 9:00 AM - 11:00 AM',
-            'end' => 'Evening: 9:00 PM - 11:00 PM'
-        ];
+        // $this->operatingHour = [
+        //     'start' => 'Morning: 9:00 AM - 11:00 AM',
+        //     'end' => 'Evening: 9:00 PM - 11:00 PM'
+        // ];
 
-        // Step 1: Item Details
-        $this->itemForm->items = [
-            0 => [
-                'item_name' => '',
-                'category' => '',
-                'item_description' => '',
-                'estimated_size' => '',
-                'item_photo' => null,
-                'temp_photo_url' => null,
-            ]
-        ];
+        // Edit Mode
+        if ($application) {
+            $this->application = $application;
+            // Prevent editing other's application
+            if ($application->applicant_id !== Auth::id()) {
+                abort(403, 'Unauthorized');
+            }
 
-        // Step 2: Storage Room
-        $firstAvailableRoom = StorageRoom::where('room_status', 'open')->first();
-        if ($firstAvailableRoom) {
-            $this->selectRoom($firstAvailableRoom->id);
+            // Optional: prevent editing non-pending entries
+            if ($application->storage_application_status !== 'pending') {
+                abort(403, 'You cannot edit this application.');
+            }
+
+            $this->itemForm->loadExistingItems($application);
+            $this->roomForm->loadExistingRoom($application);
+        } else {
+            // Step 1: Item Details
+            $this->itemForm->items = [
+                0 => [
+                    'id' => null,
+                    'item_name' => '',
+                    'category' => '',
+                    'item_description' => '',
+                    'estimated_size' => '',
+                    'item_photo' => null,
+                    'temp_photo_url' => null,
+                ]
+            ];
+
+            // Step 2: Storage Room
+            $firstAvailableRoom = StorageRoom::where('room_status', 'open')->first();
+            if ($firstAvailableRoom) {
+                $this->selectRoom($firstAvailableRoom->id);
+            }
         }
 
         // Step 3: Review & Submit 
@@ -162,6 +177,7 @@ class StorageApplication extends Component
         $this->dispatch('show_toast', message: 'Photo remove successfully!', type: 'success');
     }
 
+    // Add new items to the list
     public function addItem()
     {
         $this->itemForm->validateCurrentItem();
@@ -173,6 +189,7 @@ class StorageApplication extends Component
             // Add new empty item
             $newIndex = count($this->itemForm->items);
             $this->itemForm->items[$newIndex] = [
+                'id' => null,
                 'item_name' => '',
                 'category' => '',
                 'item_description' => '',
@@ -253,9 +270,6 @@ class StorageApplication extends Component
                 $this->validate([
                     'notes' => 'nullable|string|max:1000',
                     'receipt' => 'required|image|max:2048', // TODO: 2MB max
-                    // 'paymentMethod' => 'required|in:bank_transfer,online_banking,cash',
-                    // 'paymentReference' => 'required|string|max:100',
-                    // 'customerNotes' => 'nullable|string|max:500'
                 ]);
 
                 $this->submitForm(); // Submit the form if validation passes
@@ -267,43 +281,66 @@ class StorageApplication extends Component
     {
         if (!$this->termsAccepted) {
             session()->flash('error', 'Please accept the terms and conditions to proceed.');
+            $this->dispatch('show_toast', message: 'Please accept the terms and conditions to proceed.', type: 'fail');
             return;
         }
 
         if (!Setting::get('storage_application_enabled')) {
             session()->flash('error', 'Storage application submission is currently disabled.');
+            $this->dispatch('show_toast', message: 'Storage application submission is currently disabled.', type: 'fail');
             return;
         }
 
         if (Auth::user()->applyStorage()->exists()) {
             session()->flash('error', 'You already have a storage application.');
+            $this->dispatch('show_toast', message: 'You already have a storage application.', type: 'fail');
             return;
         }
 
-        $openAreaId = in_array('open_area', $this->roomForm->selectedStorageType) ? $this->roomForm->openArea->id : null;
-
         try {
             DB::beginTransaction();
+            // Check locker availability again before final submission
+            $locker = null;
+            if (in_array('locker', $this->roomForm->selectedStorageType)) {
+                $locker = $this->roomForm->checkLockerStatus($this->roomForm->selectedLockerId);
+                if (!$locker) {
+                    session()->flash('error', 'The selected locker is no longer available. Please choose a different locker.');
+                    $this->dispatch('show_toast', message: 'The selected locker is no longer available. Please choose a different locker.', type: 'fail');
+                    return;
+                }
+            }
+            // Check open area availability
+            $openArea = null;
+            if (in_array('open_area', $this->roomForm->selectedStorageType)) {
+                $openArea = $this->roomForm->checkAreaStatus();
+                if (!$openArea) {
+                    session()->flash('error', 'The selected open area is no longer available. Please choose a different storage option.');
+                    $this->dispatch('show_toast', message: 'The selected open area is no longer available. Please choose a different storage option.', type: 'fail');
+                    return;
+                }
+            }
+
+            $current = Semester::where('is_current', true)->first();
+            if (!$current) throw new Exception('There is something wrong. Please contact admin.');
+
             // Create the main storage application
             $storageApplication = ModelsStorageApplication::create([
-                'semester_id' => Semester::where('is_current', true)->first()->id,
+                'semester_id' => $current->id,
                 'applicant_id' => Auth::id(),
                 'approver_id' => null,
-                'open_area_id' => $openAreaId,
-                'locker_id' => $this->roomForm->selectedLockerId,
+                'open_area_id' => $openArea ? $openArea->id : null,
+                'locker_id' => $locker ? $locker->id : null,
                 'storage_application_status' => 'pending',
-                // 'start_date' => Date::now(),
-                // 'end_date' => Date::now()->addDays(30) // TODO
             ]);
 
-            // Create stored items for each item in the application
-            $this->itemForm->createAllItem($storageApplication->id);
-
-            if ($this->roomForm->selectedLockerId) {
-                Locker::where('id', $this->roomForm->selectedLockerId)->update([
+            if ($locker) {
+                $locker->update([
                     'status' => 'reserved',
                 ]);
             }
+
+            // Create stored items for each item in the application
+            $this->itemForm->createAllItem($storageApplication->id);
 
             DB::commit();
 
@@ -312,13 +349,83 @@ class StorageApplication extends Component
             $this->resetAllForms();
             $this->showSuccessMessage = true;
 
-            foreach (User::whereIn('role_id', [1, 2])->get() as $staff) {
-                $staff->notify(new StorageApplicationMadeNotification($storageApplication));
-            }
+            User::whereIn('role_id', [1, 2])
+                ->each(fn($user) => $user->notify(new StorageApplicationMadeNotification($storageApplication)));
         } catch (\Exception $e) {
             DB::rollback();
             Log::error($e->getMessage());
             $this->dispatch('show_toast', message: 'An error occurred while submitting your application. Please try again.', type: 'fail');
+        }
+    }
+
+    public function update()
+    {
+        if (!$this->application) {
+            abort(400, 'No application selected');
+        }
+
+        // Prevent editing if status no longer pending
+        if ($this->application->storage_application_status !== 'pending') {
+            $this->dispatch('show_toast', message: 'This application cannot be edited.', type: 'fail');
+            return;
+        }
+
+        try {
+            DB::beginTransaction();
+            $oldLockerId = $this->application->locker_id;
+            // Check locker availability again before final submission
+            $locker = null;
+            if (in_array('locker', $this->roomForm->selectedStorageType)) {
+                $locker = $this->roomForm->checkLockerStatus($this->roomForm->selectedLockerId, $oldLockerId);
+                if (!$locker) {
+                    session()->flash('error', 'The selected locker is no longer available. Please choose a different locker.');
+                    $this->dispatch('show_toast', message: 'The selected locker is no longer available. Please choose a different locker.', type: 'fail');
+                    return;
+                }
+            }
+            // Check open area availability
+            $openArea = null;
+            if (in_array('open_area', $this->roomForm->selectedStorageType)) {
+                $openArea = $this->roomForm->checkAreaStatus();
+                if (!$openArea) {
+                    session()->flash('error', 'The selected open area is no longer available. Please choose a different storage option.');
+                    $this->dispatch('show_toast', message: 'The selected open area is no longer available. Please choose a different storage option.', type: 'fail');
+                    return;
+                }
+            }
+
+            // Update main storage application
+            $this->application->update([
+                'open_area_id' => $openArea ? $openArea->id : null,
+                'locker_id' => $locker ? $locker->id : null,
+            ]);
+
+            // Update stored items (your itemForm should handle it)
+            $this->itemForm->updateAllItems($this->application->id);
+
+            // Locker handling
+            if ($oldLockerId !== $this->roomForm->selectedLockerId) {
+                // Release old locker
+                if ($oldLockerId) {
+                    Locker::where('id', $oldLockerId)->update(['status' => 'available']);
+                }
+
+                // Reserve new locker
+                if ($this->roomForm->selectedLockerId) {
+                    Locker::where('id', $this->roomForm->selectedLockerId)->update(['status' => 'reserved']);
+                }
+            }
+
+            DB::commit();
+
+            $this->dispatch('show_toast', message: 'Storage Application updated successfully!', type: 'success');
+            $this->resetAllForms();
+            $this->showSuccessMessage = true;
+            $this->redirectRoute("my_storage");
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error($e->getMessage());
+            $this->dispatch('show_toast', message: 'Error updating application.', type: 'fail');
         }
     }
 

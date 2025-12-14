@@ -242,7 +242,7 @@
                                                         <div class="text-center bg-light rounded p-3">
                                                             <img class="img-fluid rounded shadow-sm"
                                                                 style="max-height: 500px; object-fit: contain;"
-                                                                src="{{ asset('storage/' . $this->selectedItem->item_photo_path) }}"
+                                                                src="{{ \Storage::disk('public')->url($this->selectedItem->item_photo_path) }}"
                                                                 alt="Item Photo">
                                                         </div>
                                                     @else

@@ -16,6 +16,8 @@ use App\Livewire\ScanQr;
 use App\Livewire\Setting;
 use App\Livewire\StaffDashboard;
 use App\Livewire\StorageApplication;
+use App\Livewire\StorageApplicationCreate;
+use App\Livewire\StorageApplicationEdit;
 use App\Livewire\StorageInsight;
 use App\Livewire\StudentDashboard;
 use App\Livewire\StudentNotifications;
@@ -33,9 +35,11 @@ Route::view('/role-error', 'role_error')->name('role_error');
 // Student
 Route::middleware(['auth', EnsureUserIsApproved::class, CheckRole::class . ':student'])->group(function () {
     Route::get('/student/dashboard', StudentDashboard::class)->name('student_dashboard');
-    Route::get('/student/storage', StorageApplication::class)->name('storage');
+    // Route::get('/student/storage', StorageApplication::class)->name('storage');
+    Route::get('/student/storage', StorageApplicationCreate::class)->name('storage');
     Route::get('/student/missing_report', MissingReport::class)->name('missing_report');
     Route::get('/student/my_storage', MyStorage::class)->name('my_storage');
+    Route::get('/student/my_storage/{application}/edit', StorageApplicationEdit::class)->name('storage_edit');
     Route::get('/student/my_report', MyReport::class)->name('my_report');
     Route::get('/student/notification', StudentNotifications::class)->name('student_notification');
     Route::view('/student/help_and_support', 'help_and_support')->name('help_and_support');

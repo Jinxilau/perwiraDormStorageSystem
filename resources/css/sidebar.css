@@ -1,6 +1,6 @@
 /* Sidebar Base Styles */
 #sidebar {
-    background: #ecf0f1;
+    background: #f3f4f5;
     transition: all 300ms ease-in-out;
     max-width: 260px;
 }

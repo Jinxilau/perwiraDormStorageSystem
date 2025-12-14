@@ -137,7 +137,7 @@
                             @foreach ($modalApplication->storedItems as $item)
                                 <div class="col-12">
                                     <div class="d-flex align-items-start p-3 bg-light rounded">
-                                        <img src="{{ asset('storage/' . $item->item_photo_path) }}" alt="Item Photo"
+                                        <img src="{{ \Storage::disk('public')->url($item->item_photo_path) }}" alt="Item Photo"
                                             class="rounded shadow-sm me-3"
                                             style="width: 80px; height: 80px; object-fit: cover;" />
                                         <div class="flex-grow-1">
