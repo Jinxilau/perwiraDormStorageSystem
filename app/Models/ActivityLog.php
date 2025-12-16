@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class ActivityLog extends Model
 {
     protected $fillable = [
+        'user_id',
+        'subject_id',
+        'subject_type',
         'action',
         'description',
-        'ip_address',
-        'user_id',
-        'subject_type',
-        'subject_id'
+        'ip_address'
     ];
 
     public function user()

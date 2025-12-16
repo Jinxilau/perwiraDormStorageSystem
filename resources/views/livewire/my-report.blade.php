@@ -1,15 +1,15 @@
 <div class="container">
     {{-- In work, do what you enjoy. --}}
     @include('livewire.includes.student-title2', [
-        'title' => 'My Reports',
+        'title' => 'My Missing Items',
         'subtitle' => 'View and track your missing item reports',
     ])
 
     @if ($this->studentStorageApplication)
         @php
-            $reports = $this->studentStorageApplication->storedItems->pluck('missingReport');
+            $items = $this->studentStorageApplication->storedItems;
+            $reports = $items->pluck('missingReport')->filter()->unique('id')->sortByDesc('created_at')->values();
         @endphp
-
         @forelse ($reports as $report)
             <div class="card mb-3 shadow-sm">
                 <div class="card-body">
@@ -60,8 +60,8 @@
                                 <div class="mt-3">
                                     <p class="text-muted small mb-2 fw-semibold">Photo Item</p>
                                     <div class="d-flex flex-wrap gap-2">
-                                        <a href="{{ \Storage::disk('public')->url($item->item_photo_path) }}" target="_blank"
-                                            class="btn btn-sm btn-outline-primary">
+                                        <a href="{{ \Storage::disk('public')->url($item->item_photo_path) }}"
+                                            target="_blank" class="btn btn-sm btn-outline-primary">
                                             <i class="bi bi-paperclip"></i> View Photo
                                         </a>
                                     </div>

@@ -373,7 +373,7 @@
                     <input type="checkbox" wire:model.live="selectAll">
                 </th>
                 <th class="align-middle py-2">
-                    Report ID
+                    ID
                 </th>
                 <th class="align-middle py-2">
                     User Details
@@ -399,49 +399,60 @@
             </x-slot:header>
 
             @forelse($this->missingReports as $report)
+                @php
+                    $applicant = $report->storedItems->first()?->storageApplication->applicant;
+                    $application = $report->storedItems->first()?->storageApplication;
+                @endphp
                 <tr wire:key="row-{{ $report->id }}"
                     class="{{ in_array($report->id, $this->selectedReports) ? 'table-active' : '' }}">
                     <td class="align-middle"> {{-- Select --}}
                         <input type="checkbox" value="{{ $report->id }}" wire:model.live="selectedReports">
                     </td>
-                    <td> {{-- Report Id --}}
-                        #{{ $report->id }}
+                    <td class="align-middle"> {{-- Report Id --}}
+                        <span class="text-secondary small user-select-none">#</span>
+                        <span class="fw-bold text-dark">{{ $report->id }}</span>
                     </td>
-                    <td> {{-- User Details --}}
-                        <div class="d-flex align-items-center">
-                            {{-- Avatar --}}
-                            <div class="rounded-circle bg-secondary-subtle d-flex justify-content-center align-items-center flex-shrink-0"
-                                style="height: 30px; width: 30px;">
-                                {{ strtoupper(substr($report->storedItems->first()?->storageApplication->applicant->name ?? 'NA', 0, 2)) }}
+                    <td class="align-middle"> {{-- User Details --}}
+                        <div class="d-flex align-items-center gap-1">
+                            <div class="flex-shrink-0">
+                                <div class="rounded-circle bg-primary-subtle text-primary fw-bold d-flex justify-content-center align-items-center text-uppercase"
+                                    style="height: 30px; width: 30px;">
+                                    {{ substr($applicant->name ?? 'NA', 0, 2) }}
+                                </div>
                             </div>
 
-                            {{-- User Info --}}
-                            <div class="d-flex flex-column">
-                                <span class="fw-semibold text-dark" style="white-space: nowrap;">
-                                    {{ $report->storedItems->first()?->storageApplication->applicant->name ?? 'N/A' }}
-                                </span>
-                                <small class="text-muted" style="white-space: nowrap;">
-                                    ID: {{ $report->storedItems->first()?->storageApplication->applicant->id }} •
-                                    {{ $report->storedItems->first()?->storageApplication->applicant->matric_no }}
-                                </small>
+                            <div>
+                                <div class="fw-bold text-dark mb-0">
+                                    {{ $applicant->name ?? 'N/A' }}
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-1">
+                                    <span class="badge bg-light text-secondary border fw-normal">
+                                        {{ ucfirst($applicant->gender) ?? '-' }}
+                                    </span>
+                                    <span class="badge bg-light text-secondary border fw-normal">
+                                        Year {{ $applicant->year_of_study ?? '-' }}
+                                    </span>
+                                    <span
+                                        class="badge bg-info-subtle text-info-emphasis border border-info-subtle fw-normal">
+                                        {{ $applicant->matric_no ?? 'N/A' }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </td>
-                    <td> {{-- Contact --}}
+                    <td class="align-middle">
                         <div class="d-flex flex-column gap-1">
-                            <div class="d-flex align-items-center">
-                                <span class="text-muted small fw-medium" style="min-width: 50px;">
-                                    Email:
-                                </span>
-                                <span class="text-dark" style="white-space: nowrap;">
-                                    {{ $report->storedItems->first()?->storageApplication->applicant->email ?? 'N/A' }}
+                            <div class="d-flex align-items-center text-dark" style="font-size: 0.85rem;">
+                                <i class="bi bi-envelope text-muted me-2"></i>
+                                <span class="text-truncate" style="max-width: 180px;"
+                                    title="{{ $applicant->email }}">
+                                    {{ $applicant->email ?? 'N/A' }}
                                 </span>
                             </div>
-                            <div class="d-flex align-items-center">
-                                <span class="text-muted small fw-medium" style="min-width: 50px;">Phone:</span>
-                                <span class="text-dark" style="white-space: nowrap;">
-                                    {{ $report->storedItems->first()?->storageApplication->applicant->phone_number ?? 'N/A' }}
-                                </span>
+                            <div class="d-flex align-items-center text-secondary small">
+                                <i class="bi bi-telephone me-2"></i>
+                                <span>{{ $applicant->phone_number ?? 'N/A' }}</span>
                             </div>
                         </div>
                     </td>
@@ -452,12 +463,12 @@
                                 {{ Str::plural('Item', $report->storedItems->count()) }}
                             </span>
                         </div>
-                        <div class="d-flex flex-column gap-2">
+                        <div class="d-flex flex-column gap-1">
                             @foreach ($report->storedItems as $item)
                                 <div wire:key="item-{{ $item->id }}"
                                     class="border-start border-3 border-primary ps-3">
                                     <div class="d-flex align-items-center justify-content-between gap-2">
-                                        <div class="flex-grow-1">
+                                        <div class="flex-grow-1 text-center">
                                             <div class="fw-semibold text-dark">
                                                 {{ ucfirst($item->item_name) }}
                                             </div>
@@ -472,78 +483,100 @@
                         </div>
                     </td>
                     <td> {{-- Storage Details --}}
-                        <div class="d-flex flex-column">
+                        <div class="d-flex flex-column align-items-center">
                             {{-- ID Badge --}}
                             <div>
                                 <span class="badge bg-secondary">
-                                    ID: {{ $report->storedItems->first()?->storageApplication->id }}
+                                    Application ID: {{ $application->id }}
                                 </span>
                             </div>
 
-                            {{-- Storage Location Info --}}
-                            <div class="d-flex flex-column">
-                                @if (
-                                    !empty($report->storedItems->first()?->storageApplication->open_area_id) &&
-                                        !empty($report->storedItems->first()?->storageApplication->locker_id))
-                                    <div class="fw-semibold text-dark">
-                                        {{ $report->storedItems->first()?->storageApplication->openArea?->storageRoom?->room_name }}
-                                    </div>
-                                    <span class="d-inline-flex align-items-center gap-1 text-primary">
-                                        <svg class="bi" width="16" height="16" fill="currentColor"
-                                            viewBox="0 0 16 16">
-                                            <path
-                                                d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
-                                        </svg>
-                                        <small>Locker + Open Area</small>
-                                    </span>
-                                @elseif (!empty($report->storedItems->first()?->storageApplication->locker_id))
-                                    <div class="fw-semibold text-dark">
-                                        {{ $report->storedItems->first()?->storageApplication->locker?->storageRoom?->room_name }}
-                                    </div>
-                                    <span class="d-inline-flex align-items-center gap-1 text-info">
-                                        <svg class="bi" width="16" height="16" fill="currentColor"
-                                            viewBox="0 0 16 16">
-                                            <path
-                                                d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
-                                        </svg>
-                                        <small>Locker</small>
-                                    </span>
-                                @elseif (!empty($report->storedItems->first()?->storageApplication->open_area_id))
-                                    <div class="fw-semibold text-dark">
-                                        {{ $report->storedItems->first()?->storageApplication->openArea?->storageRoom?->room_name }}
-                                    </div>
-                                    <span class="d-inline-flex align-items-center gap-1 text-success">
-                                        <svg class="bi" width="16" height="16" fill="currentColor"
-                                            viewBox="0 0 16 16">
-                                            <path
-                                                d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5 10V4h6v8H5z" />
-                                        </svg>
-                                        <small>Open Area</small>
-                                    </span>
-                                @endif
+                            {{-- Storage Room Name and Type Badges --}}
+                            <div class="d-flex flex-column justify-content-center">
+                                <div class="fw-bold text-dark mb-1 text-center">
+                                    @if (!empty($application->open_area_id) && !empty($application->locker_id))
+                                        {{ $application->openArea?->storageRoom?->room_name ?? 'Unknown Room' }}
+                                    @elseif (!empty($application->locker_id))
+                                        {{ $application->locker?->storageRoom?->room_name ?? 'Unknown Room' }}
+                                    @elseif (!empty($application->open_area_id))
+                                        {{ $application->openArea?->storageRoom?->room_name ?? 'Unknown Room' }}
+                                    @else
+                                        <span class="text-muted fst-italic">No Assignment</span>
+                                    @endif
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-1">
+                                    @if (!empty($application->open_area_id) && !empty($application->locker_id))
+                                        <span
+                                            class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                            <svg class="bi" width="16" height="16" fill="currentColor"
+                                                viewBox="0 0 16 16">
+                                                <path
+                                                    d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
+                                            </svg>Locker
+                                        </span>
+                                        <span
+                                            class="badge bg-info-subtle text-info-emphasis border border-info-subtle">
+                                            <i class="bi bi-grid me-1"></i>Open Area
+                                        </span>
+                                    @elseif (!empty($application->locker_id))
+                                        <span
+                                            class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                            <svg class="bi" width="16" height="16" fill="currentColor"
+                                                viewBox="0 0 16 16">
+                                                <path
+                                                    d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
+                                            </svg>Locker
+                                        </span>
+                                    @elseif (!empty($application->open_area_id))
+                                        <span
+                                            class="badge bg-info-subtle text-info-emphasis border border-info-subtle">
+                                            <i class="bi bi-grid me-1"></i>Open Area
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </td>
                     <td class="align-middle">{{-- Report Date --}}
-                        <div class="d-flex flex-column">
-                            <span class="text-dark fw-medium" style="white-space: nowrap;">
+                        <div class="d-flex flex-column font-monospace">
+                            <span class="text-dark fw-bold" style="font-size: 0.9rem;">
                                 {{ $report->created_at->format('M d, Y') }}
                             </span>
-                            <small class="text-muted">
-                                {{ $report->created_at->format('h:i A') }}
-                            </small>
+                            <span class="text-secondary small">
+                                {{ $report->created_at->format('h:i:s A') }}
+                            </span>
                         </div>
                     </td>
-                    <td> {{-- Status --}}
+                    <td class="align-middle">
                         <span @class([
-                            'badge',
-                            'text-bg-warning' => $report->status === 'pending',
-                            'text-bg-info' => $report->status === 'investigating',
-                            'text-bg-success' => $report->status === 'found',
-                            'text-bg-danger' => $report->status === 'lost',
-                            'text-bg-secondary' => $report->status === 'dismissed',
+                            'badge border rounded-pill fw-normal px-3 d-inline-flex align-items-center gap-1',
+                            'bg-warning-subtle text-warning-emphasis border-warning-subtle' =>
+                                $report->status === 'pending',
+                            'bg-info-subtle text-info-emphasis border-info-subtle' =>
+                                $report->status === 'investigating',
+                            'bg-success-subtle text-success border-success-subtle' =>
+                                $report->status === 'found',
+                            'bg-danger-subtle text-danger border-danger-subtle' =>
+                                $report->status === 'lost',
+                            'bg-secondary-subtle text-secondary border-secondary-subtle' =>
+                                $report->status === 'dismissed',
                         ])>
-                            {{ ucfirst($report->status) }}
+                            {{-- Icon Logic --}}
+                            @if ($report->status === 'pending')
+                                <i class="bi bi-hourglass-split"></i>
+                            @elseif($report->status === 'investigating')
+                                <i class="bi bi-search"></i>
+                            @elseif($report->status === 'found')
+                                <i class="bi bi-check-circle-fill"></i>
+                            @elseif($report->status === 'lost')
+                                <i class="bi bi-x-circle-fill"></i>
+                            @elseif($report->status === 'dismissed')
+                                <i class="bi bi-slash-circle"></i>
+                            @endif
+
+                            {{-- Status Text --}}
+                            <span>{{ ucfirst($report->status) }}</span>
                         </span>
                     </td>
                     <td class="align-middle"> {{-- Actions --}}

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Semester extends Model
 {
-    protected $fillable = ['name', 'start_date', 'end_date', 'is_active'];
+    protected $fillable = ['academic_year', 'semester_no', 'start_date', 'end_date', 'is_current'];
 
     public function storageApplications()
     {

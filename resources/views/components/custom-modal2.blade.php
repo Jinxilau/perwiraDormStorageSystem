@@ -8,8 +8,9 @@
         this.show = false;
         document.body.style.overflow = '';
     },
-}" @display_modal2.window="openModal();" @keydown.escape.window="closeModal()" x-show='show'
-    tabindex="-1" id="modal2" :class="{ 'display': show }" style="display: none;" x-transition.scale>
+}" @display_modal2.window="openModal();" @close-modal.window="closeModal()"
+    @keydown.escape.window="closeModal()" x-show='show' tabindex="-1" id="modal2" :class="{ 'display': show }"
+    style="display: none;" x-transition.scale>
 
     {{-- Background Overlay --}}
     <div id="overlay2" @click="closeModal()" x-show="show" x-transition.opacity></div>

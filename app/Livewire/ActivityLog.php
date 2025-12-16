@@ -53,14 +53,14 @@ class ActivityLog extends Component
                 }
 
                 $q->whereHas("user", function ($userQuery) {
-                    $userQuery->where(function($q) {
+                    $userQuery->where(function ($q) {
                         $q->where('name', 'like', "%" . $this->search . "%")
-                          ->orWhere('matric_no', 'like', '%' . $this->search . "%");
+                            ->orWhere('matric_no', 'like', '%' . $this->search . "%");
                     });
                 });
             });
         }
-        
+
         if (!empty($this->role)) {
             $query->whereHas('user.userRole', function ($roleQuery) {
                 $roleQuery->where('role_id', $this->role);
@@ -96,6 +96,29 @@ class ActivityLog extends Component
     public function todayLogs()
     {
         return ModelsActivityLog::whereDate('created_at', now())->count();
+    }
+
+    // New: Counts distinct users who performed an action today
+    #[Computed()]
+    public function activeUsersToday()
+    {
+        return ModelsActivityLog::whereDate('created_at', now())
+            ->distinct('user_id')
+            ->count('user_id');
+    }
+
+    // New: Finds the most frequent action type (e.g., 'Update', 'Create')
+    #[Computed()]
+    public function topAction()
+    {
+        $top = ModelsActivityLog::select('action')
+            ->groupBy('action')
+            ->orderByRaw('COUNT(*) DESC')
+            ->limit(1)
+            ->value('action');
+
+        // Capitalize specific words or return 'N/A' if empty
+        return $top ? ucfirst($top) : 'N/A';
     }
 
     public function render()

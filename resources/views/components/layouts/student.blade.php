@@ -51,7 +51,7 @@
             ],
             [
                 'icon' => 'bi-file-earmark-break',
-                'title' => 'My Missing Report',
+                'title' => 'My Missing Item',
                 'url' => route('my_report'),
                 'path' => 'student/my_report',
             ],

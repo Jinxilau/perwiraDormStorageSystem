@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\ActivityLog;
+use App\Models\Locker;
 use App\Models\QRCode;
 use App\Models\StorageApplication;
 use App\Models\StorageRoom;
@@ -10,6 +11,7 @@ use App\Models\User;
 use App\Notifications\ApproveStorageApplicationNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -86,8 +88,6 @@ class StorageApplicationPending extends Component
 
             if ($application->locker_id) {
                 $application->locker->update(['status' => 'reserved']);
-            } elseif ($application->open_area_id) {
-                $application->openArea->update(['status' => 'reserved']);
             }
 
             $application->update([
@@ -163,13 +163,30 @@ class StorageApplicationPending extends Component
         $this->validate(['rejectionNote' => 'nullable|string|max:500']);
 
         try {
-            StorageApplication::whereIn('id', $this->selectedApplications)->update([
-                'storage_application_status' => 'rejected',
-                'note' => $this->rejectionNote,
-                'approver_id' => Auth::user()->id,
-            ]);
+            DB::transaction(function () {
+                // 1. Find all locker IDs associated with these applications
+                $lockerIds = StorageApplication::whereIn('id', $this->selectedApplications)
+                    ->whereNotNull('locker_id') // Filter out applications that might be for Open Areas
+                    ->pluck('locker_id');
 
-            $this->dispatch('show_toast', message: 'Application rejected successfully!', type: 'success');
+                // 2. Reject the Applications
+                StorageApplication::whereIn('id', $this->selectedApplications)->update([
+                    'storage_application_status' => 'rejected',
+                    'note' => $this->rejectionNote,
+                    'approver_id' => Auth::user()->id,
+                ]);
+
+                // 3. Release the Lockers (Update status to 'available')
+                if ($lockerIds->isNotEmpty()) {
+                    Locker::whereIn('id', $lockerIds)->update(['status' => 'available']);
+                }
+            });
+
+            $this->dispatch('show_toast', message: 'Applications rejected and lockers released successfully!', type: 'success');
+
+            // Optional: Clear selection after bulk action
+            $this->selectedApplications = [];
+            $this->dispatch('close-modal');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
             $this->dispatch('show_toast', message: 'Something went wrong. Please try again.', type: 'fail');
@@ -181,15 +198,25 @@ class StorageApplicationPending extends Component
         $this->validate(['rejectionNote' => 'nullable|string|max:500']);
 
         try {
-            $application = StorageApplication::findOrFail($id);
+            DB::transaction(function () use ($id) {
+                $application = StorageApplication::findOrFail($id);
 
-            $application->update([
-                'storage_application_status' => 'rejected',
-                'note' => $this->rejectionNote,
-                'approver_id' => Auth::user()->id
-            ]);
+                // 1. Update Application Status
+                $application->update([
+                    'storage_application_status' => 'rejected',
+                    'note' => $this->rejectionNote,
+                    'approver_id' => Auth::user()->id
+                ]);
+
+                // 2. Release the Locker if one is assigned
+                if ($application->locker_id) {
+                    // Assuming 'available' is your status for a free locker
+                    $application->locker()->update(['status' => 'available']);
+                }
+            });
 
             $this->dispatch('show_toast', message: 'Application rejected successfully!', type: 'success');
+            $this->dispatch('close-modal');
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             $this->dispatch('show_toast', message: 'Application not found.', type: 'fail');
         } catch (\Exception $e) {

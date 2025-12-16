@@ -6,12 +6,14 @@ use App\Models\ScanLog;
 use App\Models\StorageApplication;
 use App\Models\StorageRoom;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class StorageApplicationActive extends Component
 {
@@ -49,50 +51,92 @@ class StorageApplicationActive extends Component
         $this->paginationInt = 10; # Pagination Amount
     }
 
-    public function checkin($application)
+    public function downloadQrCode($id)
     {
-        try {
-            if ($application->qrCode->status === 'checked_in') {
-                $this->dispatch('show_toast', message: "This storage has already been checked in.", type: "fail");
-                return;
-            }
+        $application = StorageApplication::findOrFail($id);
 
+        // Livewire requires 'streamDownload' for file downloads
+        return response()->streamDownload(function () use ($application) {
+            echo QrCode::size(500)
+                ->margin(4) // <--- Adds whitespace margin (centers the QR)
+                ->generate($application->qrCode->qr_token);
+        }, 'qr-code.svg');
+    }
+
+    public function checkin(StorageApplication $application)
+    {
+        // 1. Refresh data to ensure we aren't checking a cached/stale status
+        // (e.g., if another admin checked it in 2 seconds ago)
+        $application->load(['qrCode', 'locker', 'openArea']);
+
+        if (!$application->qrCode) {
+            $this->dispatch('show_toast', message: "Error: No QR Code linked to this application.", type: "fail");
+            return;
+        }
+
+        // 2. Logic Check
+        if ($application->qrCode->status === 'checked_in') {
+            $this->dispatch('show_toast', message: "This storage has already been checked in.", type: "fail");
+            return;
+        }
+
+        DB::beginTransaction(); // Start Safety Net
+
+        try {
+            // 3. Create Log
             ScanLog::create([
                 'qr_code_id' => $application->qrCode->id,
                 'event_type' => 'check_in'
             ]);
 
+            // 4. Update QR Status
             $application->qrCode->update([
                 'status' => 'checked_in',
                 'scanned_count' => $application->qrCode->scanned_count + 1
             ]);
 
-            if ($application->locker_id) {
+            // 5. Update Room Status
+            if ($application->locker) {
                 $application->locker->update(['status' => 'occupied']);
             }
-            if ($application->open_area_id) {
+            if ($application->openArea) {
                 $application->openArea->update(['status' => 'occupied']);
             }
 
+            DB::commit(); // Save everything
+
             $this->dispatch('show_toast', message: "Check in successfully!", type: "success");
         } catch (\Exception $e) {
+            DB::rollBack(); // Undo changes if error occurs
             Log::error("Checkin Error: " . $e->getMessage());
-            $this->dispatch('show_toast', message: "Error during check in.", type: "fail");
+            $this->dispatch('show_toast', message: "System error during check-in.", type: "fail");
         }
     }
 
-    public function checkout($application)
+    public function checkout(StorageApplication $application)
     {
-        try {
-            if ($application->qrCode->status !== 'checked_in') {
-                $this->dispatch('show_toast', message: "This storage is not checked in yet.", type: "fail");
-                return;
-            }
-            if ($application->qrCode->status === 'checked_out') {
-                $this->dispatch('show_toast', message: "This storage has already been checked out.", type: "fail");
-                return;
-            }
+        $application->load(['qrCode', 'locker', 'openArea']);
 
+        if (!$application->qrCode) {
+            $this->dispatch('show_toast', message: "Error: No QR Code found.", type: "fail");
+            return;
+        }
+
+        // 1. Logic Checks (Order Matters!)
+        if ($application->qrCode->status === 'checked_out') {
+            $this->dispatch('show_toast', message: "This storage has already been checked out.", type: "fail");
+            return;
+        }
+
+        if ($application->qrCode->status !== 'checked_in') {
+            // If it's 'pending' or 'new', they can't check out yet.
+            $this->dispatch('show_toast', message: "Item must be Checked In before it can be Checked Out.", type: "fail");
+            return;
+        }
+
+        DB::beginTransaction();
+
+        try {
             ScanLog::create([
                 'qr_code_id' => $application->qrCode->id,
                 'event_type' => 'check_out'
@@ -103,17 +147,20 @@ class StorageApplicationActive extends Component
                 'scanned_count' => $application->qrCode->scanned_count + 1
             ]);
 
-            if ($application->locker_id) {
+            if ($application->locker) {
                 $application->locker->update(['status' => 'available']);
             }
-            if ($application->open_area_id) {
+            if ($application->openArea) {
                 $application->openArea->update(['status' => 'available']);
             }
 
-            $this->dispatch('show_toast', message: "Check out successfully!", type: "success");
+            DB::commit();
+
+            $this->dispatch('show_toast', message: "Check-out successful!", type: "success");
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error("Checkout Error: " . $e->getMessage());
-            $this->dispatch('show_toast', message: "Error during check out.", type: "fail");
+            $this->dispatch('show_toast', message: "System error during check-out.", type: "fail");
         }
     }
 

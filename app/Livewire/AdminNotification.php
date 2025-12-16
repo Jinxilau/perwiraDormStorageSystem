@@ -17,10 +17,26 @@ class AdminNotification extends Component
 {
     use WithPagination;
 
+    // 1. Add Filter Properties
+    public $filterStatus = 'all'; // Options: all, unread, read
+    public $filterType = 'all';   // Options: all, general, success, warning
+
     protected $listeners = ['notificationReceived' => '$refresh'];
-    
+
+    // 2. Reset pagination when filters change
+    public function updatedFilterStatus()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedFilterType()
+    {
+        $this->resetPage();
+    }
+
     public function markAllAsRead()
     {
+        // Note: This usually targets all unread, regardless of current filter
         $this->notifications->markAsRead();
 
         $this->dispatch('show_toast', message: "All notifications marked as read.", type: "success");
@@ -51,7 +67,22 @@ class AdminNotification extends Component
     #[Computed()]
     public function notifications()
     {
-        return Auth::user()->notifications()->paginate(5);
+        // Start the query
+        $query = Auth::user()->notifications();
+
+        // 3. Apply Status Filter
+        if ($this->filterStatus === 'unread') {
+            $query->whereNull('read_at');
+        } elseif ($this->filterStatus === 'read') {
+            $query->whereNotNull('read_at');
+        }
+
+        // 4. Apply Type Filter (Assuming JSON 'data' column)
+        if ($this->filterType !== 'all') {
+            $query->where('data->type', $this->filterType);
+        }
+
+        return $query->paginate(5);
     }
 
     public function render()

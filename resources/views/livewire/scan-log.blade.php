@@ -84,10 +84,10 @@
                 <thead class="table-dark">
                     <tr>
                         <th class="align-middle py-2">
-                            QR ID
+                            Student ID
                         </th>
                         <th class="align-middle py-2">
-                            Active Storage
+                            Storage Details
                         </th>
                         <th class="align-middle py-2">
                             Student Information
@@ -106,75 +106,101 @@
                 <tbody class="table-group-divider align-middle">
                     @forelse($this->logs as $log)
                         <tr wire:key="row-{{ $log->id }}">
+                            @php
+                                $applicant = $log->qrCode->storageApplication->applicant;
+                                $application = $log->qrCode->storageApplication;
+                            @endphp
                             <td>
-                                #{{ $log->qrCode->id }} {{-- QR ID --}}
+                                <span class="text-secondary small user-select-none">#</span>
+                                <span class="fw-bold text-dark">{{ $applicant->id }}</span> {{-- Student ID --}}
                             </td>
                             <td> {{-- Active Storage --}}
-                                <div class="d-flex flex-column">
+                                <div class="d-flex flex-column align-items-center">
                                     {{-- ID Badge --}}
                                     <div>
                                         <span class="badge bg-secondary">
-                                            ID: {{ $log->qrCode->storageApplication->id }}
+                                            Application ID: {{ $application->id }}
                                         </span>
                                     </div>
 
-                                    {{-- Storage Location Info --}}
-                                    <div class="d-flex flex-column">
-                                        @if (!empty($log->qrCode->storageApplication->open_area_id) && !empty($log->qrCode->storageApplication->locker_id))
-                                            <div class="fw-semibold text-dark">
-                                                {{ $log->qrCode->storageApplication->openArea?->storageRoom?->room_name }}
-                                            </div>
-                                            <span class="d-inline-flex align-items-center gap-1 text-primary">
-                                                <svg class="bi" width="16" height="16" fill="currentColor"
-                                                    viewBox="0 0 16 16">
-                                                    <path
-                                                        d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
-                                                </svg>
-                                                <small>Locker + Open Area</small>
-                                            </span>
-                                        @elseif (!empty($log->qrCode->storageApplication->locker_id))
-                                            <div class="fw-semibold text-dark">
-                                                {{ $log->qrCode->storageApplication->locker?->storageRoom?->room_name }}
-                                            </div>
-                                            <span class="d-inline-flex align-items-center gap-1 text-info">
-                                                <svg class="bi" width="16" height="16" fill="currentColor"
-                                                    viewBox="0 0 16 16">
-                                                    <path
-                                                        d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
-                                                </svg>
-                                                <small>Locker</small>
-                                            </span>
-                                        @elseif (!empty($log->qrCode->storageApplication->open_area_id))
-                                            <div class="fw-semibold text-dark">
-                                                {{ $log->qrCode->storageApplication->openArea?->storageRoom?->room_name }}
-                                            </div>
-                                            <span class="d-inline-flex align-items-center gap-1 text-success">
-                                                <svg class="bi" width="16" height="16" fill="currentColor"
-                                                    viewBox="0 0 16 16">
-                                                    <path
-                                                        d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5 10V4h6v8H5z" />
-                                                </svg>
-                                                <small>Open Area</small>
-                                            </span>
-                                        @endif
+                                    {{-- Storage Room Name and Type Badges --}}
+                                    <div class="d-flex flex-column justify-content-center">
+                                        <div class="fw-bold text-dark mb-1 text-center">
+                                            @if (!empty($application->open_area_id) && !empty($application->locker_id))
+                                                {{ $application->openArea?->storageRoom?->room_name ?? 'Unknown Room' }}
+                                            @elseif (!empty($application->locker_id))
+                                                {{ $application->locker?->storageRoom?->room_name ?? 'Unknown Room' }}
+                                            @elseif (!empty($application->open_area_id))
+                                                {{ $application->openArea?->storageRoom?->room_name ?? 'Unknown Room' }}
+                                            @else
+                                                <span class="text-muted fst-italic">No Assignment</span>
+                                            @endif
+                                        </div>
+
+                                        <div class="d-flex flex-wrap gap-1">
+                                            @if (!empty($application->open_area_id) && !empty($application->locker_id))
+                                                <span
+                                                    class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                                    <svg class="bi" width="16" height="16"
+                                                        fill="currentColor" viewBox="0 0 16 16">
+                                                        <path
+                                                            d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
+                                                    </svg>Locker
+                                                </span>
+                                                <span
+                                                    class="badge bg-info-subtle text-info-emphasis border border-info-subtle">
+                                                    <i class="bi bi-grid me-1"></i>Open Area
+                                                </span>
+                                            @elseif (!empty($application->locker_id))
+                                                <span
+                                                    class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                                    <svg class="bi" width="16" height="16"
+                                                        fill="currentColor" viewBox="0 0 16 16">
+                                                        <path
+                                                            d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
+                                                    </svg>Locker
+                                                </span>
+                                            @elseif (!empty($application->open_area_id))
+                                                <span
+                                                    class="badge bg-info-subtle text-info-emphasis border border-info-subtle">
+                                                    <i class="bi bi-grid me-1"></i>Open Area
+                                                </span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </td>
-                            <td> {{-- Student Information --}}
-                                <div class="d-flex items-center gap-1">
-                                    <div class="rounded-circle bg-secondary-subtle d-flex justify-content-center align-items-center"
-                                        style="height: 30px; width:30px">
-                                        {{ substr($log->qrCode->storageApplication->applicant->name ?? 'N/A', 0, 2) }}
+                            <td class="align-middle"> {{-- Student Information --}}
+                                <div class="d-flex align-items-center gap-1">
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-primary-subtle text-primary fw-bold d-flex justify-content-center align-items-center text-uppercase"
+                                            style="height: 30px; width: 30px;">
+                                            {{ substr($applicant->name ?? 'NA', 0, 2) }}
+                                        </div>
                                     </div>
+
                                     <div>
-                                        <div>
-                                            {{ $log->qrCode->storageApplication->applicant->name ?? 'N/A' }}
+                                        <div class="fw-bold text-dark mb-0">
+                                            {{ $applicant->name ?? 'N/A' }}
                                         </div>
-                                        <div>
-                                            {{ $log->qrCode->storageApplication->applicant->email ?? 'N/A' }}
+
+                                        <div class="small text-muted mb-1">
+                                            {{ $applicant->email ?? 'N/A' }}
+                                            <span class="mx-1">&bull;</span>
+                                            {{ $applicant->phone_number ?? 'N/A' }}
                                         </div>
-                                        <div>
-                                            ID: {{ $log->qrCode->storageApplication->applicant->matric_no ?? 'N/A' }}
+
+                                        <div class="d-flex flex-wrap gap-1">
+                                            <span class="badge bg-light text-secondary border fw-normal">
+                                                {{ ucfirst($applicant->gender) ?? '-' }}
+                                            </span>
+                                            <span class="badge bg-light text-secondary border fw-normal">
+                                                Year {{ $applicant->year_of_study ?? '-' }}
+                                            </span>
+                                            <span
+                                                class="badge bg-info-subtle text-info-emphasis border border-info-subtle fw-normal">
+                                                {{ $applicant->matric_no ?? 'N/A' }}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -194,10 +220,10 @@
                                         <div class="d-flex flex-column gap-2">
                                             @foreach ($log->qrCode->storageApplication->storedItems as $item)
                                                 <div wire:key="item-{{ $item->id }}"
-                                                    class="border-start border-3 border-primary ps-3">
+                                                    class="border-start border-3 border-primary">
                                                     <div
                                                         class="d-flex align-items-center justify-content-between gap-2">
-                                                        <div class="flex-grow-1">
+                                                        <div class="flex-grow-1 text-center">
                                                             <div class="fw-semibold text-dark">
                                                                 {{ ucfirst($item->item_name) }}
                                                             </div>
@@ -217,26 +243,28 @@
                                     </div>
                                 @endif
                             </td>
-                            <td>
+                            <td class="align-middle">
                                 {{-- Activty Type --}}
                                 @php
                                     $arr = explode('_', $log->event_type);
                                     $event_type = implode(' ', $arr);
                                     $event_type = ucwords($event_type);
                                 @endphp
-                                <div>
+                                <div class="text-center">
                                     <span
                                         class="badge @if ($log->event_type === 'check_in') bg-warning text-dark @elseif($log->event_type === 'check_out') bg-success @endif">
                                         {{ $event_type }}
                                     </span>
                                 </div>
                             </td>
-                            <td> {{-- Timestamp --}}
-                                <div style="white-space: nowrap">
-                                    {{ $log->created_at ? $log->created_at->format('M d, Y') : 'N/A' }}
-                                </div>
-                                <div>
-                                    {{ $log->created_at ? $log->created_at->format('h:i A') : '' }}
+                            <td class="align-middle">
+                                <div class="d-flex flex-column font-monospace">
+                                    <span class="text-dark fw-bold" style="font-size: 0.9rem;">
+                                        {{ $log->created_at ? $log->created_at->format('M d, Y') : 'N/A' }}
+                                    </span>
+                                    <span class="text-secondary small">
+                                        {{ $log->created_at ? $log->created_at->format('h:i:s A') : '-' }}
+                                    </span>
                                 </div>
                             </td>
                         </tr>

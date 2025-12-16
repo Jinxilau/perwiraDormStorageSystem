@@ -7,7 +7,7 @@
         'subtitle' => 'You have ' . $unread . ' new alerts',
     ])
 
-    <div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <button wire:click="markAllAsRead" class="btn btn-primary btn-mark-all rounded-pill px-4 py-2 shadow-sm"
             @if ($unread <= 0) disabled @endif>
             <i class="bi bi-check-all me-2"></i>Mark All as Read

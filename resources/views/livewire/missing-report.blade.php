@@ -105,15 +105,41 @@
         @else
             <div class="card shadow-sm">
                 <div class="card-body text-center py-5">
-                    <p class="mb-0" style="font-size: 64px">❓</p>
-                    <h5 class="card-title h3">No Existing Storage</h5>
-                    <p class="text-muted">You can't report a missing item if you never had the item in the first place.
-                    </p>
-                    <div class="mt-3">
-                        <a href="{{ route('storage') }}" class="btn btn-primary">
-                            Apply for Storage
-                        </a>
-                    </div>
+                    @php
+                        $applications = \App\Models\StorageApplication::where('applicant_id', auth()->user()->id)
+                            ->orderBy('created_at', 'desc')
+                            ->get()
+                            ->first();
+                    @endphp
+                    {{-- CASE 1: Application Exists but is Pending/Under Review --}}
+                    @if ($applications && $applications->storage_application_status === 'pending')
+                        <p class="mb-0" style="font-size: 64px">⏳</p>
+                        <h5 class="card-title h3 mt-3">Application Under Review</h5>
+                        <p class="text-muted col-md-8 mx-auto">
+                            Your storage application is currently being processed by the administration.
+                            You can report missing items once your application is <strong>approved</strong>.
+                        </p>
+                        {{-- Optional: Button to check status details --}}
+                        <div class="mt-3">
+                            <a href="{{ route('my_storage') }}" class="btn btn-outline-primary">
+                                View my Application Status
+                            </a>
+                        </div>
+
+                        {{-- CASE 2: No Application Found (The original "Apply" screen) --}}
+                    @else
+                        <p class="mb-0" style="font-size: 64px">❓</p>
+                        <h5 class="card-title h3 mt-3">No Active Storage</h5>
+                        <p class="text-muted col-md-8 mx-auto">
+                            You cannot report a missing item because you do not have any registered storage.
+                        </p>
+                        <div class="mt-3">
+                            <a href="{{ route('storage') }}" class="btn btn-primary">
+                                Apply for Storage
+                            </a>
+                        </div>
+                    @endif
+
                 </div>
             </div>
         @endif

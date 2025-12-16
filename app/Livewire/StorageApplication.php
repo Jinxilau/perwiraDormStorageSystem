@@ -96,7 +96,7 @@ class StorageApplication extends Component
         // ];
 
         // Edit Mode
-        if ($application) {
+        if ($application->isNotEmpty) {
             $this->application = $application;
             // Prevent editing other's application
             if ($application->applicant_id !== Auth::id()) {
@@ -332,12 +332,13 @@ class StorageApplication extends Component
                 'locker_id' => $locker ? $locker->id : null,
                 'storage_application_status' => 'pending',
             ]);
-
-            if ($locker) {
-                $locker->update([
-                    'status' => 'reserved',
-                ]);
-            }
+            
+            // No reserved before approve storage application
+            // if ($locker) {
+            //     $locker->update([
+            //         'status' => 'reserved',
+            //     ]);
+            // }
 
             // Create stored items for each item in the application
             $this->itemForm->createAllItem($storageApplication->id);
@@ -351,6 +352,8 @@ class StorageApplication extends Component
 
             User::whereIn('role_id', [1, 2])
                 ->each(fn($user) => $user->notify(new StorageApplicationMadeNotification($storageApplication)));
+
+            return redirect()->route('my_storage');
         } catch (\Exception $e) {
             DB::rollback();
             Log::error($e->getMessage());
@@ -403,18 +406,18 @@ class StorageApplication extends Component
             // Update stored items (your itemForm should handle it)
             $this->itemForm->updateAllItems($this->application->id);
 
-            // Locker handling
-            if ($oldLockerId !== $this->roomForm->selectedLockerId) {
-                // Release old locker
-                if ($oldLockerId) {
-                    Locker::where('id', $oldLockerId)->update(['status' => 'available']);
-                }
+            // No need Locker Handling before approve storage application
+            // if ($oldLockerId !== $this->roomForm->selectedLockerId) {
+            //     // Release old locker
+            //     if ($oldLockerId) {
+            //         Locker::where('id', $oldLockerId)->update(['status' => 'available']);
+            //     }
 
-                // Reserve new locker
-                if ($this->roomForm->selectedLockerId) {
-                    Locker::where('id', $this->roomForm->selectedLockerId)->update(['status' => 'reserved']);
-                }
-            }
+            //     // Reserve new locker
+            //     if ($this->roomForm->selectedLockerId) {
+            //         Locker::where('id', $this->roomForm->selectedLockerId)->update(['status' => 'reserved']);
+            //     }
+            // }
 
             DB::commit();
 

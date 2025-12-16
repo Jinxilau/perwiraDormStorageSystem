@@ -157,17 +157,17 @@ class MissingReport extends Component
     {
         try {
             $report = ModelsMissingReport::create([
-                'last_seen_type' => $this->form->seeTime ?: null,
-                'last_seen_date' => $this->form->seeDate ?: null,
-                'last_seen_range' => $this->form->seeRange ?: null,
-                'last_seen_location' => $this->form->last_seen_location ?? null,
-                'discovered_missing_type' => $this->form->discoverTime ?: null,
-                'discovered_missing_date' => $this->form->discoverDate ?: null,
-                'discovered_missing_range' => $this->form->discoverRange ?: null,
-                'witnesses_and_info' => $this->form->addInfo ?: null,
-                'qr_code_id' => $this->selectedApplication->qrCode->value('id'),
+                'last_seen_type' => $this->form->seeTime,
+                'last_seen_date' => $this->form->seeTime === 'specific_date' ? $this->form->seeDate : null,
+                'last_seen_range' => $this->form->seeTime === 'range' ? $this->form->seeRange : null,
+                'last_seen_location' => $this->form->last_seen_location,
+                'discovered_missing_type' => $this->form->discoverTime,
+                'discovered_missing_date' => $this->form->discoverTime === 'specific_date' ? $this->form->discoverDate : null,
+                'discovered_missing_range' => $this->form->discoverTime === 'range' ? $this->form->discoverRange : null,
+                'witnesses_and_info' => $this->form->addInfo,
+                'qr_code_id' => $this->selectedApplication->qrCode->id ?? null, // Simpler access
             ]);
-
+            
             // 1. Associate selected Item to the report 
             StoredItem::whereIn('id', collect($this->form->items)->pluck('id'))
                 ->update(['missing_report_id' => $report->id]);
@@ -188,7 +188,7 @@ class MissingReport extends Component
 
             $this->showSuccessMessage = true;
             $this->dispatch('show_toast', message: "Report submitted successfully!", type: "success");
-            
+
             // Admin Notification
             foreach (User::where('role_id', 1)->get() as $staff) {
                 $staff->notify(new MissingReportMadeNotification($report));
@@ -204,22 +204,30 @@ class MissingReport extends Component
     #[Computed()]
     public function studentApplications()
     {
-        return StorageApplication::with(['locker.storageRoom', 'openArea.storageRoom', 'storedItems', 'qrCode'])
+        return StorageApplication::with(['locker.storageRoom', 'openArea.storageRoom', 'storedItems', 'qrCode', 'semester'])
             ->where('applicant_id', Auth::user()->id)
-            ->where('storage_application_status', 'approved') # only the approved storage can report missing item
+            ->where('storage_application_status', 'approved')
+            ->whereHas('semester', function ($query) {
+                $query->where('is_current', true);
+            })
             ->get();
     }
 
     #[Computed()]
     public function selectedApplication()
     {
-        return $this->studentApplications->where('id', $this->form->storageApplicationId)->first();
+        if (!$this->form->storageApplicationId) return null;
+
+        // Use 'firstWhere' on the already loaded collection to save DB queries
+        return $this->studentApplications->firstWhere('id', $this->form->storageApplicationId);
     }
 
     #[Computed()]
     public function selectedItem()
     {
-        return $this->selectedApplication->storedItems->where('id', $this->form->itemId)->first();
+        if (!$this->form->itemId || !$this->selectedApplication) return null;
+
+        return $this->selectedApplication->storedItems->firstWhere('id', $this->form->itemId);
     }
 
     public function render()

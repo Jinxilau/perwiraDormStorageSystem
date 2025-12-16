@@ -328,61 +328,97 @@
 
 @script
     <script>
-        const scanner = new Html5Qrcode("reader");
-        const startbtn = document.getElementById('startBtn');
-        const stopbtn = document.getElementById('stopBtn');
+        // Initialize variables outside to persist scope
+        let html5QrcodeScanner = null;
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+
+        // Helper to get scanner instance or create new one
+        function getScanner() {
+            if (html5QrcodeScanner === null) {
+                html5QrcodeScanner = new Html5Qrcode("reader");
+            }
+            return html5QrcodeScanner;
+        }
 
         async function startScanner() {
-            if (scanner.getState() === 2) return;
+            const scanner = getScanner();
+
+            // Prevent double start
+            if (scanner.isScanning) return;
+
             try {
+                startBtn.disabled = true;
+
                 await scanner.start({
                         facingMode: "environment"
                     }, {
                         fps: 20,
                         qrbox: 250
-                    },
+                    }, // Lowered FPS to 10 for better performance
                     (decodedText) => {
-                        $wire.call('validateQR', decodedText);
-                        stopScanner();
+                        // SUCCESS CALLBACK
+                        console.log("QR Detected:", decodedText);
+
+                        // Stop scanning immediately after detection
+                        stopScanner().then(() => {
+                            $wire.call('validateQR', decodedText);
+                        });
                     },
                     (errorMessage) => {
-                        console.log("Unable to detect a QR Code.", errorMessage);
+                        // Parse error, ignore
                     }
-                )
-                startbtn.disabled = true;
-                stopbtn.disabled = false;
-            } catch (e) {
-                console.error(e);
+                );
+
+                stopBtn.disabled = false;
+            } catch (err) {
+                console.error("Error starting scanner", err);
+                startBtn.disabled = false;
             }
         }
 
         async function stopScanner() {
-            if (scanner.getState() === 1) return;
+            const scanner = getScanner();
+
+            if (!scanner.isScanning) return;
+
             try {
-                await scanner.stop()
-                stopbtn.disabled = true;
-                startbtn.disabled = false;
+                await scanner.stop();
+                console.log("Scanner stopped.");
+                stopBtn.disabled = true;
+                startBtn.disabled = false;
             } catch (err) {
-                console.error("Unable to stop scanning.", err);
+                console.error("Failed to stop scanner", err);
             }
         }
 
-        startbtn.addEventListener('click', startScanner);
-        stopbtn.addEventListener('click', stopScanner);
+        // 1. Manual Clicks
+        if (startBtn) startBtn.addEventListener('click', startScanner);
+        if (stopBtn) stopBtn.addEventListener('click', stopScanner);
 
-        document.addEventListener('livewire:navigate', () => {
-            stopScanner();
+        // 2. Handle Livewire Navigation (Cleanup)
+        // We strictly stop the scanner when the element is removed from DOM
+        // to prevent camera staying active on page change.
+        Livewire.hook('element.remove', (el, component) => {
+            if (el.id === 'reader' && html5QrcodeScanner) {
+                console.log("Reader element removed, stopping scanner...");
+                if (html5QrcodeScanner.isScanning) {
+                    html5QrcodeScanner.stop().then(() => {
+                        html5QrcodeScanner.clear();
+                        html5QrcodeScanner = null;
+                    }).catch(err => {
+                        // If element is already gone, catch error
+                        html5QrcodeScanner = null;
+                    });
+                }
+            }
         });
 
         document.addEventListener('livewire:initialized', () => {
-            if (scanner.getState() !== 2) {
-                startScanner();
-            }
+            startScanner();
         });
         document.addEventListener('livewire:navigated', () => {
-            if (scanner.getState() !== 2) {
-                startScanner();
-            }
+            startScanner();
         });
     </script>
 @endscript

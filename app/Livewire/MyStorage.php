@@ -9,6 +9,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 #[Lazy()]
 #[Layout('components.layouts.student')]
@@ -24,15 +25,39 @@ class MyStorage extends Component
     {
         $app = StorageApplication::findOrFail($id);
 
+        // Check if the authenticated user is the owner of the application
         if ($app->applicant_id !== Auth::id()) {
-            abort(403);
+            abort(403, 'Unauthorized action.');
         }
 
-        $app->update([
-            'storage_application_status' => 'cancelled'
-        ]);
+        // Check if application is still pending
+        if ($app->storage_application_status !== 'pending') {
+            $this->dispatch(
+                'show_toast',
+                message: 'Cannot cancel an application that has already been processed.',
+                type: 'error'
+            );
+            return;
+        }
 
-        $this->dispatch('show_toast', message: 'Application cancelled.', type: 'success');
+        // Delete associated stored items
+        $app->storedItems()->delete();
+
+        $app->delete();
+
+        $this->dispatch('show_toast', message: 'Application cancelled successfully.', type: 'success');
+    }
+
+    public function downloadQrCode($id)
+    {
+        $application = StorageApplication::findOrFail($id);
+
+        // Livewire requires 'streamDownload' for file downloads
+        return response()->streamDownload(function () use ($application) {
+            echo QrCode::size(500)
+                ->margin(4) // <--- Adds whitespace margin (centers the QR)
+                ->generate($application->qrCode->qr_token);
+        }, 'qr-code.svg');
     }
 
     #[Computed()]

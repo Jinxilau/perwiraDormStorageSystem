@@ -191,7 +191,7 @@
                 </div>
 
                 <div class="col-lg-4 text-lg-end text-center">
-                    <a href="#" class="text-decoration-none d-inline-block w-100">
+                    <a href="{{ route('storage') }}" class="text-decoration-none d-inline-block w-100">
                         <button
                             class="btn btn-warning btn-lg px-4 py-3 shadow-lg fw-bold w-100 position-relative overflow-hidden"
                             style="transition: all 0.3s; border: none; color: #1e3c72;"

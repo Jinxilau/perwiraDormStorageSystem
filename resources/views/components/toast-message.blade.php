@@ -10,7 +10,7 @@
     x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200"
     x-transition:leave-start="opacity-100 transform translate-y-0"
     x-transition:leave-end="opacity-0 transform translate-y-4" class="position-fixed bottom-0 end-0 p-4"
-    style="z-index: 9999; max-width: 400px;" role="alert" aria-live="polite">
+    style="z-index: 9999; max-width: 400px; display:none" role="alert" aria-live="polite">
 
     <div class="toast-custom shadow-lg border-0 show"
         :class="{

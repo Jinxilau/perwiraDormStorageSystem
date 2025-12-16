@@ -1,5 +1,5 @@
 <div>
-    {{-- If you look to others for fulfillment, you will never truly be fulfilled. --}}
+    {{-- Application Details --}}
     <x-custom-modal>
         <x-slot:title>
             <div class="d-flex justify-content-between align-items-center gap-1 w-100">
@@ -138,8 +138,8 @@
                             @foreach ($modalApplication->storedItems as $item)
                                 <div class="col-12">
                                     <div class="d-flex align-items-start p-3 bg-light rounded">
-                                        <img src="{{ \Storage::disk('public')->url($item->item_photo_path) }}" alt="Item Photo"
-                                            class="rounded shadow-sm me-3"
+                                        <img src="{{ \Storage::disk('public')->url($item->item_photo_path) }}"
+                                            alt="Item Photo" class="rounded shadow-sm me-3"
                                             style="width: 80px; height: 80px; object-fit: cover;" />
                                         <div class="flex-grow-1">
                                             <h6 class="mb-2 fw-bold">{{ ucfirst($item->item_name) }}</h6>
@@ -165,6 +165,7 @@
         </div>
     </x-custom-modal>
 
+    {{-- Reject Application Modal --}}
     <x-custom-modal2>
         <x-slot:title>
             <div class="d-flex justify-content-between align-items-center gap-1 w-100">
@@ -173,7 +174,7 @@
             </div>
         </x-slot:title>
         <div class="d-flex justify-content-center">
-            <div wire:loading="modalData" class="spinner-border my-3" role="status">
+            <div wire:loading="modalData2" class="spinner-border my-3" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
         </div>
@@ -204,6 +205,7 @@
         </div>
     </x-custom-modal2>
 
+    {{-- Bulk Reject Application Modal --}}
     <div x-data="{
         show: false,
         openModal() {
@@ -414,7 +416,7 @@
                     <input type="checkbox" wire:model.live="selectAll">
                 </th>
                 <th class="align-middle py-2">
-                    Application ID
+                    ID
                 </th>
                 <th class="align-middle py-2" x-show="cols.includes('studentInfo')">
                     Student Info
@@ -442,69 +444,118 @@
                         <input type="checkbox" value="{{ $application->id }}"
                             wire:model.live="selectedApplications">
                     </td>
-                    <td> {{-- ID --}}
-                        #{{ $application->id }}
-                    </td> {{-- Student Info --}}
-                    <td x-show="cols.includes('studentInfo')">
-                        <div class="d-flex items-center">
-                            <div class="rounded-circle bg-secondary-subtle d-flex justify-content-center align-items-center"
-                                style="height: 30px; width:30px">
-                                {{ substr($application->applicant->name ?? 'N/A', 0, 2) }}
-                            </div>
-                            <div class="d-flex flex-column">
-                                <span class="fw-semibold text-dark" style="white-space: nowrap;">
-                                    {{ $application->applicant->name ?? 'N/A' }}
-                                </span>
-                                <small class="text-muted" style="white-space: nowrap;">
-                                    ID: {{ $application->applicant->matric_no ?? 'N/A' }}
-                                    {{ $application->applicant->matric_no }}
-                                </small>
-                                <small class="text-muted" style="white-space: nowrap;">
-                                    •{{ $application->applicant->email ?? 'N/A' }}
-                                </small>
-                            </div>
-                        </div>
+                    <td class="align-middle" style="width: 1%;">
+                        <span class="text-secondary small user-select-none">#</span><span
+                            class="fw-bold text-dark">{{ $application->id }}</span>
                     </td>
-                    <td x-show="cols.includes('storageDetails')"> {{-- Storage Details --}}
-                        <div>
-                            @if (!empty($application->open_area_id) && !empty($application->locker_id))
-                                {{ $application->openArea?->storageRoom?->room_name }} <div>Locker + Open
-                                    Area
+                    <td class="align-middle" x-show="cols.includes('studentInfo')">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="rounded-circle bg-primary-subtle text-primary fw-bold d-flex justify-content-center align-items-center text-uppercase"
+                                    style="height: 30px; width: 30px;">
+                                    {{ substr($application->applicant->name ?? 'NA', 0, 2) }}
                                 </div>
-                            @elseif (!empty($application->locker_id))
-                                {{ $application->locker?->storageRoom?->room_name }} <div>Locker</div>
-                            @elseif (!empty($application->open_area_id))
-                                {{ $application->openArea?->storageRoom?->room_name }} <div>Open Area</div>
-                            @endif
+                            </div>
+
+                            <div>
+                                <div class="fw-bold text-dark mb-0">
+                                    {{ $application->applicant->name ?? 'N/A' }}
+                                </div>
+
+                                <div class="small text-muted mb-1">
+                                    {{ $application->applicant->email ?? 'N/A' }}
+                                    <span class="mx-1">&bull;</span>
+                                    {{ $application->applicant->phone_number ?? 'N/A' }}
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-1">
+                                    <span class="badge bg-light text-secondary border fw-normal">
+                                        {{ ucfirst($application->applicant->gender) ?? '-' }}
+                                    </span>
+                                    <span class="badge bg-light text-secondary border fw-normal">
+                                        Year {{ $application->applicant->year_of_study ?? '-' }}
+                                    </span>
+                                    <span
+                                        class="badge bg-info-subtle text-info-emphasis border border-info-subtle fw-normal">
+                                        {{ $application->applicant->matric_no ?? 'N/A' }}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </td>
-                    <td x-show="cols.includes('items')"> {{-- Items --}}
-                        @if ($application->storedItems->count() > 0)
-                            <div class="d-flex flex-column gap-2">
-                                @foreach ($application->storedItems as $item)
-                                    <div wire:key="item-{{ $item->id }}" class="d-flex align-items-center gap-2">
+                    <td class="align-middle" x-show="cols.includes('storageDetails')">
+                        <div class="d-flex flex-column justify-content-center">
+                            <div class="fw-bold text-dark mb-1">
+                                @if (!empty($application->open_area_id) && !empty($application->locker_id))
+                                    {{ $application->openArea?->storageRoom?->room_name ?? 'Unknown Room' }}
+                                @elseif (!empty($application->locker_id))
+                                    {{ $application->locker?->storageRoom?->room_name ?? 'Unknown Room' }}
+                                @elseif (!empty($application->open_area_id))
+                                    {{ $application->openArea?->storageRoom?->room_name ?? 'Unknown Room' }}
+                                @else
+                                    <span class="text-muted fst-italic">No Assignment</span>
+                                @endif
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-1">
+                                @if (!empty($application->open_area_id) && !empty($application->locker_id))
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                        <i class="bi bi-box-seam me-1"></i>Locker
+                                    </span>
+                                    <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle">
+                                        <i class="bi bi-grid me-1"></i>Open Area
+                                    </span>
+                                @elseif (!empty($application->locker_id))
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                        <i class="bi bi-box-seam me-1"></i>Locker
+                                    </span>
+                                @elseif (!empty($application->open_area_id))
+                                    <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle">
+                                        <i class="bi bi-grid me-1"></i>Open Area
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                    </td>
+                    <td x-show="cols.includes('item')">
+                        <div>
+                            <span class="badge bg-primary">
+                                {{ $application->storedItems->count() }}
+                                {{ Str::plural('Item', $application->storedItems->count()) }}
+                            </span>
+                        </div>
+                        <div class="d-flex flex-column gap-2">
+                            @foreach ($application->storedItems as $item)
+                                <div wire:key="item-{{ $item->id }}"
+                                    class="border-start border-3 border-primary">
+                                    <div class="d-flex align-items-center justify-content-between gap-2">
                                         <div class="flex-grow-1">
-                                            <div class="fw-semibold small">{{ ucfirst($item->item_name) }}</div>
-                                            <span class="badge bg-light text-dark border small">
+                                            <div class="fw-semibold text-dark">
+                                                {{ ucfirst($item->item_name) }}
+                                            </div>
+                                            <span class="badge bg-light text-secondary border">
+                                                <i class="bi bi-tag-fill me-1"></i>
                                                 {{ ucfirst($item->item_type) }}
                                             </span>
                                         </div>
                                     </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <span class="text-muted small">No items</span>
-                        @endif
-                    </td>
-                    <td> {{-- Application Date --}}
-                        <div>
-                            {{ $application->created_at ? $application->created_at->format('M d, Y') : 'N/A' }}
-                        </div>
-                        <div>
-                            {{ $application->created_at ? $application->created_at->format('h:i A') : '' }}
+                                </div>
+                            @endforeach
                         </div>
                     </td>
-                    <td x-show="cols.includes('status')"> {{-- Status --}}
+                    {{-- Application Date --}}
+                    <td class="align-middle" x-show="cols.includes('applicationDate')">
+                        <div class="d-flex flex-column">
+                            <span class="fw-bold text-dark">
+                                {{ $application->created_at ? $application->created_at->format('M d, Y') : '-' }}
+                            </span>
+                            <span class="small text-muted">
+                                {{ $application->created_at ? $application->created_at->format('h:i A') : '' }}
+                            </span>
+                        </div>
+                    </td>
+
+                    <td x-show="cols.includes('status')" class="align-middle"> {{-- Status --}}
                         <span class="badge text-bg-warning">
                             {{ ucfirst($application->storage_application_status) }}
                         </span>

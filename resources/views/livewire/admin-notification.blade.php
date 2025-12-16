@@ -4,16 +4,34 @@
         'subtitle' => 'Stay updated with your latest activities',
     ])
 
-    <div class="container my-5">
-        <div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="container mb-5">
+        {{-- Header & Mark All Read --}}
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            {{-- Filters Section --}}
+            <div class="d-flex gap-3">
+                {{-- Status Filter --}}
+                <select wire:model.live="filterStatus" class="form-select rounded-pill shadow-sm" style="width: 150px;">
+                    <option value="all">All Status</option>
+                    <option value="unread">Unread</option>
+                    <option value="read">Read</option>
+                </select>
+
+                {{-- Type Filter --}}
+                <select wire:model.live="filterType" class="form-select rounded-pill shadow-sm" style="width: 160px;">
+                    <option value="all">All Types</option>
+                    <option value="general">General</option>
+                    <option value="success">Success</option>
+                    <option value="announcement">Announcement</option>
+                    <option value="message">Message</option>
+                    <option value="warning">Warning</option>
+                </select>
+            </div>
+
             <button wire:click="markAllAsRead" class="btn btn-primary btn-mark-all rounded-pill px-4 py-2 shadow-sm"
                 @if ($this->notifications->where('read_at', null)->count() <= 0) disabled @endif>
                 <i class="bi bi-check-all me-2"></i>Mark All as Read
             </button>
-
-            {{ $this->notifications->links('vendor.livewire.bootstrap') }}
         </div>
-
 
         {{-- Notifications List --}}
         <div class="row">
@@ -75,7 +93,8 @@
                                             {{-- Message --}}
                                             <p class="card-text text-secondary mb-3"
                                                 style="line-height: 1.7; font-size: 0.95rem;">
-                                                {{ $notification->data['message'] ?? 'You have a new notification.' }} #{{ $notification->data['application_id'] }}
+                                                {{ $notification->data['message'] ?? 'You have a new notification.' }}
+                                                #{{ $notification->data['application_id'] }}
                                             </p>
 
                                             {{-- Footer: Link and Timestamp --}}
@@ -127,17 +146,28 @@
                             <div class="mb-4">
                                 <div
                                     class="empty-state-icon rounded-circle d-inline-flex align-items-center justify-content-center">
-                                    <i class="bi bi-inbox fs-1 text-white"></i>
+                                    <i class="bi bi-filter fs-1 text-white"></i>
                                 </div>
                             </div>
-                            <h3 class="fw-bold mb-3 text-dark">No Notifications</h3>
-                            <p class="text-muted mb-0 fs-6">You're all caught up! Check back later for new updates.</p>
+                            <h3 class="fw-bold mb-3 text-dark">No Notifications Found</h3>
+                            <p class="text-muted mb-0 fs-6">Try adjusting your filters to see more results.</p>
+
+                            {{-- Optional: Reset Button if filters are active --}}
+                            @if ($filterStatus !== 'all' || $filterType !== 'all')
+                                <button wire:click="$set('filterStatus', 'all'); $set('filterType', 'all')"
+                                    class="btn btn-outline-secondary rounded-pill mt-3">
+                                    Clear Filters
+                                </button>
+                            @endif
                         </div>
                     </div>
                 @endforelse
             </div>
         </div>
-        {{ $this->notifications->links('vendor.livewire.bootstrap') }}
+        {{-- Pagination Links --}}
+        <div class="d-flex justify-content-end mt-4">
+            {{ $this->notifications->links('vendor.livewire.bootstrap') }}
+        </div>
     </div>
 
 </div>

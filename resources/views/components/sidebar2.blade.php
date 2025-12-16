@@ -14,7 +14,7 @@
         @foreach ($items as $item)
             <div id="nav-item">
                 <a id="nav-link" href="{{ $item['url'] }}" wire:navigate
-                    class="{{ request()->is($item['path']) ? 'active' : '' }}">
+                    class="{{ request()->is($item['path'], $item['path'] . '/*') ? 'active' : '' }}">
                     <i class="bi {{ $item['icon'] }} fs-4"></i>
                     <span class="ms-2">{{ $item['title'] }}</span>
                 </a>

@@ -52,6 +52,77 @@
                     </div>
                 </div>
 
+                {{-- QR Code Section --}}
+                @if ($application->qrCode)
+                    <div class="bg-light rounded-3 p-4 mb-4">
+                        <h6 class="fw-bold mb-3">
+                            <i class="bi bi-qr-code me-2"></i>QR Code & Check-in Information
+                        </h6>
+                        <div class="row align-items-center">
+                            <div class="col-md-4 text-center mb-3 mb-md-0">
+                                <div class="bg-white rounded p-3 d-inline-block shadow-sm">
+                                    {!! QrCode::size(180)->generate($application->qrCode->qr_token) !!}
+                                </div>
+                                {{-- NEW: Download Button --}}
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-primary"
+                                        wire:click="downloadQrCode({{ $application->id }})">
+                                        <i class="bi bi-download me-1"></i> Download QR
+                                    </button>
+                                </div>
+                            </div>
+                            {{-- Check-in and Check-out Dates --}}
+                            <div class="col-md-8">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-start">
+                                            <i class="bi bi-box-arrow-in-right text-success me-2 mt-1"></i>
+                                            <div>
+                                                <p class="text-muted small mb-1 fw-semibold">Check In Date</p>
+                                                <p class="mb-0 fw-medium">
+                                                    {{ $application->qrCode->scanLogs->where('event_type', 'check_in')->first()?->created_at?->format('M d, Y - h:i A') ?? 'Not checked in yet' }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-start">
+                                            <i class="bi bi-box-arrow-right text-danger me-2 mt-1"></i>
+                                            <div>
+                                                <p class="text-muted small mb-1 fw-semibold">Check Out Date</p>
+                                                <p class="mb-0 fw-medium">
+                                                    {{ $application->qrCode->scanLogs->where('event_type', 'check_out')->first()?->created_at?->format('M d, Y - h:i A') ?? 'Not checked out yet' }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Rejection Reason --}}
+                @if ($application->note && $application->storage_application_status === 'rejected')
+                    <div class="alert alert-danger border-0 border-start border-danger border-4 shadow-sm bg-danger-subtle mb-4"
+                        role="alert">
+                        <div class="d-flex align-items-start">
+                            {{-- Icon: Slightly larger and aligned to top --}}
+                            <div class="me-3 mt-1">
+                                <i class="bi bi-x-circle-fill fs-4 text-danger"></i>
+                            </div>
+
+                            {{-- Content --}}
+                            <div>
+                                <h6 class="alert-heading fw-bold text-danger mb-1">Application Rejected</h6>
+                                <p class="mb-0 text-danger-emphasis small">
+                                    {{ $application->note }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 {{-- Application Details --}}
                 <div class="row g-4 mb-4">
                     {{-- Academic Period --}}
@@ -147,7 +218,7 @@
                                                         class="badge bg-light text-dark border">{{ ucwords(str_replace('_', ' ', $item->item_type)) }}</span>
                                                 </p>
                                                 <p class="text-muted small mb-1">
-                                                    <i class="bi bi-rulers me-1"></i>{{ $item->estimated_size }}
+                                                    <i class="bi bi-rulers me-1"></i>{{ ucfirst($item->estimated_size) }}
                                                 </p>
                                                 @if ($item->item_description)
                                                     <p class="text-muted small mb-0">
@@ -161,48 +232,6 @@
                         @endforeach
                     </div>
                 </div>
-
-                {{-- QR Code Section --}}
-                @if ($application->qrCode)
-                    <div class="bg-light rounded-3 p-4 mb-4">
-                        <h6 class="fw-bold mb-3">
-                            <i class="bi bi-qr-code me-2"></i>QR Code & Check-in Information
-                        </h6>
-                        <div class="row align-items-center">
-                            <div class="col-md-4 text-center mb-3 mb-md-0">
-                                <div class="bg-white rounded p-3 d-inline-block shadow-sm">
-                                    {!! QrCode::size(180)->generate($application->qrCode->qr_token) !!}
-                                </div>
-                            </div>
-                            <div class="col-md-8">
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <div class="d-flex align-items-start">
-                                            <i class="bi bi-box-arrow-in-right text-success me-2 mt-1"></i>
-                                            <div>
-                                                <p class="text-muted small mb-1 fw-semibold">Check In Date</p>
-                                                <p class="mb-0 fw-medium">
-                                                    {{ $application->qrCode->scanLogs->where('event_type', 'check_in')->first()?->created_at?->format('M d, Y - h:i A') ?? 'Not checked in yet' }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="d-flex align-items-start">
-                                            <i class="bi bi-box-arrow-right text-danger me-2 mt-1"></i>
-                                            <div>
-                                                <p class="text-muted small mb-1 fw-semibold">Check Out Date</p>
-                                                <p class="mb-0 fw-medium">
-                                                    {{ $application->qrCode->scanLogs->where('event_type', 'check_out')->first()?->created_at?->format('M d, Y - h:i A') ?? 'Not checked out yet' }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
 
                 {{-- Action Buttons --}}
                 @if ($application->storage_application_status === 'pending')

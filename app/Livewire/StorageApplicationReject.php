@@ -2,12 +2,15 @@
 
 namespace App\Livewire;
 
+use App\Models\Locker;
 use App\Models\QRCode;
+use App\Models\Semester;
 use App\Models\StorageApplication;
 use App\Models\StorageRoom;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Str;
@@ -22,6 +25,8 @@ class StorageApplicationReject extends Component
     #[Url(except: '')]
     public $search = '';
     #[Url(except: '')]
+    public $semester = '';
+    #[Url(except: '')]
     public $room = '';
     #[Url(except: '')]
     public $storageType = '';
@@ -35,6 +40,20 @@ class StorageApplicationReject extends Component
     public $paginationInt = 10;
 
     public $modalData;
+    public $modalData2; # application id for modal reject
+
+    public $rejectionNote = '';
+
+    public function mount()
+    {
+        // Assuming your Semester model has a way to identify the active one, 
+        // e.g., an 'is_active' column or scope.
+        $activeSemester = Semester::where('is_current', true)->first();
+
+        if ($activeSemester) {
+            $this->semester = $activeSemester->id;
+        }
+    }
 
     public function clearFilters()
     {
@@ -48,52 +67,75 @@ class StorageApplicationReject extends Component
         $this->paginationInt = 10;
     }
 
-    public function approveApplication($applicationId)
+    public function updateNote()
     {
-        try {
-            $application = StorageApplication::findOrFail($applicationId);
+        // VALIDATION: Never trust user input
+        $this->validate([
+            'rejectionNote' => 'required|string|max:500',
+        ]);
 
-            QRCode::create([
-                'storage_application_id' => $application->id,
-                'qr_token' => Str::uuid(),
-                'qr_expires_at' => Carbon::now()->addDays(7)
-            ]);
+        $application = StorageApplication::find($this->modalData2);
 
-            if ($application->locker_id) {
-                $application->locker->update(['status' => 'reserved']);
-            } elseif ($application->open_area_id) {
-                $application->openArea->update(['status' => 'reserved']);
-            }
-
-            $application->update([
-                'storage_application_status' => 'approved',
-                'approver_id' => Auth::user()->id
-            ]);
-
-            $this->dispatch('show_toast', message: 'Application approved successfully!', type: 'success');
-            $this->reset();
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        if (!$application) {
             $this->dispatch('show_toast', message: 'Application not found.', type: 'fail');
-        } catch (\Exception $e) {
-            $this->dispatch('show_toast', message: 'Something went wrong. Please try again.', type: 'fail');
-            Log::error($e->getMessage());
+            return;
         }
+
+        $application->update([
+            'note' => $this->rejectionNote
+        ]);
+
+        $this->dispatch('show_toast', message: 'Note updated successfully.', type: 'success');
+        $this->dispatch('close-modal', modalId: 'editNoteModal'); // Ensure ID matches your JS listener
+
+        // Reset state
+        $this->reset('modalData2', 'rejectionNote');
     }
 
-    public function undoApplication($applicationId)
+    public function undoRejectApplication($applicationId)
     {
         try {
-            $application = StorageApplication::findOrFail($applicationId);
+            DB::transaction(function () use ($applicationId) {
+                // Lock the application row for update to prevent race conditions
+                $application = StorageApplication::lockForUpdate()->findOrFail($applicationId);
 
-            $application->update([
-                'storage_application_status' => 'pending',
-                'approver_id' => null,
-                'note' => null
-            ]);
-            $this->dispatch('show_toast', message: 'Rejection undone successfully!', type: 'success');
+                // 1. Safety Check: Is the locker still available?
+                // If the application has a specific locker assigned, we must ensure 
+                // no one else has taken it since the rejection.
+                if ($application->locker_id) {
+                    $locker = Locker::lockForUpdate()->find($application->locker_id);
+
+                    if ($locker->status !== 'available') {
+                        throw new \Exception("Cannot undo rejection. The assigned Locker ({$locker->id}) is no longer available.");
+                    }
+
+                    // 2. Re-lock the locker (Set to 'unavailable' or 'pending' depending on your flow)
+                    // This ensures no one else can book it while this app returns to pending.
+                    $locker->update(['status' => 'reserved']);
+                }
+
+                // Same logic for Open Area if applicable
+                if ($application->open_area_id) {
+                    $openArea = $application->openArea()->lockForUpdate()->first();
+                    if ($openArea->status !== 'available') {
+                        throw new \Exception("Cannot undo rejection. The Open Area is no longer available.");
+                    }
+                    $openArea->update(['status' => 'unavailable']);
+                }
+
+                // 3. Reset Application Status
+                $application->update([
+                    'storage_application_status' => 'pending',
+                    'approver_id' => null,
+                    'note' => null
+                ]);
+            });
+
+            $this->dispatch('show_toast', message: 'Rejection undone. Application is now pending.', type: 'success');
         } catch (\Exception $e) {
             Log::error($e->getMessage());
-            $this->dispatch('show_toast', message: 'Something went wrong. Please try again.', type: 'fail');
+            // Show the specific error message (e.g., "Locker no longer available") to the user
+            $this->dispatch('show_toast', message: $e->getMessage(), type: 'fail');
         }
     }
 
@@ -123,6 +165,10 @@ class StorageApplicationReject extends Component
                     $roomQuery->where('id', $this->room);
                 });
             });
+        }
+
+        if ($this->semester) {
+            $query->where('semester_id', $this->semester);
         }
 
         if ($this->storageType) {
@@ -158,22 +204,72 @@ class StorageApplicationReject extends Component
         return $query->paginate($this->paginationInt);
     }
 
+    // Metrics for dashboard cards
     #[Computed()]
     public function countTotalRejected()
     {
         return StorageApplication::where('storage_application_status', 'rejected')->count();
     }
+    #[Computed()]
+    public function rejectedThisSemester()
+    {
+        $currentSemesterId = Semester::where('is_current', true)->value('id');
 
+        return StorageApplication::where('storage_application_status', 'rejected')
+            ->where('semester_id', $currentSemesterId)
+            ->count();
+    }
     #[Computed()]
     public function countTotalRejectedToday()
     {
         return StorageApplication::where('storage_application_status', 'rejected')->whereDate('created_at', now()->toDateString())->count();
     }
+    #[Computed()]
+    public function countRejectedLockers()
+    {
+        return StorageApplication::where('storage_application_status', 'rejected')
+            ->whereNotNull('locker_id')
+            ->count();
+    }
+    #[Computed()]
+    public function countRejectedOpenAreas()
+    {
+        return StorageApplication::where('storage_application_status', 'rejected')
+            ->whereNotNull('open_area_id')
+            ->count();
+    }
+    #[Computed()]
+    public function rejectedThisWeek()
+    {
+        return StorageApplication::where('storage_application_status', 'rejected')
+            ->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])
+            ->count();
+    }
 
+    // Populate the filter dropdowns
     #[Computed()]
     public function rooms()
     {
         return StorageRoom::all();
+    }
+    #[Computed()]
+    public function semesters()
+    {
+        // Adjust sorting as needed (e.g., latest semester first)
+        return Semester::orderBy('created_at', 'desc')->get();
+    }
+
+    #[Computed]
+    public function modalApplication2()
+    {
+        if (!$this->modalData2) return null;
+
+        return StorageApplication::with([
+            'applicant',
+            'storedItems',
+            'openArea.storageRoom',
+            'locker.storageRoom',
+        ])->find($this->modalData2);
     }
 
     public function placeholder()

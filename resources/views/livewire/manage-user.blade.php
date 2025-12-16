@@ -337,53 +337,107 @@
                             <td class="align-middle">
                                 <input type="checkbox" value="{{ $user->id }}" wire:model.live="selectedUsers">
                             </td>
-                            <td>
-                                #{{ $user->id }}
+                            <td class="align-middle">
+                                <span class="text-secondary small user-select-none">#</span>
+                                <span class="fw-bold text-dark">{{ $user->id }}</span>
                             </td>
-                            <td>
-                                <div class="d-flex items-center gap-1">
-                                    <div class="rounded-circle bg-secondary-subtle d-flex justify-content-center align-items-center"
-                                        style="height: 30px; width:30px">
-                                        {{ substr($user->name ?? 'N/A', 0, 2) }}
+                            <td class="align-middle">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0 rounded-circle bg-primary-subtle text-primary fw-bold d-flex justify-content-center align-items-center text-uppercase me-1"
+                                        style="height: 35px; width: 35px; font-size: 0.85rem;">
+                                        {{ substr($user->name ?? 'NA', 0, 2) }}
                                     </div>
-                                    <div style="white-space: nowrap;">
+
+                                    <div class="fw-bold text-dark text-truncate" style="max-width: 150px;"
+                                        title="{{ $user->name ?? 'N/A' }}">
                                         {{ $user->name ?? 'N/A' }}
                                     </div>
                                 </div>
                             </td>
-                            <td>
-                                {{ $user->matric_no ?? 'N/A' }}
-                            </td>
-                            <td>
-                                {{ ucfirst($user->userRole->role_name) }}
-                            </td>
-                            <td>
-                                {{ ucfirst($user->gender) }}
-                            </td>
-                            <td>
-                                <div style="white-space: nowrap;">
-                                    Email: {{ $user->email ?? 'N/A' }}
-                                </div>
-                                <div>
-                                    Phone: {{ $user->phone_number ?? 'N/A' }}
-                                </div>
-                            </td>
-                            <td>
-                                <span
-                                    class="badge {{ $user->application_status === 'pending' ? 'text-bg-warning' : ($user->application_status === 'approved' ? 'text-bg-success' : 'text-bg-danger') }}">
-                                    {{ ucfirst($user->application_status) }}
+                            {{-- Matric No --}}
+                            <td class="align-middle">
+                                <span class="font-monospace text-secondary fw-medium">
+                                    {{ $user->matric_no ?? 'N/A' }}
                                 </span>
                             </td>
-                            <td>
-                                <div style="white-space: nowrap;">
-                                    {{ $user->created_at ? $user->created_at->format('M d, Y') : 'N/A' }}
+
+                            {{-- Role --}}
+                            <td class="align-middle">
+                                @php
+                                    $roleColor = match (strtolower($user->userRole->role_name ?? '')) {
+                                        'admin',
+                                        'administrator'
+                                            => 'bg-primary-subtle text-primary border-primary-subtle',
+                                        'staff' => 'bg-info-subtle text-info-emphasis border-info-subtle',
+                                        default => 'bg-light text-secondary border',
+                                    };
+                                @endphp
+                                <span class="badge {{ $roleColor }} border fw-normal">
+                                    {{ ucfirst($user->userRole->role_name ?? 'Student') }}
+                                </span>
+                            </td>
+
+                            {{-- Gender --}}
+                            <td class="align-middle">
+                                <span class="badge bg-light text-secondary border fw-normal">
+                                    {{ ucfirst($user->gender ?? '-') }}
+                                </span>
+                            </td>
+
+                            {{-- Contact Info (Email & Phone) --}}
+                            <td class="align-middle">
+                                <div class="d-flex flex-column gap-1">
+                                    <div class="d-flex align-items-center text-dark" style="font-size: 0.85rem;">
+                                        <i class="bi bi-envelope text-muted me-2"></i>
+                                        <span class="text-truncate" style="max-width: 180px;"
+                                            title="{{ $user->email }}">
+                                            {{ $user->email ?? 'N/A' }}
+                                        </span>
+                                    </div>
+                                    <div class="d-flex align-items-center text-secondary small">
+                                        <i class="bi bi-telephone me-2"></i>
+                                        <span>{{ $user->phone_number ?? 'N/A' }}</span>
+                                    </div>
                                 </div>
-                                <div>
-                                    {{ $user->created_at ? $user->created_at->format('h:i A') : '' }}
+                            </td>
+
+                            {{-- Status --}}
+                            <td class="align-middle">
+                                @php
+                                    $statusClass = match ($user->application_status) {
+                                        'approved' => 'bg-success-subtle text-success border-success-subtle',
+                                        'rejected' => 'bg-danger-subtle text-danger border-danger-subtle',
+                                        'pending' => 'bg-warning-subtle text-warning-emphasis border-warning-subtle',
+                                        default => 'bg-secondary-subtle text-secondary border-secondary-subtle',
+                                    };
+                                @endphp
+                                <span class="badge {{ $statusClass }} border rounded-pill fw-normal px-3">
+                                    <span class="d-flex align-items-center gap-1">
+                                        @if ($user->application_status === 'approved')
+                                            <i class="bi bi-check-circle-fill"></i>
+                                        @endif
+                                        @if ($user->application_status === 'rejected')
+                                            <i class="bi bi-x-circle-fill"></i>
+                                        @endif
+                                        @if ($user->application_status === 'pending')
+                                            <i class="bi bi-clock-fill"></i>
+                                        @endif
+                                        {{ ucfirst($user->application_status) }}
+                                    </span>
+                                </span>
+                            </td>
+                            <td class="align-middle">
+                                <div class="d-flex flex-column">
+                                    <span class="fw-bold text-dark">
+                                        {{ $user->created_at ? $user->created_at->format('M d, Y') : 'N/A' }}
+                                    </span>
+                                    <span class="small text-muted">
+                                        {{ $user->created_at ? $user->created_at->format('h:i A') : '' }}
+                                    </span>
                                 </div>
                             </td>
                             <td class="align-middle">
-                                <div class="flex items-center space-x-2" style="white-space: nowrap">
+                                <div class="flex align-items-center" style="white-space: nowrap">
                                     <button
                                         wire:click="$set('userId', {{ $user->id }}); $dispatch('display_modal');"
                                         title="View Details" class="btn btn-sm border border-secondary"

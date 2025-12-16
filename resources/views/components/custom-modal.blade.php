@@ -8,7 +8,7 @@
         this.show = false;
         document.body.style.overflow = '';
     },
-}" @display_modal.window="openModal();" @keydown.escape.window="closeModal()" x-show='show'
+}" @display_modal.window="openModal();" @close-modal.window="closeModal()" @keydown.escape.window="closeModal()" x-show='show'
     tabindex="-1" id="modal" :class="{ 'display': show }" style="display: none;" x-transition.scale>
 
     {{-- Background Overlay --}}

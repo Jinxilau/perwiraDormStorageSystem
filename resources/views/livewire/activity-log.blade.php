@@ -6,8 +6,10 @@
 
     <div class="overflow-hidden container-fluid">
         <x-card-matrix :items="[
-            ['title' => $this->todayLogs, 'subtitle' => 'Activity Today'],
-            ['title' => $this->logs->count(), 'subtitle' => 'Total Activity'],
+            ['title' => $this->todayLogs, 'subtitle' => 'Activity Today', 'icon' => 'bi-calendar-check'],
+            ['title' => $this->logs->count(), 'subtitle' => 'Total Activity', 'icon' => 'bi-collection'],
+            ['title' => $this->activeUsersToday, 'subtitle' => 'Active Users', 'icon' => 'bi-people'],
+            ['title' => $this->topAction, 'subtitle' => 'Top Action', 'icon' => 'bi-lightning-charge'],
         ]" />
 
         {{-- Filter Options --}}
@@ -24,7 +26,7 @@
                     <option value="3">Student</option>
                 </select>
             </div>
-            
+
             {{-- Date Range --}}
             <div class="col-md-6 col-lg-5">
                 <label class="form-label small text-muted fw-bold">Date Range</label>
@@ -102,68 +104,105 @@
                 <tr wire:key="row-{{ $log->id }}" class="align-middle">
 
                     {{-- 1. ID --}}
-                    <td class="text-secondary small fw-bold">
-                        #{{ $log->id }}
+                    <td class="fw-bold align-middle" style="white-space: nowrap;">
+                        <span class="text-secondary small user-select-none">#</span>
+                        <span class="fw-bold text-dark">{{ $log->id }}</span>
                     </td>
 
-                    {{-- 2. User Profile (Condensed) --}}
-                    <td>
-                        <div class="d-flex align-items-center">
-                            {{-- Avatar --}}
-                            <div class="flex-shrink-0 bg-primary-subtle text-primary fw-bold rounded-circle d-flex justify-content-center align-items-center border border-primary-subtle"
-                                style="width: 40px; height: 40px; font-size: 0.9rem;">
-                                {{ substr($log->user->name ?? '?', 0, 2) }}
+                    {{-- 2. User Profile --}}
+                    <td class="align-middle">
+                        <div class="d-flex align-items-center gap-1">
+                            <div class="flex-shrink-0">
+                                <div class="rounded-circle bg-primary-subtle text-primary fw-bold d-flex justify-content-center align-items-center text-uppercase"
+                                    style="height: 30px; width: 30px;">
+                                    {{ substr($log->user->name ?? 'NA', 0, 2) }}
+                                </div>
                             </div>
 
-                            {{-- Text Info --}}
-                            <div class="ms-3">
-                                <div class="fw-bold text-dark mb-0 text-truncate" style="max-width: 150px;">
-                                    {{ $log->user->name ?? 'Unknown User' }}
+                            <div>
+                                <div class="fw-bold text-dark mb-0">
+                                    {{ $log->user->name ?? 'N/A' }}
                                 </div>
-                                <div class="small text-muted">
+
+                                <div class="small text-muted mb-1">
                                     {{ $log->user->email ?? 'N/A' }}
                                     <span class="mx-1">&bull;</span>
+                                    {{ $log->user->phone_number ?? 'N/A' }}
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-1">
+                                    <span class="badge bg-light text-secondary border fw-normal">
+                                        {{ ucfirst($log->user->gender) ?? '-' }}
+                                    </span>
+                                    <span class="badge bg-light text-secondary border fw-normal">
+                                        Year {{ $log->user->year_of_study ?? '-' }}
+                                    </span>
                                     <span
-                                        class="text-uppercase">{{ $log->user->matric_no ?? ($log->user->id ?? '--') }}</span>
+                                        class="badge bg-info-subtle text-info-emphasis border border-info-subtle fw-normal">
+                                        {{ $log->user->matric_no ?? 'N/A' }}
+                                    </span>
                                 </div>
                             </div>
                         </div>
                     </td>
 
                     {{-- 3. Role --}}
-                    <td>
-                        <span class="badge rounded-pill bg-light text-dark border fw-normal">
+                    <td class="align-middle">
+                        @php
+                            $roleColor = match (strtolower($log->user->userRole->role_name ?? '')) {
+                                'admin', 'administrator' => 'bg-primary-subtle text-primary border-primary-subtle',
+                                'staff' => 'bg-info-subtle text-info-emphasis border-info-subtle',
+                                default => 'bg-light text-secondary border',
+                            };
+                        @endphp
+                        <span class="badge {{ $roleColor }} border fw-normal">
                             {{ ucfirst($log->user->userRole->role_name ?? 'Guest') }}
                         </span>
                     </td>
 
                     {{-- 4. Action --}}
                     <td>
-                        {{-- Dynamic Color Logic (Inline or move to helper) --}}
                         @php
-                            $badgeClass = match ($log->action) {
-                                'created', 'store' => 'text-bg-info',
-                                'updated', 'edit' => 'text-bg-primary',
-                                'deleted', 'destroy' => 'text-bg-danger',
-                                'approved', 'approve' => 'text-bg-success',
-                                'rejected', 'reject' => 'text-bg-warning',
-                                default => 'text-bg-secondary',
+                            // 1. Define Color & Icon logic
+                            [$colorClass, $icon] = match ($log->action) {
+                                'created', 'store' => ['success', 'bi-plus-lg'], // Green for positive add
+                                'updated', 'edit' => ['primary', 'bi-pencil'], // Blue for neutral edit
+                                'deleted', 'destroy' => ['danger', 'bi-trash'], // Red for destructive
+                                'approved', 'approve' => ['info', 'bi-check-lg'], // Info/Teal for status
+                                'rejected', 'reject' => ['warning', 'bi-x-circle'], // Orange for warning
+                                default => ['secondary', 'bi-activity'], // Grey fallback
                             };
                         @endphp
-                        <span class="badge {{ $badgeClass }} bg-opacity-75 text-uppercase"
-                            style="font-size: 0.7rem; letter-spacing: 0.5px;">
-                            {{ $log->action }}
+
+                        {{-- 2. The Badge --}}
+                        <span
+                            class="badge rounded-pill bg-{{ $colorClass }}-subtle text-{{ $colorClass }} border border-{{ $colorClass }}-subtle px-3 py-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi {{ $icon }}"></i>
+                                <span class="text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px;">
+                                    {{ $log->action }}
+                                </span>
+                            </div>
                         </span>
                     </td>
 
                     {{-- 5. Description --}}
                     <td>
-                        <div class="text-dark small text-wrap" style="min-width: 200px;">
-                            {{ $log->description }}
-                        </div>
-                        {{-- IP as subtitle --}}
-                        <div class="small text-muted font-monospace mt-1">
-                            IP: {{ $log->ip_address }}
+                        <div class="d-flex flex-column" style="min-width: 220px;">
+                            {{-- Description: Primary Text --}}
+                            <span class="fw-medium text-dark mb-2 text-wrap" style="line-height: 1.5;">
+                                {{ $log->description }}
+                            </span>
+
+                            {{-- IP Address: Secondary Metadata --}}
+                            <div class="d-flex align-items-center">
+                                <span
+                                    class="badge bg-light text-secondary border rounded-pill fw-normal font-monospace py-1 px-2 d-flex align-items-center">
+                                    {{-- Network Icon --}}
+                                    <i class="bi bi-hdd-network me-2 text-muted" style="font-size: 0.75rem;"></i>
+                                    {{ $log->ip_address }}
+                                </span>
+                            </div>
                         </div>
                     </td>
 
@@ -180,12 +219,12 @@
                     </td>
 
                     {{-- 7. Timestamp --}}
-                    <td class="text-end">
-                        <div class="d-flex flex-column">
-                            <span class="fw-bold text-dark small">
-                                {{ $log->created_at ? $log->created_at->format('M d, Y') : '-' }}
+                    <td class="align-middle">
+                        <div class="d-flex flex-column font-monospace">
+                            <span class="fw-bold text-dark" style="font-size: 0.9rem;">
+                                {{ $log->created_at ? $log->created_at->format('M d, Y') : 'N/A' }}
                             </span>
-                            <span class="text-muted small">
+                            <span class="text-secondary small">
                                 {{ $log->created_at ? $log->created_at->format('h:i A') : '-' }}
                             </span>
                         </div>
