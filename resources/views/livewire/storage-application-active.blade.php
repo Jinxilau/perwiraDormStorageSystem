@@ -143,9 +143,12 @@
     }" x-init="toggleAll()" class="bg-white shadow-sm rounded-lg overflow-hidden">
 
         <x-card-matrix :items="[
-            ['title' => $this->activeCounts['total'], 'subtitle' => 'Total Active Application'],
+            ['title' => $this->activeCounts['total'], 'subtitle' => 'Total Approved Application'],
+            ['title' => $this->approvedThisSemester, 'subtitle' => 'Approved (Current Semester)'],
             ['title' => $this->activeCounts['locker'], 'subtitle' => 'Total Locker Application'],
             ['title' => $this->activeCounts['open_area'], 'subtitle' => 'Total Open Area Application'],
+            // ['title' => $this->activeCounts['checked_in'], 'subtitle' => 'Total Checked In Applications'],
+            // ['title' => $this->activeCounts['checked_out'], 'subtitle' => 'Total Checked Out Applications'],
         ]" />
 
         {{-- Filtering Options --}}
@@ -161,6 +164,21 @@
                 </select>
             </div>
 
+            {{-- Semester Filter --}}
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">Semester</label>
+                <select class="form-select bg-light border-0" wire:model.live="semester">
+                    <option value="">All Semesters</option>
+                    @foreach ($this->semesters as $sem)
+                        {{-- Adjust 'name' below to whatever your Semester column is called (e.g., semester_name, label) --}}
+                        <option value="{{ $sem->id }}">{{ $sem->academic_year }} - {{ $sem->semester_no }}
+                            @if ($sem->is_current)
+                                (Currently Active)
+                            @endif
+                        </option>
+                    @endforeach
+                </select>
+            </div>
             {{-- Storage Type --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Type</label>
@@ -391,6 +409,11 @@
                                 </span>
                                 <span class="small text-muted">
                                     {{ $application->updated_at->format('h:i A') }}
+                                </span>
+                                <span class="small text-muted">
+                                    <i class="bi bi-calendar-event me-1"></i>
+                                    {{ $application->semester->academic_year }}
+                                    - {{ $application->semester->semester_no }}
                                 </span>
                             </div>
                         @else

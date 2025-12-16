@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\MissingReport;
+use App\Models\Semester;
 use App\Models\StorageRoom;
 use App\Models\User;
 use App\Notifications\MissingReportMadeNotification;
@@ -26,6 +27,8 @@ class ManageMissingReport extends Component
     public $search = '';
     #[Url(except: '')]
     public $room = '';
+    #[Url(except: '')]
+    public $semester = '';
     #[Url(except: '')]
     public $statusFilter = '';
     #[Url(except: '')]
@@ -51,6 +54,17 @@ class ManageMissingReport extends Component
     #[Validate('nullable|max:2000')]
     public $adminNote;
 
+    public function mount()
+    {
+        // Assuming your Semester model has a way to identify the active one, 
+        // e.g., an 'is_active' column or scope.
+        $activeSemester = Semester::where('is_current', true)->first();
+
+        if ($activeSemester) {
+            $this->semester = $activeSemester->id;
+        }
+    }
+
     public function updatedSelectAll($value)
     {
         if ($value) {
@@ -73,7 +87,7 @@ class ManageMissingReport extends Component
         $this->fromRange = '';
         $this->toRange = '';
         $this->sortDate = 'latest';
-        
+
         $this->paginationInt = 10;
     }
 
@@ -109,7 +123,7 @@ class ManageMissingReport extends Component
     {
         $query = MissingReport::query()->with([
             'storedItems.storageApplication' => function ($q) {
-                $q->with(['openArea.storageRoom', 'locker.storageRoom', 'applicant']);
+                $q->with(['openArea.storageRoom', 'locker.storageRoom', 'applicant', 'semester']);
             },
         ]);
 
@@ -136,6 +150,10 @@ class ManageMissingReport extends Component
             });
         }
 
+        if ($this->semester) {
+            $query->where('semester_id', $this->semester);
+        }
+
         if ($this->statusFilter) {
             $query->where('status', $this->statusFilter);
         }
@@ -157,6 +175,7 @@ class ManageMissingReport extends Component
         return $query->paginate($this->paginationInt);
     }
 
+    // Metrics for dashboard cards
     #[Computed]
     public function reportCounts()
     {
@@ -168,11 +187,36 @@ class ManageMissingReport extends Component
             SUM(status = 'dismissed') as dismissed
         ")->first();
     }
+    #[Computed()]
+    public function thisSemester()
+    {
+        $currentSemesterId = Semester::where('is_current', true)->value('id');
 
+        return MissingReport::where('status', 'pending')
+            ->where('semester_id', $currentSemesterId)
+            ->count();
+    }
+    #[Computed()]
+    public function pendingThisSemester()
+    {
+        $currentSemesterId = Semester::where('is_current', true)->value('id');
+
+        return MissingReport::where('status', 'pending')
+            ->where('semester_id', $currentSemesterId)
+            ->count();
+    }
+    
+    // Populate the filter dropdowns
     #[Computed()]
     public function rooms()
     {
         return StorageRoom::all();
+    }
+    #[Computed()]
+    public function semesters()
+    {
+        // Adjust sorting as needed (e.g., latest semester first)
+        return Semester::orderBy('created_at', 'desc')->get();
     }
 
     public function render()

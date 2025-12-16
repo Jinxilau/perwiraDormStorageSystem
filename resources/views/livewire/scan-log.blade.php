@@ -9,6 +9,7 @@
         <x-card-matrix :items="[
             ['title' => $this->todayScans, 'subtitle' => 'Logs Today'],
             ['title' => $this->logs->count(), 'subtitle' => 'Total Logs'],
+            ['title' => $this->thisSemester, 'subtitle' => 'Scans (Current Semester)'],
             ['title' => $this->logs->where('event_type', 'check_in')->count(), 'subtitle' => 'Total Check Ins'],
             ['title' => $this->logs->where('event_type', 'check_out')->count(), 'subtitle' => 'Total Check Outs'],
         ]" />
@@ -29,6 +30,22 @@
                     <option value="">All Room</option>
                     @foreach ($this->rooms as $room)
                         <option value="{{ $room->id }}">{{ $room->room_name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- Semester Filter --}}
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">Semester</label>
+                <select class="form-select bg-light border-0" wire:model.live="semester">
+                    <option value="">All Semesters</option>
+                    @foreach ($this->semesters as $sem)
+                        {{-- Adjust 'name' below to whatever your Semester column is called (e.g., semester_name, label) --}}
+                        <option value="{{ $sem->id }}">{{ $sem->academic_year }} - {{ $sem->semester_no }}
+                            @if ($sem->is_current)
+                                (Currently Active)
+                            @endif
+                        </option>
                     @endforeach
                 </select>
             </div>
@@ -264,6 +281,11 @@
                                     </span>
                                     <span class="text-secondary small">
                                         {{ $log->created_at ? $log->created_at->format('h:i:s A') : '-' }}
+                                    </span>
+                                    <span class="small text-muted">
+                                        <i class="bi bi-calendar-event me-1"></i>
+                                        {{ $log->semester->academic_year }}
+                                        - {{ $log->semester->semester_no }}
                                     </span>
                                 </div>
                             </td>

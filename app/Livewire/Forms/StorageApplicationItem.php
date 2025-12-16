@@ -34,7 +34,7 @@ class StorageApplicationItem extends Form
             'category' => 'required|in:electronic,furniture,container,luggage,clothing,home_appliance,other',
             'item_description' => 'nullable|string|max:1000',
             'estimated_size' => 'required|in:small,medium,large',
-            'item_photo' => 'nullable|image|max:2048',
+            'item_photo' => 'nullable|image|max:5120',
         ]);
     }
 
@@ -46,7 +46,7 @@ class StorageApplicationItem extends Form
             'items.*.category' => 'required|in:electronic,furniture,container,luggage,clothing,home_appliance,other',
             'items.*.item_description' => 'nullable|string|max:1000',
             'items.*.estimated_size' => 'required|in:small,medium,large',
-            'items.*.item_photo' => 'nullable|image|max:2048',
+            'items.*.item_photo' => 'nullable|image|max:5120',
         ]);
     }
 

@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\ActivityLog;
 use App\Models\Locker;
 use App\Models\QRCode;
+use App\Models\Semester;
 use App\Models\StorageApplication;
 use App\Models\StorageRoom;
 use App\Models\User;
@@ -28,6 +29,8 @@ class StorageApplicationPending extends Component
     #[Url(except: '')]
     public $room = '';
     #[Url(except: '')]
+    public $semester = '';
+    #[Url(except: '')]
     public $storageType = '';
     #[Url(except: '')]
     public $fromRange = '';
@@ -48,6 +51,17 @@ class StorageApplicationPending extends Component
 
     public $rejectionNote = '';
 
+    public function mount()
+    {
+        // Assuming your Semester model has a way to identify the active one, 
+        // e.g., an 'is_active' column or scope.
+        $activeSemester = Semester::where('is_current', true)->first();
+
+        if ($activeSemester) {
+            $this->semester = $activeSemester->id;
+        }
+    }
+    
     public function updatedSelectAll($value)
     {
         if ($value) {
@@ -228,7 +242,7 @@ class StorageApplicationPending extends Component
     #[Computed()]
     public function pendingStorageApplications()
     {
-        $query = StorageApplication::query()->where('storage_application_status', 'pending')->with(['applicant', 'storedItems', 'openArea.storageRoom', 'locker.storageRoom']);
+        $query = StorageApplication::query()->where('storage_application_status', 'pending')->with(['applicant', 'storedItems', 'openArea.storageRoom', 'locker.storageRoom', 'semester']);
 
         if ($this->search) {
             $query->where(function ($q) {
@@ -251,6 +265,10 @@ class StorageApplicationPending extends Component
                     $roomQuery->where('id', $this->room);
                 });
             });
+        }
+
+        if ($this->semester) {
+            $query->where('semester_id', $this->semester);
         }
 
         if ($this->storageType) {
@@ -288,11 +306,30 @@ class StorageApplicationPending extends Component
         return $query->paginate($this->paginationInt);
     }
 
+    // Metrics for dashboard cards
+    #[Computed()]
+    public function pendingThisSemester()
+    {
+        $currentSemesterId = Semester::where('is_current', true)->value('id');
+
+        return StorageApplication::where('storage_application_status', 'pending')
+            ->where('semester_id', $currentSemesterId)
+            ->count();
+    }
+
+    // Populate the filter dropdowns
     #[Computed()]
     public function rooms()
     {
         return StorageRoom::all();
     }
+    #[Computed()]
+    public function semesters()
+    {
+        // Adjust sorting as needed (e.g., latest semester first)
+        return Semester::orderBy('created_at', 'desc')->get();
+    }
+
 
     // TODO: Counts
     #[Computed]

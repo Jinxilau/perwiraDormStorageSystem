@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null'); //The admin/staff who performed the action (Nullable incase the systme perform some action)
+            $table->foreignId('semester_id')->nullable()->constrained('semesters')->nullOnDelete();
             $table->morphs('subject'); // The model that the action was performed on
 
             $table->string('action'); // A short key describing the action

@@ -520,7 +520,7 @@
                                 <div wire:key="item-{{ $item->id }}"
                                     class="border-start border-3 border-primary">
                                     <div class="d-flex align-items-center justify-content-between gap-2">
-                                        <div class="flex-grow-1">
+                                        <div class="flex-grow-1 text-center">
                                             <div class="fw-semibold text-dark">
                                                 {{ ucfirst($item->item_name) }}
                                             </div>

@@ -130,16 +130,34 @@
 
                         {{-- RIGHT COL: Items --}}
                         <div class="col-md-6">
-                            <h6 class="fw-bold mb-3">Missing Items</h6>
-                            <ul class="list-group list-group-flush border rounded-3">
-                                @foreach ($modalReport->storedItems as $item)
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span class="fw-medium">{{ ucfirst($item->item_name) }}</span>
-                                        <span
-                                            class="badge bg-light text-dark border">{{ ucfirst($item->item_type) }}</span>
-                                    </li>
-                                @endforeach
-                            </ul>
+                            <h5 class="text-info mb-3"><i class="bi bi-archive me-2"></i>Stored Items</h5>
+                            @if ($modalReport->storedItems->count() > 0)
+                                <div class="row g-3">
+                                    @foreach ($modalReport->storedItems as $item)
+                                        <div class="col-12">
+                                            <div class="d-flex align-items-start p-3 bg-light rounded">
+                                                <img src="{{ \Storage::disk('public')->url($item->item_photo_path) }}"
+                                                    alt="Item Photo" class="rounded shadow-sm me-3"
+                                                    style="width: 80px; height: 80px; object-fit: cover;" />
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-2 fw-bold">{{ ucfirst($item->item_name) }}</h6>
+                                                    <div class="mb-2">
+                                                        <span
+                                                            class="badge bg-primary me-1">{{ ucfirst($item->item_type) }}</span>
+                                                        <span
+                                                            class="badge bg-secondary">{{ ucfirst($item->estimated_size) }}</span>
+                                                    </div>
+                                                    <p class="mb-0 small text-muted">
+                                                        {{ ucfirst($item->item_description) }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <p class="text-muted text-center mb-0 py-3">No stored items found.</p>
+                            @endif
+
                         </div>
                     </div>
 
@@ -279,6 +297,8 @@
             ['title' => $this->reportCounts['resolved'], 'subtitle' => 'Resolved Cases'],
             ['title' => $this->reportCounts['pending'], 'subtitle' => 'Pending Cases'],
             ['title' => $this->reportCounts['dismissed'], 'subtitle' => 'Dismissed Cases'],
+            ['title' => $this->thisSemester, 'subtitle' => 'Total (Current Semester)'],
+            ['title' => $this->pendingThisSemester, 'subtitle' => 'Pending (Current Semester)'],
         ]" />
 
         <x-filter-options>
@@ -289,6 +309,22 @@
                     <option value="">All Rooms</option>
                     @foreach ($this->rooms as $room)
                         <option value="{{ $room->id }}">{{ $room->room_name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- Semester Filter --}}
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">Semester</label>
+                <select class="form-select bg-light border-0" wire:model.live="semester">
+                    <option value="">All Semesters</option>
+                    @foreach ($this->semesters as $sem)
+                        {{-- Adjust 'name' below to whatever your Semester column is called (e.g., semester_name, label) --}}
+                        <option value="{{ $sem->id }}">{{ $sem->academic_year }} - {{ $sem->semester_no }}
+                            @if ($sem->is_current)
+                                (Currently Active)
+                            @endif
+                        </option>
                     @endforeach
                 </select>
             </div>
@@ -546,6 +582,10 @@
                             <span class="text-secondary small">
                                 {{ $report->created_at->format('h:i:s A') }}
                             </span>
+                            <span class="small text-muted">
+                                <i class="bi bi-calendar-event me-1"></i> {{ $report->semester->academic_year }}
+                                - {{ $report->semester->semester_no }}
+                            </span>
                         </div>
                     </td>
                     <td class="align-middle">
@@ -610,7 +650,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="px-3 py-5 text-center">
+                    <td colspan="20" class="px-3 py-5 text-center">
                         <div>
                             <i class="bi bi-folder2-open mx-auto text-muted" style="font-size: 60px"></i>
                             <h3 class="mt-4">No Missing Report Found</h3>

@@ -3,6 +3,8 @@
 namespace App\Livewire;
 
 use App\Models\ScanLog as ModelsScanLog;
+use App\Models\Semester;
+use App\Models\StorageApplication;
 use App\Models\StorageRoom;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -23,6 +25,8 @@ class ScanLog extends Component
     #[Url(except: '')]
     public $storage_room = '';
     #[Url(except: '')]
+    public $semester = '';
+    #[Url(except: '')]
     public $fromRange = '';
     #[Url(except: '')]
     public $toRange = '';
@@ -32,6 +36,17 @@ class ScanLog extends Component
     public $sortName = '';
 
     public $paginationInt = 10;
+
+    public function mount()
+    {
+        // Assuming your Semester model has a way to identify the active one, 
+        // e.g., an 'is_active' column or scope.
+        $activeSemester = Semester::where('is_current', true)->first();
+
+        if ($activeSemester) {
+            $this->semester = $activeSemester->id;
+        }
+    }
 
     public function clearFilters()
     {
@@ -52,7 +67,7 @@ class ScanLog extends Component
     {
         $query = ModelsScanLog::query()->with([
             'qrCode.storageApplication' => function ($q) {
-                $q->with(['applicant', 'locker.storageRoom', 'openArea.storageRoom', 'storedItems']);
+                $q->with(['applicant', 'locker.storageRoom', 'openArea.storageRoom', 'storedItems', 'semester']);
             },
         ]);
 
@@ -62,7 +77,7 @@ class ScanLog extends Component
             $query->where(function ($q) use ($search) {
                 if (is_numeric($search)) {
                     $q->whereRelation('qrCode', 'id', $search);
-                } else{
+                } else {
                     $q->orWhereRelation('qrCode.storageApplication.applicant', 'name', 'like', "%{$search}%")
                         ->orWhereRelation('qrCode.storageApplication.applicant', 'matric_no', 'like', "%{$search}%");
                 }
@@ -85,6 +100,10 @@ class ScanLog extends Component
                         $roomQuery->where('id', $storageRoom);
                     });
             });
+        }
+
+        if ($this->semester) {
+            $query->where('semester_id', $this->semester);
         }
 
         if ($this->fromRange && $this->toRange) {
@@ -115,17 +134,35 @@ class ScanLog extends Component
         return $query->paginate($this->paginationInt);
     }
 
+    // Metrics for dashboard cards
     #[Computed()]
     public function todayScans()
     {
         return ModelsScanLog::whereDate('created_at', now())->count();
     }
+    #[Computed()]
+    public function thisSemester()
+    {
+        $currentSemesterId = Semester::where('is_current', true)->value('id');
 
+        return StorageApplication::where('storage_application_status', 'pending')
+            ->where('semester_id', $currentSemesterId)
+            ->count();
+    }
+
+    // Populate the filter dropdowns
     #[Computed()]
     public function rooms()
     {
         return StorageRoom::all();
     }
+    #[Computed()]
+    public function semesters()
+    {
+        // Adjust sorting as needed (e.g., latest semester first)
+        return Semester::orderBy('created_at', 'desc')->get();
+    }
+
 
     public function render()
     {

@@ -10,6 +10,7 @@
             ['title' => $this->logs->count(), 'subtitle' => 'Total Activity', 'icon' => 'bi-collection'],
             ['title' => $this->activeUsersToday, 'subtitle' => 'Active Users', 'icon' => 'bi-people'],
             ['title' => $this->topAction, 'subtitle' => 'Top Action', 'icon' => 'bi-lightning-charge'],
+            
         ]" />
 
         {{-- Filter Options --}}
@@ -24,6 +25,22 @@
                     <option value="1">Administrator</option>
                     <option value="2">Staff</option>
                     <option value="3">Student</option>
+                </select>
+            </div>
+
+            {{-- Semester Filter --}}
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">Semester</label>
+                <select class="form-select bg-light border-0" wire:model.live="semester">
+                    <option value="">All Semesters</option>
+                    @foreach ($this->semesters as $sem)
+                        {{-- Adjust 'name' below to whatever your Semester column is called (e.g., semester_name, label) --}}
+                        <option value="{{ $sem->id }}">{{ $sem->academic_year }} - {{ $sem->semester_no }}
+                            @if ($sem->is_current)
+                                (Currently Active)
+                            @endif
+                        </option>
+                    @endforeach
                 </select>
             </div>
 
@@ -227,6 +244,11 @@
                             <span class="text-secondary small">
                                 {{ $log->created_at ? $log->created_at->format('h:i A') : '-' }}
                             </span>
+                            <span class="small text-muted">
+                                <i class="bi bi-calendar-event me-1"></i> {{ $log->semester->academic_year }}
+                                - {{ $log->semester->semester_no }}
+                            </span>
+
                         </div>
                     </td>
                 </tr>

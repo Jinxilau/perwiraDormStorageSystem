@@ -22,11 +22,30 @@ class MissingReport extends Model
         'discovered_missing_range',
         'witnesses_and_info',
         'admin_note',
+        'semester_id',
         // 'qr_code_id',
     ];
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted()
+    {
+        static::creating(function ($missingReport) {
+            // Only assign if it wasn't manually passed
+            if (is_null($missingReport->semester_id)) {
+                $missingReport->semester_id = Semester::where('is_current', true)->value('id');
+            }
+        });
+    }
 
     public function storedItems()
     {
         return $this->hasMany(StoredItem::class, 'missing_report_id');
+    }
+
+    public function semester()
+    {
+        return $this->belongsTo(Semester::class, 'semester_id');
     }
 }

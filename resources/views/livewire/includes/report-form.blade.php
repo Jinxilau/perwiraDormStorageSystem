@@ -301,7 +301,7 @@
                                                                         class="btn btn-primary rounded-pill px-4 py-2 shadow-sm">
                                                                         <i class="bi bi-upload me-2"></i>
                                                                         Item Photo <span
-                                                                            class="text-muted fw-normal">(Optional)</span>
+                                                                            class="fw-normal">(Optional)</span>
                                                                     </span>
                                                                 </label>
 

@@ -80,7 +80,7 @@ class MissingItemForm extends Form
     {
         $this->validate([
             'itemId' => 'required|exists:stored_items,id',
-            'photo' => 'nullable|image|max:2048'
+            'photo' => 'nullable|image|max:5120'
         ]);
     }
 
@@ -89,7 +89,7 @@ class MissingItemForm extends Form
         $this->validate([
             'items' => 'required|array|min:1',
             'items.*.id' => 'required|exists:stored_items,id',
-            'items.*.photo' => 'nullable|image|max:2048',
+            'items.*.photo' => 'nullable|image|max:5120',
         ]);
     }
 

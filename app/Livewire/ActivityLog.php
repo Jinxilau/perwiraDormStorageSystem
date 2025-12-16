@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\ActivityLog as ModelsActivityLog;
+use App\Models\Semester;
 use App\Models\User;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
@@ -16,6 +17,8 @@ class ActivityLog extends Component
     #[Url(except: '')]
     public $search = '';
     #[Url(except: '')]
+    public $semester = '';
+    #[Url(except: '')]
     public $role = '';
     #[Url(except: '')]
     public $fromRange = '';
@@ -27,6 +30,17 @@ class ActivityLog extends Component
     public $sortName = '';
 
     public $paginationInt = 10;
+
+    public function mount()
+    {
+        // Assuming your Semester model has a way to identify the active one, 
+        // e.g., an 'is_active' column or scope.
+        $activeSemester = Semester::where('is_current', true)->first();
+
+        if ($activeSemester) {
+            $this->semester = $activeSemester->id;
+        }
+    }
 
     public function clearFilters()
     {
@@ -61,11 +75,16 @@ class ActivityLog extends Component
             });
         }
 
+        if ($this->semester) {
+            $query->where('semester_id', $this->semester);
+        }
+
         if (!empty($this->role)) {
             $query->whereHas('user.userRole', function ($roleQuery) {
                 $roleQuery->where('role_id', $this->role);
             });
         }
+
 
         if ($this->fromRange && $this->toRange) {
             $query->whereBetween('created_at', [$this->fromRange, $this->toRange]);
@@ -92,12 +111,12 @@ class ActivityLog extends Component
         return $query->paginate($this->paginationInt);
     }
 
+    // Metrics for dashboard cards
     #[Computed()]
     public function todayLogs()
     {
         return ModelsActivityLog::whereDate('created_at', now())->count();
     }
-
     // New: Counts distinct users who performed an action today
     #[Computed()]
     public function activeUsersToday()
@@ -106,7 +125,6 @@ class ActivityLog extends Component
             ->distinct('user_id')
             ->count('user_id');
     }
-
     // New: Finds the most frequent action type (e.g., 'Update', 'Create')
     #[Computed()]
     public function topAction()
@@ -119,6 +137,14 @@ class ActivityLog extends Component
 
         // Capitalize specific words or return 'N/A' if empty
         return $top ? ucfirst($top) : 'N/A';
+    }
+
+    // Populate the filter dropdowns
+    #[Computed()]
+    public function semesters()
+    {
+        // Adjust sorting as needed (e.g., latest semester first)
+        return Semester::orderBy('created_at', 'desc')->get();
     }
 
     public function render()

@@ -282,6 +282,7 @@
             ['title' => $this->storageCounts['total'], 'subtitle' => 'Total Pending Application'],
             ['title' => $this->storageCounts['locker'], 'subtitle' => 'Total Locker Application'],
             ['title' => $this->storageCounts['open_area'], 'subtitle' => 'Total Open Area Application'],
+            ['title' => $this->pendingThisSemester, 'subtitle' => 'Pending (Current Semester)'],
         ]" />
 
         <x-filter-options>
@@ -292,6 +293,22 @@
                     <option value="">All Rooms</option>
                     @foreach ($this->rooms as $room)
                         <option value="{{ $room->id }}">{{ $room->room_name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            {{-- Semester Filter --}}
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">Semester</label>
+                <select class="form-select bg-light border-0" wire:model.live="semester">
+                    <option value="">All Semesters</option>
+                    @foreach ($this->semesters as $sem)
+                        {{-- Adjust 'name' below to whatever your Semester column is called (e.g., semester_name, label) --}}
+                        <option value="{{ $sem->id }}">{{ $sem->academic_year }} - {{ $sem->semester_no }}
+                            @if ($sem->is_current)
+                                (Currently Active)
+                            @endif
+                        </option>
                     @endforeach
                 </select>
             </div>
@@ -517,7 +534,7 @@
                             </div>
                         </div>
                     </td>
-                    <td x-show="cols.includes('item')">
+                    <td x-show="cols.includes('items')">
                         <div>
                             <span class="badge bg-primary">
                                 {{ $application->storedItems->count() }}
@@ -544,13 +561,17 @@
                         </div>
                     </td>
                     {{-- Application Date --}}
-                    <td class="align-middle" x-show="cols.includes('applicationDate')">
+                    <td class="align-middle">
                         <div class="d-flex flex-column">
                             <span class="fw-bold text-dark">
                                 {{ $application->created_at ? $application->created_at->format('M d, Y') : '-' }}
                             </span>
                             <span class="small text-muted">
                                 {{ $application->created_at ? $application->created_at->format('h:i A') : '' }}
+                            </span>
+                            <span class="small text-muted">
+                                <i class="bi bi-calendar-event me-1"></i> {{ $application->semester->academic_year }}
+                                - {{ $application->semester->semester_no }}
                             </span>
                         </div>
                     </td>

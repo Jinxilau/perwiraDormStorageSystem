@@ -25,9 +25,9 @@ class StorageApplicationReject extends Component
     #[Url(except: '')]
     public $search = '';
     #[Url(except: '')]
-    public $semester = '';
-    #[Url(except: '')]
     public $room = '';
+    #[Url(except: '')]
+    public $semester = '';
     #[Url(except: '')]
     public $storageType = '';
     #[Url(except: '')]
@@ -142,7 +142,7 @@ class StorageApplicationReject extends Component
     #[Computed()]
     public function rejectedStorageApplications()
     {
-        $query = StorageApplication::query()->with(['applicant', 'approver', 'storedItems', 'openArea.storageRoom', 'locker.storageRoom'])->where('storage_application_status', 'rejected');
+        $query = StorageApplication::query()->with(['applicant', 'approver', 'storedItems', 'openArea.storageRoom', 'locker.storageRoom', 'semester'])->where('storage_application_status', 'rejected');
 
         if ($this->search) {
             $query->where(function ($q) {

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('missing_reports', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('semester_id')->nullable()->constrained('semesters')->nullOnDelete();
 
             $table->enum('status', [
                 'pending', // Student submitted, Admin hasn't looked yet
@@ -25,14 +26,14 @@ return new class extends Migration
             // Last see the item?
             $table->enum('last_seen_type', ['specific_date', 'dont_remember', 'range']);
             $table->date('last_seen_date')->nullable();
-            $table->enum('last_seen_range', ['today','yesterday','this_week','last_week','last_month','longer'])->nullable();
+            $table->enum('last_seen_range', ['today', 'yesterday', 'this_week', 'last_week', 'last_month', 'longer'])->nullable();
 
             $table->text('last_seen_location');
 
             // When did you discover it was missing?
             $table->enum('discovered_missing_type', ['specific_date', 'dont_remember', 'range']);
             $table->date('discovered_missing_date')->nullable();
-            $table->enum('discovered_missing_range', ['today','yesterday','this_week','last_week','last_month','longer'])->nullable();
+            $table->enum('discovered_missing_range', ['today', 'yesterday', 'this_week', 'last_week', 'last_month', 'longer'])->nullable();
 
             $table->text('witnesses_and_info')->nullable();
 
