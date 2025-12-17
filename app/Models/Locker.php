@@ -8,8 +8,9 @@ class Locker extends Model
 {
     protected $fillable = [
         'storage_room_id',
+        'code',
         'size',
-        'status',
+        'status'
     ];
 
     // Eloquent Model Relationship

@@ -358,14 +358,14 @@
                             <div class="d-flex flex-wrap gap-1">
                                 @if (!empty($application->open_area_id) && !empty($application->locker_id))
                                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                                        <i class="bi bi-box-seam me-1"></i>Locker
+                                        <i class="bi bi-box-seam me-1"></i>Locker {{ $application->locker->code }}
                                     </span>
                                     <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle">
                                         <i class="bi bi-grid me-1"></i>Open Area
                                     </span>
                                 @elseif (!empty($application->locker_id))
                                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                                        <i class="bi bi-box-seam me-1"></i>Locker
+                                        <i class="bi bi-box-seam me-1"></i>Locker {{ $application->locker->code }}
                                     </span>
                                 @elseif (!empty($application->open_area_id))
                                     <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle">

@@ -10,6 +10,7 @@ use App\Models\StorageApplication;
 use App\Models\StorageRoom;
 use App\Models\User;
 use App\Notifications\ApproveStorageApplicationNotification;
+use App\Notifications\RejectStorageApplicationNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -61,7 +62,7 @@ class StorageApplicationPending extends Component
             $this->semester = $activeSemester->id;
         }
     }
-    
+
     public function updatedSelectAll($value)
     {
         if ($value) {
@@ -89,122 +90,182 @@ class StorageApplicationPending extends Component
         $this->paginationInt = 10; # Pagination Amount
     }
 
+    private function processApproval(StorageApplication $application)
+    {
+        // Handle Locker Applications
+        if ($application->locker_id) {
+            // Lock the locker row to prevent others from reading it while we check
+            $locker = Locker::lockForUpdate()->find($application->locker_id);
+
+            if (!$locker) {
+                throw new \Exception("Locker not found for Application ID: {$application->id}");
+            }
+
+            // CHECK: Is the locker actually available?
+            if ($locker->status !== 'available') {
+                throw new \Exception("Locker {$locker->code} is already occupied or under maintenance.");
+            }
+
+            // If safe, proceed to update locker status
+            $locker->update(['status' => 'reserved']);
+            // ... perform other assignment logic ...
+        }
+
+        //Handle Open Area Applications
+        if ($application->open_area_id && $application->openArea->area_status !== 'available') {
+            throw new \Exception("Open Area {$application->openArea->storageRoom->room_name} is already occupied or under maintenance.");
+        }
+
+        // 1. Create QR Code
+        QRCode::create([
+            'storage_application_id' => $application->id,
+            'qr_token' => Str::uuid(),
+            'qr_expires_at' => Carbon::now()->addDays(7)
+        ]);
+
+        // 3. Update Application Status
+        $application->update([
+            'storage_application_status' => 'approved',
+            'approver_id' => Auth::id()
+        ]);
+
+        // 4. Notification
+        // Wrap in try-catch if you don't want email failures to roll back the database transaction
+        try {
+            $application->applicant->notify(new ApproveStorageApplicationNotification($application));
+        } catch (\Exception $e) {
+            Log::error("Notification failed for App ID {$application->id}: " . $e->getMessage());
+        }
+
+        // 5. Activity Log (Standardized)
+        // Assuming you have the relationship set up as seen in your first method
+        $application->activityLogs()->create([
+            'user_id' => Auth::id(),
+            'action' => 'approved', // Standardized action name
+            'description' => "Approved application ID: {$application->id}",
+            'ip_address' => request()->ip(),
+        ]);
+    }
+
     public function approveApplication($id)
     {
         try {
-            $application = StorageApplication::findOrFail($id);
-
-            QRCode::create([
-                'storage_application_id' => $id,
-                'qr_token' => Str::uuid(),
-                'qr_expires_at' => Carbon::now()->addDays(7)
-            ]);
-
-            if ($application->locker_id) {
-                $application->locker->update(['status' => 'reserved']);
-            }
-
-            $application->update([
-                'storage_application_status' => 'approved',
-                'approver_id' => Auth::user()->id
-            ]);
+            DB::transaction(function () use ($id) {
+                $application = StorageApplication::findOrFail($id);
+                $this->processApproval($application);
+            });
 
             $this->dispatch('show_toast', message: 'Application approved successfully!', type: 'success');
-            $this->reset();
-
-            // Notification
-            $application->applicant->notify(new ApproveStorageApplicationNotification($application));
-
-            // Logs activity to the system
-            $application->activityLogs()->create([
-                'user_id' => Auth::id(),
-                'action' => 'approved',
-                'description' => "Approved application ID: {$application->id}",
-                'ip_address' => request()->ip(),
-            ]);
+            $this->reset(['selectedApplications']);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             $this->dispatch('show_toast', message: 'Application not found.', type: 'fail');
         } catch (\Exception $e) {
-            $this->dispatch('show_toast', message: 'Something went wrong. Please try again.', type: 'fail');
-            Log::error($e->getMessage());
+            Log::error('Approval Error: ' . $e->getMessage());
+            $this->dispatch('show_toast', message: "Approval Error: {$e->getMessage()}", type: 'fail');
         }
     }
+
     public function bulkApprove()
     {
+        if (empty($this->selectedApplications)) {
+            $this->dispatch('show_toast', message: 'No applications selected.', type: 'error');
+            return;
+        }
+
         try {
-            $applications = StorageApplication::whereIn('id', $this->selectedApplications)->get();
+            // Use eager loading (with) to prevent N+1 query issues
+            $applications = StorageApplication::with(['locker.storageRoom', 'openArea.storageRoom', 'applicant'])
+                ->whereIn('id', $this->selectedApplications)->where('storage_application_status', 'pending')
+                ->get();
 
-            foreach ($applications as $application) {
-                QRCode::create([
-                    'storage_application_id' => $application->id,
-                    'qr_token' => Str::uuid(),
-                    'qr_expires_at' => Carbon::now()->addDays(7),
-                ]);
+            if ($applications->isEmpty()) {
+                $this->dispatch('show_toast', message: 'No applications selected.', type: 'warning');
+                return;
+            }
+            if ($applications->count() !== count($this->selectedApplications)) {
+                $this->dispatch('show_toast', message: 'Some applications are no longer pending.', type: 'error');
+                return;
+            }
+            // --- Rule 1: same storage room ---
+            $roomIds = $applications
+                ->map(fn($app) => $app->storage_room?->id)
+                ->unique();
 
-                $application->update([
-                    'storage_application_status' => 'approved',
-                    'approver_id' => Auth::user()->id
-                ]);
-
-                if ($application->locker_id) {
-                    $application->locker->update(['status' => 'reserved']);
-                } elseif ($application->open_area_id) {
-                    $application->openArea->update(['status' => 'reserved']);
+            if ($roomIds->count() !== 1) {
+                $this->dispatch('show_toast', message: 'Bulk approve allowed only for the same storage room.', type: 'error');
+                return;
+            }
+            // --- Rule 2: same storage type ---
+            $types = $applications->map(function ($app) {
+                if ($app->locker_id && !$app->open_area_id) {
+                    return 'locker';
                 }
 
-                // Notification
-                $application->applicant->notify(new ApproveStorageApplicationNotification($application));
+                if ($app->open_area_id && !$app->locker_id) {
+                    return 'open_area';
+                }
 
-                // Logs activity to the system
-                ActivityLog::create([
-                    'user_id' => Auth::id(),
-                    'action' => 'approve_storage_application',
-                    'description' => "Approved application ID: {$application->id}",
-                    'ip_address' => request()->ip(),
-                ]);
+                return 'mixed';
+            })->unique();
+
+            if ($types->count() !== 1 || $types->first() === 'mixed') {
+                $this->dispatch('show_toast', message: 'Bulk approve must be the same storage type.', type: 'error');
+                return;
+            }
+            // --- Rule 3: no locker conflicts ---
+            if ($types->first() === 'locker') {
+                $lockerIds = $applications
+                    ->pluck('locker_id')
+                    ->filter()
+                    ->unique();
+
+                if ($lockerIds->count() !== $applications->count()) {
+                    $this->dispatch('show_toast', message: 'Bulk approve failed: multiple applications target the same locker.', type: 'error');
+                    return;
+                }
             }
 
-            $this->dispatch('show_toast', message: 'Application approved successfully!', type: 'success');
-            $this->reset();
-        } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            $this->dispatch('show_toast', message: 'Something went wrong. Please try again.', type: 'fail');
-        }
-    }
-
-    public function bulkReject()
-    {
-        $this->validate(['rejectionNote' => 'nullable|string|max:500']);
-
-        try {
-            DB::transaction(function () {
-                // 1. Find all locker IDs associated with these applications
-                $lockerIds = StorageApplication::whereIn('id', $this->selectedApplications)
-                    ->whereNotNull('locker_id') // Filter out applications that might be for Open Areas
-                    ->pluck('locker_id');
-
-                // 2. Reject the Applications
-                StorageApplication::whereIn('id', $this->selectedApplications)->update([
-                    'storage_application_status' => 'rejected',
-                    'note' => $this->rejectionNote,
-                    'approver_id' => Auth::user()->id,
-                ]);
-
-                // 3. Release the Lockers (Update status to 'available')
-                if ($lockerIds->isNotEmpty()) {
-                    Locker::whereIn('id', $lockerIds)->update(['status' => 'available']);
+            DB::transaction(function () use ($applications) {
+                foreach ($applications as $application) {
+                    $this->processApproval($application);
                 }
             });
 
-            $this->dispatch('show_toast', message: 'Applications rejected and lockers released successfully!', type: 'success');
+            $this->dispatch('show_toast', message: 'Applications approved successfully!', type: 'success');
 
-            // Optional: Clear selection after bulk action
+            // Only reset the selection array, usually better than resetting the whole component in bulk actions
             $this->selectedApplications = [];
-            $this->dispatch('close-modal');
+            $this->dispatch('clear-selection'); // Optional: if you use a frontend library for checkboxes
+
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
-            $this->dispatch('show_toast', message: 'Something went wrong. Please try again.', type: 'fail');
+            Log::error('Bulk Approval Failed: ' . $e->getMessage());
+            $this->dispatch('show_toast', message: 'Batch failed: ' . $e->getMessage(), type: 'error');
         }
+    }
+
+    private function processRejection(StorageApplication $application)
+    {
+        // 1. Update Application Status
+        $application->update([
+            'storage_application_status' => 'rejected',
+            'note' => $this->rejectionNote,
+            'approver_id' => Auth::id()
+        ]);
+
+        // 3. Notification (Optional but recommended)
+        try {
+            $application->applicant->notify(new RejectStorageApplicationNotification($application, $this->rejectionNote));
+        } catch (\Exception $e) {
+            Log::error("Notification failed for App ID {$application->id}: " . $e->getMessage());
+        }
+
+        // 4. Activity Log
+        $application->activityLogs()->create([
+            'user_id' => Auth::id(),
+            'action' => 'rejected',
+            'description' => "Rejected application ID: {$application->id}. Note: {$this->rejectionNote}",
+            'ip_address' => request()->ip(),
+        ]);
     }
 
     public function rejectApplication($id)
@@ -214,29 +275,103 @@ class StorageApplicationPending extends Component
         try {
             DB::transaction(function () use ($id) {
                 $application = StorageApplication::findOrFail($id);
-
-                // 1. Update Application Status
-                $application->update([
-                    'storage_application_status' => 'rejected',
-                    'note' => $this->rejectionNote,
-                    'approver_id' => Auth::user()->id
-                ]);
-
-                // 2. Release the Locker if one is assigned
-                if ($application->locker_id) {
-                    // Assuming 'available' is your status for a free locker
-                    $application->locker()->update(['status' => 'available']);
-                }
+                $this->processRejection($application);
             });
 
             $this->dispatch('show_toast', message: 'Application rejected successfully!', type: 'success');
             $this->dispatch('close-modal');
+            $this->reset(['rejectionNote', 'selectedApplications']); // Good practice to reset inputs
+
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             $this->dispatch('show_toast', message: 'Application not found.', type: 'fail');
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
+            Log::error('Rejection Error: ' . $e->getMessage());
             $this->dispatch('show_toast', message: 'Something went wrong. Please try again.', type: 'fail');
         }
+    }
+
+    public function bulkReject()
+    {
+        if (empty($this->selectedApplications)) {
+            $this->dispatch('toast', type: 'error', message: 'No applications selected.');
+            return;
+        }
+
+        $this->validate(['rejectionNote' => 'nullable|string|max:500']);
+
+        try {
+            // Eager load locker, openArea, and applicant to avoid N+1 queries during loop
+            $applications = StorageApplication::with(['locker', 'openArea', 'applicant'])
+                ->whereIn('id', $this->selectedApplications)
+                ->get();
+
+            if ($applications->isEmpty()) {
+                $this->dispatch('show_toast', message: 'No applications selected.', type: 'warning');
+                return;
+            }
+
+            DB::transaction(function () use ($applications) {
+                foreach ($applications as $application) {
+                    $this->processRejection($application);
+                }
+            });
+
+            $this->dispatch('show_toast', message: 'Applications rejected successfully!', type: 'success');
+
+            $this->selectedApplications = [];
+            $this->dispatch('close-modal');
+            $this->reset('rejectionNote');
+        } catch (\Exception $e) {
+            Log::error('Bulk Rejection Failed: ' . $e->getMessage());
+            $this->dispatch('show_toast', message: 'Batch failed: ' . $e->getMessage(), type: 'error');
+        }
+    }
+
+    protected function getCompetingApplications(StorageApplication $application)
+    {
+        // Only makes sense for locker applications
+        if (!$application->locker_id) {
+            return collect();
+        }
+
+        return StorageApplication::with('applicant')
+            ->where('locker_id', $application->locker_id)
+            ->where('semester_id', $application->semester_id)
+            ->where('storage_application_status', 'pending')
+            ->orderBy('created_at')       // fairness
+            ->get();
+    }
+
+    #[Computed()]
+    public function conflictedApplicationIds()
+    {
+        $lockerIds = $this->pendingStorageApplications
+            ->whereNotNull('locker_id')
+            ->pluck('locker_id')
+            ->unique();
+
+        if ($lockerIds->isEmpty()) {
+            return;
+        }
+
+        $conflicts = StorageApplication::select('locker_id')
+            ->whereIn('locker_id', $lockerIds)
+            ->where('storage_application_status', 'pending')
+            ->groupBy('locker_id')
+            ->havingRaw('COUNT(*) > 1')
+            ->pluck('locker_id');
+
+        return $this->pendingStorageApplications
+            ->whereIn('locker_id', $conflicts)
+            ->pluck('id')
+            ->toArray();
+    }
+
+    #[Computed]
+    public function bulkApproveDisabled()
+    {
+        // Optional: lightweight frontend check
+        return count($this->selectedApplications) < 1;
     }
 
     #[Computed()]
@@ -307,13 +442,32 @@ class StorageApplicationPending extends Component
     }
 
     // Metrics for dashboard cards
-    #[Computed()]
-    public function pendingThisSemester()
+    #[Computed]
+    public function storageCounts()
     {
         $currentSemesterId = Semester::where('is_current', true)->value('id');
 
+        $pending = StorageApplication::where('storage_application_status', 'pending')
+            ->where('semester_id', $currentSemesterId);
+
+        return [
+            'total' => $pending->count(),
+            'locker' => $pending->whereNotNull('locker_id')->count(),
+            'open_area' => $pending->whereNotNull('open_area_id')->count(),
+        ];
+    }
+    #[Computed]
+    public function staleCount()
+    {
         return StorageApplication::where('storage_application_status', 'pending')
-            ->where('semester_id', $currentSemesterId)
+            ->where('created_at', '<=', now()->subDays(7))
+            ->count();
+    }
+    #[Computed]
+    public function newTodayCount()
+    {
+        return StorageApplication::where('storage_application_status', 'pending')
+            ->whereDate('created_at', today())
             ->count();
     }
 
@@ -328,20 +482,6 @@ class StorageApplicationPending extends Component
     {
         // Adjust sorting as needed (e.g., latest semester first)
         return Semester::orderBy('created_at', 'desc')->get();
-    }
-
-
-    // TODO: Counts
-    #[Computed]
-    public function storageCounts()
-    {
-        $pending = StorageApplication::where('storage_application_status', 'pending');
-
-        return [
-            'total' => $pending->count(),
-            'locker' => $pending->whereNotNull('locker_id')->count(),
-            'open_area' => $pending->whereNotNull('open_area_id')->count(),
-        ];
     }
 
     public function placeholder()

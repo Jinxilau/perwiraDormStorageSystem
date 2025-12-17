@@ -166,9 +166,9 @@
                             </p>
                             <p class="mb-0 fs-6 fw-medium">
                                 @if ($application->locker_id && $application->open_area_id)
-                                    Locker + Open Area
+                                    Locker {{ $application->locker->code }} + Open Area
                                 @elseif ($application->locker_id)
-                                    Locker
+                                    Locker {{ $application->locker->code }}
                                 @elseif ($application->open_area_id)
                                     Open Area
                                 @endif
@@ -184,7 +184,7 @@
                                     style="letter-spacing: 0.5px;">
                                     <i class="bi bi-key me-1"></i>Locker Number
                                 </p>
-                                <p class="mb-0 fs-6 fw-medium">{{ $application->locker_id }}</p>
+                                <p class="mb-0 fs-6 fw-medium">{{ $application->locker->code }}</p>
                             </div>
                         </div>
                     @endif

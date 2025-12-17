@@ -84,7 +84,7 @@
                                         <div class="flex-grow-1">
                                             <p class="text-muted small mb-1">Locker</p>
                                             <p class="fw-semibold mb-0">
-                                                {{ $this->selectedApplication->locker->id ?? 'N/A' }}
+                                                {{ $this->selectedApplication->locker->code ?? 'N/A' }}
                                             </p>
                                         </div>
                                     </div>

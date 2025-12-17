@@ -129,7 +129,7 @@
                                         </div>
                                         <div>
                                             <small class="text-muted d-block">Locker</small>
-                                            <strong>#{{ $storageApp->locker->id }}</strong>
+                                            <strong>#{{ $storageApp->locker->code }}</strong>
                                         </div>
                                     </div>
                                 </div>

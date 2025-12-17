@@ -23,6 +23,53 @@
         @endphp
         <div wire:loading.remove="modalData" class="text-start">
             @if ($modalApplication)
+                @php
+                    $competingApplications = $this->getCompetingApplications($modalApplication);
+                @endphp
+                @if ($competingApplications->count() > 1)
+                    <div class="alert alert-warning mb-4">
+                        <div class="fw-bold mb-2">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            Competing Applications
+                        </div>
+
+                        <div class="small text-muted mb-2">
+                            Locker: <strong>{{ $modalApplication->locker->code }}</strong>
+                            · {{ $competingApplications->count() }} applicants
+                        </div>
+
+                        <ul class="list-unstyled mb-0">
+                            @foreach ($competingApplications as $competing)
+                                <li class="d-flex align-items-center mb-1">
+                                    @if ($competing->id === $modalApplication->id)
+                                        <i class="bi bi-eye-fill text-primary me-2"></i>
+                                        <strong>{{ $competing->applicant->name }} (You are reviewing)</strong>
+                                    @else
+                                        <i class="bi bi-person text-secondary me-2"></i>
+                                        <h6 class="mb-0 fw-bold text-dark me-3">
+                                            {{ $competing->applicant->name }}
+                                        </h6>
+                                        <small class="text-muted me-3">
+                                            {{ $competing->applicant->matric_no }}
+                                        </small>
+                                        <div>
+                                            <span
+                                                class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
+                                                ID: {{ $competing->id }}
+                                            </span>
+                                        </div>
+
+                                        {{-- Indicate if the competing application was created earlier --}}
+                                        @if ($competing->created_at->lt($modalApplication->created_at))
+                                            <span class="badge bg-secondary ms-2">Applied earlier</span>
+                                        @endif
+                                    @endif
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <div class="mb-4 pb-3 border-bottom">
                     <h5 class="text-info mb-3"><i class="bi bi-person-circle me-2"></i>Applicant Information</h5>
                     <div class="row g-3">
@@ -76,7 +123,7 @@
                             <div class="d-flex flex-wrap gap-2">
                                 <div class="d-inline-flex align-items-center bg-light rounded px-3 py-2">
                                     <i class="bi bi-lock me-2"></i>
-                                    <span class="me-2">Locker</span>
+                                    <span class="me-2">Locker {{ $modalApplication->locker->code }}</span>
                                     <span
                                         class="badge {{ match ($modalApplication->locker->status) {
                                             'available' => 'text-bg-success',
@@ -102,7 +149,7 @@
                         @elseif (!empty($modalApplication->locker_id))
                             <div class="d-inline-flex align-items-center bg-light rounded px-3 py-2">
                                 <i class="bi bi-lock me-2"></i>
-                                <span class="me-2">Locker</span>
+                                <span class="me-2">Locker {{ $modalApplication->locker->code }}</span>
                                 <span
                                     class="badge {{ match ($modalApplication->locker->status) {
                                         'available' => 'bg-success',
@@ -138,9 +185,23 @@
                             @foreach ($modalApplication->storedItems as $item)
                                 <div class="col-12">
                                     <div class="d-flex align-items-start p-3 bg-light rounded">
-                                        <img src="{{ \Storage::disk('public')->url($item->item_photo_path) }}"
-                                            alt="Item Photo" class="rounded shadow-sm me-3"
-                                            style="width: 80px; height: 80px; object-fit: cover;" />
+                                        {{-- Item Photo --}}
+                                        @if ($item->item_photo_path)
+                                            <img src="{{ \Storage::disk('public')->url($item->item_photo_path) }}"
+                                                alt="Item Photo" class="rounded shadow-sm me-3"
+                                                style="width: 80px; height: 80px; object-fit: cover;" />
+                                        @else
+                                            {{-- Placeholder for No Image --}}
+                                            <div class="d-flex align-items-center justify-content-center bg-light rounded border text-secondary shadow-sm me-3"
+                                                style="width: 60px; height: 60px;">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    fill="currentColor" class="bi bi-image" viewBox="0 0 16 16">
+                                                    <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                                                    <path
+                                                        d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z" />
+                                                </svg>
+                                            </div>
+                                        @endif
                                         <div class="flex-grow-1">
                                             <h6 class="mb-2 fw-bold">{{ ucfirst($item->item_name) }}</h6>
                                             <div class="mb-2">
@@ -279,10 +340,36 @@
     }" x-init="toggleAll()" class="shadow-sm rounded-lg overflow-hidden">
 
         <x-card-matrix :items="[
-            ['title' => $this->storageCounts['total'], 'subtitle' => 'Total Pending Application'],
-            ['title' => $this->storageCounts['locker'], 'subtitle' => 'Total Locker Application'],
-            ['title' => $this->storageCounts['open_area'], 'subtitle' => 'Total Open Area Application'],
-            ['title' => $this->pendingThisSemester, 'subtitle' => 'Pending (Current Semester)'],
+            [
+                'title' => $this->storageCounts['total'],
+                'subtitle' => 'Pending Applications (Current Semester)',
+                'icon' => 'bi-collection',
+                'color' => 'text-dark',
+            ],
+            [
+                'title' => $this->storageCounts['locker'],
+                'subtitle' => 'Locker Requests (Current Semester)',
+                'icon' => 'bi-lock',
+                'color' => 'text-primary',
+            ],
+            [
+                'title' => $this->storageCounts['open_area'],
+                'subtitle' => 'Open Area Requests (Current Semester)',
+                'icon' => 'bi-map',
+                'color' => 'text-info',
+            ],
+            [
+                'title' => $this->staleCount,
+                'subtitle' => 'Stale (> 7 Days Waiting)',
+                'icon' => 'bi-hourglass-split',
+                'color' => 'text-warning',
+            ],
+            [
+                'title' => $this->newTodayCount,
+                'subtitle' => 'Received Today',
+                'icon' => 'bi-file-earmark-plus',
+                'color' => 'text-success',
+            ],
         ]" />
 
         <x-filter-options>
@@ -411,8 +498,7 @@
                     </span>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <button type="button" wire:click="bulkApprove"
-                        @empty($this->selectedApplications) disabled @endempty
+                    <button type="button" wire:click="bulkApprove" @disabled($this->bulkApproveDisabled)
                         wire:confirm="Are you sure you want to approve the selected applications?"
                         class="btn btn-success">
                         Approve Selected
@@ -479,19 +565,7 @@
                                     {{ $application->applicant->name ?? 'N/A' }}
                                 </div>
 
-                                <div class="small text-muted mb-1">
-                                    {{ $application->applicant->email ?? 'N/A' }}
-                                    <span class="mx-1">&bull;</span>
-                                    {{ $application->applicant->phone_number ?? 'N/A' }}
-                                </div>
-
                                 <div class="d-flex flex-wrap gap-1">
-                                    <span class="badge bg-light text-secondary border fw-normal">
-                                        {{ ucfirst($application->applicant->gender) ?? '-' }}
-                                    </span>
-                                    <span class="badge bg-light text-secondary border fw-normal">
-                                        Year {{ $application->applicant->year_of_study ?? '-' }}
-                                    </span>
                                     <span
                                         class="badge bg-info-subtle text-info-emphasis border border-info-subtle fw-normal">
                                         {{ $application->applicant->matric_no ?? 'N/A' }}
@@ -502,35 +576,67 @@
                     </td>
                     <td class="align-middle" x-show="cols.includes('storageDetails')">
                         <div class="d-flex flex-column justify-content-center">
+
+                            {{-- 1. Room Name Display (Simplified) --}}
                             <div class="fw-bold text-dark mb-1">
-                                @if (!empty($application->open_area_id) && !empty($application->locker_id))
-                                    {{ $application->openArea?->storageRoom?->room_name ?? 'Unknown Room' }}
-                                @elseif (!empty($application->locker_id))
-                                    {{ $application->locker?->storageRoom?->room_name ?? 'Unknown Room' }}
-                                @elseif (!empty($application->open_area_id))
-                                    {{ $application->openArea?->storageRoom?->room_name ?? 'Unknown Room' }}
+                                @php
+                                    // Resolve the room from either relation
+                                    $room = $application->locker?->storageRoom ?? $application->openArea?->storageRoom;
+                                @endphp
+
+                                @if ($room)
+                                    {{ $room->room_name }}
                                 @else
                                     <span class="text-muted fst-italic">No Assignment</span>
                                 @endif
                             </div>
 
-                            <div class="d-flex flex-wrap gap-1">
-                                @if (!empty($application->open_area_id) && !empty($application->locker_id))
-                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                                        <i class="bi bi-box-seam me-1"></i>Locker
-                                    </span>
-                                    <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle">
-                                        <i class="bi bi-grid me-1"></i>Open Area
-                                    </span>
-                                @elseif (!empty($application->locker_id))
-                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                                        <i class="bi bi-box-seam me-1"></i>Locker
-                                    </span>
-                                @elseif (!empty($application->open_area_id))
-                                    <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle">
-                                        <i class="bi bi-grid me-1"></i>Open Area
+                            {{-- 2. Badges Container --}}
+                            <div class="d-flex flex-wrap gap-1 justify-content-center">
+
+                                {{-- A. Locker Badge --}}
+                                @if ($application->locker_id && $application->locker)
+                                    @php
+                                        $isLockerAvailable = $application->locker->status === 'available';
+                                    @endphp
+
+                                    <span
+                                        class="badge border {{ $isLockerAvailable ? 'bg-primary-subtle text-primary border-primary-subtle' : 'bg-danger-subtle text-danger border-danger-subtle' }}"
+                                        @if (!$isLockerAvailable) title="Warning: Locker is {{ $application->locker->status }}" 
+                          data-bs-toggle="tooltip" @endif>
+
+                                        @if (!$isLockerAvailable)
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                        @else
+                                            <i class="bi bi-box-seam me-1"></i>
+                                        @endif
+
+                                        Locker {{ $application->locker->code }}
                                     </span>
                                 @endif
+
+                                {{-- B. Open Area Badge --}}
+                                @if ($application->open_area_id && $application->openArea)
+                                    @php
+                                        $openArea = $application->openArea;
+                                        // Check if the openArea is available or full
+                                        $isRoomFull = $openArea && $openArea->area_status !== 'available';
+                                    @endphp
+
+                                    <span
+                                        class="badge border {{ $isRoomFull ? 'bg-danger-subtle text-danger border-danger-subtle' : 'bg-info-subtle text-info-emphasis border-info-subtle' }}"
+                                        @if ($isRoomFull) title="Warning: Room is not available" data-bs-toggle="tooltip" @endif>
+
+                                        @if ($isRoomFull)
+                                            <i class="bi bi-exclamation-octagon-fill me-1"></i>
+                                        @else
+                                            <i class="bi bi-grid me-1"></i>
+                                        @endif
+
+                                        Open Area
+                                    </span>
+                                @endif
+
                             </div>
                         </div>
                     </td>
@@ -547,12 +653,9 @@
                                     class="border-start border-3 border-primary">
                                     <div class="d-flex align-items-center justify-content-between gap-2">
                                         <div class="flex-grow-1">
-                                            <div class="fw-semibold text-dark">
-                                                {{ ucfirst($item->item_name) }}
-                                            </div>
                                             <span class="badge bg-light text-secondary border">
                                                 <i class="bi bi-tag-fill me-1"></i>
-                                                {{ ucfirst($item->item_type) }}
+                                                {{ ucfirst($item->estimated_size) }}
                                             </span>
                                         </div>
                                     </div>
@@ -577,29 +680,37 @@
                     </td>
 
                     <td x-show="cols.includes('status')" class="align-middle"> {{-- Status --}}
+                        @php
+                            $comApp = $this->getCompetingApplications($application);
+                        @endphp
+
                         <span class="badge text-bg-warning">
                             {{ ucfirst($application->storage_application_status) }}
+                            @if (in_array($application->id, $this->conflictedApplicationIds))
+                                <i class="bi bi-exclamation-diamond-fill ms-1" data-bs-toggle="tooltip"
+                                    title="Multiple students applied for the same locker"></i>
+                            @endif
                         </span>
                     </td>
                     <td class="align-middle"> {{-- Actions --}}
                         <div class="flex items-center space-x-2" style="white-space: nowrap">
                             <button
                                 wire:click="$set('modalData', {{ $application->id }}); $dispatch('display_modal');"
-                                title="View Details" class="btn btn-sm btn-outline-secondary border-0"
+                                title="View Details" class="btn btn-smborder border-secondary"
                                 style="padding: 0 2px;" type="button">
                                 <i class="bi bi-eye"></i>
                             </button>
 
                             <button wire:click="approveApplication({{ $application->id }})"
                                 wire:confirm="Are you sure you want to approve this application?"
-                                class="text-success btn btn-sm  btn-outline-success border-0" style="padding: 0 2px;"
+                                class="text-success btn btn-sm border border-success" style="padding: 0 2px;"
                                 title="Approve">
                                 <i class="bi bi-check"></i>
                             </button>
 
                             <button
                                 wire:click="$set('modalData2', {{ $application->id }}); $dispatch('display_modal2');"
-                                class="text-danger btn btn-sm  btn-outline-danger border-0" style="padding: 0 2px;"
+                                class="text-danger btn btn-sm border border-danger" style="padding: 0 2px;"
                                 title="Reject">
                                 <i class="bi bi-x"></i>
                             </button>

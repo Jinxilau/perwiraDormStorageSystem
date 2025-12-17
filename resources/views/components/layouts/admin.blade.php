@@ -37,7 +37,7 @@
             'title' => 'Storage Room',
             'url' => route('storage_room'),
             'icon' => 'bi-box-seam',
-            'path' => 'room/*',
+            'path' => 'room',
         ],
         [
             'title' => 'Scan QR Code',

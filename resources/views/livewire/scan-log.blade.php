@@ -162,7 +162,7 @@
                                                         fill="currentColor" viewBox="0 0 16 16">
                                                         <path
                                                             d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
-                                                    </svg>Locker
+                                                    </svg>Locker {{ $application->locker->code }}
                                                 </span>
                                                 <span
                                                     class="badge bg-info-subtle text-info-emphasis border border-info-subtle">
@@ -175,7 +175,7 @@
                                                         fill="currentColor" viewBox="0 0 16 16">
                                                         <path
                                                             d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
-                                                    </svg>Locker
+                                                    </svg>Locker {{ $application->locker->code }}
                                                 </span>
                                             @elseif (!empty($application->open_area_id))
                                                 <span
