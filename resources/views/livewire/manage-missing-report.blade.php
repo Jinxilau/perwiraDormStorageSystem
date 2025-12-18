@@ -292,14 +292,52 @@
 
     <div class="container-fluid">
 
+        {{-- Report Cases Metrics --}}
         <x-card-matrix :items="[
-            ['title' => $this->reportCounts['under_investigation'], 'subtitle' => 'Under Investigation'],
-            ['title' => $this->reportCounts['resolved'], 'subtitle' => 'Resolved Cases'],
-            ['title' => $this->reportCounts['pending'], 'subtitle' => 'Pending Cases'],
-            ['title' => $this->reportCounts['dismissed'], 'subtitle' => 'Dismissed Cases'],
-            ['title' => $this->thisSemester, 'subtitle' => 'Total (Current Semester)'],
-            ['title' => $this->pendingThisSemester, 'subtitle' => 'Pending (Current Semester)'],
+            [
+                'title' => $this->reportCounts['under_investigation'],
+                'subtitle' => 'Under Investigation',
+                'icon' => 'bi-search',
+                'color' => 'text-warning',
+                'bg' => 'bg-warning bg-opacity-10',
+            ],
+            [
+                'title' => $this->reportCounts['resolved'],
+                'subtitle' => 'Resolved Cases',
+                'icon' => 'bi-check-circle-fill',
+                'color' => 'text-success',
+                'bg' => 'bg-success bg-opacity-10',
+            ],
+            [
+                'title' => $this->reportCounts['pending'],
+                'subtitle' => 'Pending Cases',
+                'icon' => 'bi-hourglass-split',
+                'color' => 'text-info',
+                'bg' => 'bg-info bg-opacity-10',
+            ],
+            [
+                'title' => $this->reportCounts['dismissed'],
+                'subtitle' => 'Dismissed Cases',
+                'icon' => 'bi-x-octagon-fill',
+                'color' => 'text-secondary',
+                'bg' => 'bg-secondary bg-opacity-10',
+            ],
+            [
+                'title' => $this->thisSemester,
+                'subtitle' => 'Total (Current Semester)',
+                'icon' => 'bi-file-earmark-text-fill',
+                'color' => 'text-primary',
+                'bg' => 'bg-primary bg-opacity-10',
+            ],
+            [
+                'title' => $this->pendingThisSemester,
+                'subtitle' => 'Pending (Current Semester)',
+                'icon' => 'bi-clock-fill',
+                'color' => 'text-danger',
+                'bg' => 'bg-danger bg-opacity-10',
+            ],
         ]" />
+
 
         <x-filter-options>
             {{-- Room --}}

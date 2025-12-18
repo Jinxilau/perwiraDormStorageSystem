@@ -6,18 +6,49 @@
     ])
 
     <div class="overflow-hidden container-fluid">
+        {{-- Scan Logs Metrics --}}
         <x-card-matrix :items="[
-            ['title' => $this->todayScans, 'subtitle' => 'Logs Today'],
-            ['title' => $this->logs->count(), 'subtitle' => 'Total Logs'],
-            ['title' => $this->thisSemester, 'subtitle' => 'Scans (Current Semester)'],
-            ['title' => $this->logs->where('event_type', 'check_in')->count(), 'subtitle' => 'Total Check Ins'],
-            ['title' => $this->logs->where('event_type', 'check_out')->count(), 'subtitle' => 'Total Check Outs'],
+            [
+                'title' => $this->logs->count(),
+                'subtitle' => 'Total Logs',
+                'icon' => 'bi-journal-text',
+                'color' => 'text-primary',
+                'bg' => 'bg-primary bg-opacity-10',
+            ],
+            [
+                'title' => $this->thisSemester,
+                'subtitle' => 'Scans (Current Semester)',
+                'icon' => 'bi-calendar-range-fill',
+                'color' => 'text-info',
+                'bg' => 'bg-info bg-opacity-10',
+            ],
+            [
+                'title' => $this->todayScans,
+                'subtitle' => 'Logs Today',
+                'icon' => 'bi-calendar-day-fill',
+                'color' => 'text-success',
+                'bg' => 'bg-success bg-opacity-10',
+            ],
+            [
+                'title' => $this->logs->where('event_type', 'check_in')->count(),
+                'subtitle' => 'Total Check Ins',
+                'icon' => 'bi-box-arrow-in-down-right',
+                'color' => 'text-success',
+                'bg' => 'bg-success bg-opacity-10',
+            ],
+            [
+                'title' => $this->logs->where('event_type', 'check_out')->count(),
+                'subtitle' => 'Total Check Outs',
+                'icon' => 'bi-box-arrow-up-right',
+                'color' => 'text-warning',
+                'bg' => 'bg-warning bg-opacity-10',
+            ],
         ]" />
 
         <x-filter-options>
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Check In/Check Out</label>
-                <select class="form-select bg-light border-0" wire:model.live="role">
+                <select class="form-select bg-light border-0" wire:model.live="event_type">
                     <option value="">All Type</option>
                     <option value="check_in">Check In</option>
                     <option value="check_out">Check Out</option>
@@ -68,7 +99,9 @@
             </div>
 
             <div class="col-md-4 col-lg-3">
-                <label class="form-label small text-muted fw-bold">Sort By Application Date</label>
+                <label class="form-label small text-muted fw-bold">
+                    Sort By Scan Date
+                </label>
                 <select class="form-select bg-light border-0" wire:model.live="sortDate">
                     <option value="latest">Latest</option>
                     <option value="oldest">Oldest</option>
@@ -117,6 +150,9 @@
                         </th>
                         <th class="align-middle py-2">
                             Timestamp
+                        </th>
+                        <th class="align-middle py-2 text-center">
+                            Actions
                         </th>
                     </tr>
                 </thead>
@@ -222,42 +258,54 @@
                                     </div>
                                 </div>
                             </td>
-                            <td> {{-- Count Items --}}
-                                @if ($log->qrCode->storageApplication->storedItems->count() > 0)
-                                    <div class="d-flex flex-column">
-                                        {{-- Items Count Badge --}}
-                                        <div>
-                                            <span class="badge bg-primary">
-                                                {{ $log->qrCode->storageApplication->storedItems->count() }}
-                                                {{ Str::plural('Item', $log->qrCode->storageApplication->storedItems->count()) }}
-                                            </span>
+                            <td class="align-middle" style="min-width: 150px;"> {{-- Set min-width to prevent squishing --}}
+                                @php
+                                    $items = $log->qrCode->storageApplication->storedItems;
+                                    $count = $items->count();
+                                @endphp
+
+                                @if ($count > 0)
+                                    <div x-data="{ open: false }">
+
+                                        {{-- Header: Badge + Tiny Toggle Link --}}
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <button @click="open = !open"
+                                                class="btn badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill">
+                                                {{ $count }} {{ Str::plural('Item', $count) }}
+                                                <i class="bi"
+                                                    :class="open ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                                            </button>
                                         </div>
 
-                                        {{-- Items List --}}
-                                        <div class="d-flex flex-column gap-2">
-                                            @foreach ($log->qrCode->storageApplication->storedItems as $item)
-                                                <div wire:key="item-{{ $item->id }}"
-                                                    class="border-start border-3 border-primary">
-                                                    <div
-                                                        class="d-flex align-items-center justify-content-between gap-2">
-                                                        <div class="flex-grow-1 text-center">
-                                                            <div class="fw-semibold text-dark">
+                                        {{-- Expanded Item List --}}
+                                        <div x-show="open" x-transition.opacity.duration.200ms style="display: none;"
+                                            class="mt-2">
+                                            <div class="card card-body p-2 bg-light border-0 rounded-3">
+                                                <ul class="list-unstyled mb-0">
+                                                    @foreach ($items as $index => $item)
+                                                        <li
+                                                            class="d-flex align-items-center justify-content-between {{ !$loop->last ? 'border-bottom pb-1 mb-1' : '' }}">
+                                                            {{-- Item Name --}}
+                                                            <span class="text-dark small fw-medium text-truncate"
+                                                                style="max-width: 100px;"
+                                                                title="{{ $item->item_name }}">
                                                                 {{ ucfirst($item->item_name) }}
-                                                            </div>
-                                                            <span class="badge bg-light text-secondary border">
-                                                                <i class="bi bi-tag-fill me-1"></i>
+                                                            </span>
+
+                                                            {{-- Item Type (Tiny Tag) --}}
+                                                            <span class="badge bg-white text-secondary border"
+                                                                style="font-size: 0.65rem;">
                                                                 {{ ucfirst($item->item_type) }}
                                                             </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endforeach
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
                                         </div>
+
                                     </div>
                                 @else
-                                    <div class="text-center">
-                                        <div class="text-muted small">No items stored</div>
-                                    </div>
+                                    <span class="text-muted small fst-italic opacity-50">No items</span>
                                 @endif
                             </td>
                             <td class="align-middle">
@@ -289,10 +337,28 @@
                                     </span>
                                 </div>
                             </td>
+                            <td class="align-middle text-center">
+                                <div class="d-flex justify-content-center gap-1">
+
+                                    {{-- View Storage Application --}}
+                                    <a href="{{ route('storage_application_detail', $application->id) }}"
+                                        class="btn btn-sm btn-outline-primary" title="View Storage Application">
+                                        <i class="bi bi-box-seam"></i>
+                                    </a>
+
+                                    {{-- View QR History --}}
+                                    <button
+                                        wire:click="$set('modalData', {{ $log->qr_code_id }}); $dispatch('display_modal');"
+                                        class="btn btn-sm btn-outline-secondary" title="View QR Scan History">
+                                        <i class="bi bi-clock-history"></i>
+                                    </button>
+
+                                </div>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-3 py-5 text-center">
+                            <td colspan="20" class="px-3 py-5 text-center">
                                 <div>
                                     <i class="bi bi-file-earmark-text mx-auto" style="font-size: 60px"></i>
                                     <h3 class="mt-4">No Scan Logs</h3>
@@ -306,4 +372,55 @@
             {{ $this->logs->links('vendor.livewire.bootstrap') }}
         </div>
     </div>
+
+    <x-custom-modal>
+        <x-slot:title>
+            QR Scan History
+        </x-slot:title>
+
+        <div class="d-flex justify-content-center">
+            <div wire:loading="modalData" class="spinner-border my-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
+
+        <table wire:loading.remove="modalData" class="table table-sm">
+            @if ($this->qrHistoryLogs)
+                <thead class="table-light">
+                    <tr>
+                        <th>Type</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Semester</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($this->qrHistoryLogs as $history)
+                        <tr>
+                            <td>
+                                <span
+                                    class="badge
+                                            {{ $history->event_type === 'check_in' ? 'bg-warning text-dark' : 'bg-success' }}">
+                                    {{ ucwords(str_replace('_', ' ', $history->event_type)) }}
+                                </span>
+                            </td>
+                            <td>{{ $history->created_at->format('M d, Y') }}</td>
+                            <td>{{ $history->created_at->format('h:i A') }}</td>
+                            <td>
+                                {{ $history->semester->academic_year }}
+                                - {{ $history->semester->semester_no }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-3">
+                                No scan history found
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            @endif
+        </table>
+    </x-custom-modal>
 </div>

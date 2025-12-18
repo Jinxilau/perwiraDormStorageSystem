@@ -15,6 +15,7 @@ class StoredItem extends Model
         'storage_application_id',
         'missing_report_id',
         'item_photo_path',
+        'item_location_photo',
     ];
 
     // Run automatic assignment of item_group based on item_type

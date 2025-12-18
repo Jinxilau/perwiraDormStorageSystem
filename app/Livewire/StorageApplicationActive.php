@@ -6,6 +6,7 @@ use App\Models\ScanLog;
 use App\Models\Semester;
 use App\Models\StorageApplication;
 use App\Models\StorageRoom;
+use App\Models\StoredItem;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -29,9 +30,11 @@ class StorageApplicationActive extends Component
     #[Url(except: '')]
     public $storageType = '';
     #[Url(except: '')]
-    public $checkinDate = '';
+    public $qrStatus = '';
     #[Url(except: '')]
-    public $checkoutDate = '';
+    public $sortCheckIn = '';
+    #[Url(except: '')]
+    public $sortCheckOut = '';
     #[Url(except: '')]
     public $sortDate = '';
     #[Url(except: '')]
@@ -51,14 +54,14 @@ class StorageApplicationActive extends Component
             $this->semester = $activeSemester->id;
         }
     }
-    
+
     public function clearFilters()
     {
         $this->search = '';
         $this->room = '';
         $this->storageType = '';
-        $this->checkinDate = '';
-        $this->checkoutDate = '';
+        $this->sortCheckIn = '';
+        $this->sortCheckOut = '';
         $this->sortDate = 'latest';
         $this->sortName = '';
 
@@ -88,42 +91,41 @@ class StorageApplicationActive extends Component
             return;
         }
 
-        // 2. Logic Check
-        if ($application->qrCode->status === 'checked_in') {
-            $this->dispatch('show_toast', message: "This storage has already been checked in.", type: "fail");
-            return;
-        }
-
-        DB::beginTransaction(); // Start Safety Net
-
         try {
-            // 3. Create Log
-            ScanLog::create([
-                'qr_code_id' => $application->qrCode->id,
-                'event_type' => 'check_in'
-            ]);
+            DB::transaction(function () use ($application) {
+                $qr = QRCode::where('id', $application->qrCode->id)
+                    ->lockForUpdate()
+                    ->first();
 
-            // 4. Update QR Status
-            $application->qrCode->update([
-                'status' => 'checked_in',
-                'scanned_count' => $application->qrCode->scanned_count + 1
-            ]);
+                // 2. Logic Check
+                if ($application->qrCode->status === 'checked_in') {
+                    throw new \Exception('Already checked in');
+                }
 
-            // 5. Update Room Status
-            if ($application->locker) {
-                $application->locker->update(['status' => 'occupied']);
-            }
-            if ($application->openArea) {
-                $application->openArea->update(['status' => 'occupied']);
-            }
+                // 3. Create Log
+                ScanLog::create([
+                    'qr_code_id' => $application->qrCode->id,
+                    'event_type' => 'check_in'
+                ]);
 
-            DB::commit(); // Save everything
+                // 4. Update QR Status
+                $qr->update(['status' => 'checked_in']);
+                $qr->increment('scanned_count');
+
+                // 5. Update Room Status
+                if ($application->locker) {
+                    $application->locker->update(['status' => 'occupied']);
+                }
+                if ($application->openArea) {
+                    $application->openArea->update(['status' => 'occupied']);
+                }
+            });
 
             $this->dispatch('show_toast', message: "Check in successfully!", type: "success");
         } catch (\Exception $e) {
             DB::rollBack(); // Undo changes if error occurs
             Log::error("Checkin Error: " . $e->getMessage());
-            $this->dispatch('show_toast', message: "System error during check-in.", type: "fail");
+            $this->dispatch('show_toast', message: "{$e->getMessage()}", type: "fail");
         }
     }
 
@@ -136,39 +138,38 @@ class StorageApplicationActive extends Component
             return;
         }
 
-        // 1. Logic Checks (Order Matters!)
-        if ($application->qrCode->status === 'checked_out') {
-            $this->dispatch('show_toast', message: "This storage has already been checked out.", type: "fail");
-            return;
-        }
-
-        if ($application->qrCode->status !== 'checked_in') {
-            // If it's 'pending' or 'new', they can't check out yet.
-            $this->dispatch('show_toast', message: "Item must be Checked In before it can be Checked Out.", type: "fail");
-            return;
-        }
-
-        DB::beginTransaction();
-
         try {
-            ScanLog::create([
-                'qr_code_id' => $application->qrCode->id,
-                'event_type' => 'check_out'
-            ]);
+            DB::transaction(function () use ($application) {
+                $qr = QRCode::where('id', $application->qrCode->id)
+                    ->lockForUpdate()
+                    ->first();
 
-            $application->qrCode->update([
-                'status' => 'checked_out',
-                'scanned_count' => $application->qrCode->scanned_count + 1
-            ]);
+                // 1. Logic Checks (Order Matters!)
+                if ($qr->status === 'checked_out') {
+                    throw new \Exception("This storage has already been checked out.");
+                }
 
-            if ($application->locker) {
-                $application->locker->update(['status' => 'available']);
-            }
-            if ($application->openArea) {
-                $application->openArea->update(['status' => 'available']);
-            }
+                if ($qr->status !== 'checked_in') {
+                    // If it's 'pending' or 'new', they can't check out yet.
+                    throw new \Exception("Item must be Checked In before it can be Checked Out.");
+                }
 
-            DB::commit();
+                // 2. Create Scan Log
+                ScanLog::create([
+                    'qr_code_id' => $qr->id,
+                    'event_type' => 'check_out'
+                ]);
+
+                $qr->update(['status' => 'checked_out']);
+                $qr->increment('scanned_count');
+
+                if ($application->locker) {
+                    $application->locker->update(['status' => 'available']);
+                }
+                if ($application->openArea) {
+                    $application->openArea->update(['status' => 'available']);
+                }
+            });
 
             $this->dispatch('show_toast', message: "Check-out successful!", type: "success");
         } catch (\Exception $e) {
@@ -181,17 +182,29 @@ class StorageApplicationActive extends Component
     #[Computed()]
     public function approvedStorageApplications()
     {
-        $query = StorageApplication::query()->with(['applicant', 'approver', 'storedItems', 'openArea.storageRoom', 'locker.storageRoom', 'qrCode.scanLogs', 'semester'])->where('storage_application_status', 'approved');
+        $query = StorageApplication::query()
+            ->with(['applicant', 'approver', 'storedItems', 'openArea.storageRoom', 'locker.storageRoom', 'qrCode.scanLogs', 'semester'])
+            ->where('storage_application_status', 'approved');
+
+        // --- START OF FIX ---
+        // 1. Join q_r_codes so the database "sees" the table for your sorting logic
+        $query->leftJoin('q_r_codes', 'storage_applications.id', '=', 'q_r_codes.storage_application_id');
+
+        // 2. IMPORTANT: Explicitly select storage_applications.* to avoid ID collisions
+        // (Both tables have an 'id' column; without this, the QR code ID might overwrite the App ID in the results)
+        $query->select('storage_applications.*');
+        // --- END OF FIX ---
 
         if ($this->search) {
             $query->where(function ($q) {
-
                 if (is_numeric($this->search)) {
-                    $q->where('id', $this->search);
+                    // Specify table name to avoid ambiguous column error
+                    $q->where('storage_applications.id', $this->search);
                 }
 
                 $q->whereHas("applicant", function ($userQuery) {
-                    $userQuery->where('name', 'like', "%" . $this->search . "%")->orWhere('matric_no', 'like', '%' . $this->search . "%");
+                    $userQuery->where('name', 'like', "%" . $this->search . "%")
+                        ->orWhere('matric_no', 'like', '%' . $this->search . "%");
                 });
             });
         }
@@ -207,37 +220,56 @@ class StorageApplicationActive extends Component
         }
 
         if ($this->semester) {
-            $query->where('semester_id', $this->semester);
+            // Specify table name just to be safe
+            $query->where('storage_applications.semester_id', $this->semester);
         }
 
         if ($this->storageType) {
             if ($this->storageType === 'locker') {
-                $query->whereNotNull('locker_id');
+                $query->whereNotNull('storage_applications.locker_id');
             } elseif ($this->storageType === 'openArea') {
-                $query->whereNotNull('open_area_id');
+                $query->whereNotNull('storage_applications.open_area_id');
             } elseif ($this->storageType === 'lockerOpenArea') {
-                $query->whereNotNull('locker_id')->whereNotNull('open_area_id');
+                $query->whereNotNull('storage_applications.locker_id')
+                    ->whereNotNull('storage_applications.open_area_id');
             }
         }
 
-        // TODO: Not yet checked in/out filters
-
-        if ($this->checkinDate) {
-            $query->whereHas('qrCode.scanLogs', function ($logQuery) {
-                $logQuery->where('event_type', 'check_in')->whereDate('created_at', $this->checkinDate);
-            });
+        if ($this->qrStatus) {
+            // Since we joined the table, we can filter directly on the column
+            // instead of using whereHas, which is slightly more performant
+            $query->where('q_r_codes.status', $this->qrStatus);
         }
 
-        if ($this->checkoutDate) {
-            $query->whereHas('qrCode.scanLogs', function ($logQuery) {
-                $logQuery->where('event_type', 'check_out')->whereDate('created_at', $this->checkoutDate);
-            });
+        // This logic now works because 'q_r_codes' is joined above
+        if ($this->sortCheckIn) {
+            $query->orderBy(
+                DB::table('scan_logs')
+                    ->select('created_at')
+                    ->whereColumn('scan_logs.qr_code_id', 'q_r_codes.id')
+                    ->where('event_type', 'check_in')
+                    ->latest()
+                    ->limit(1),
+                $this->sortCheckIn === 'latest' ? 'desc' : 'asc'
+            );
+        }
+
+        if ($this->sortCheckOut) {
+            $query->orderBy(
+                DB::table('scan_logs')
+                    ->select('created_at')
+                    ->whereColumn('scan_logs.qr_code_id', 'q_r_codes.id')
+                    ->where('event_type', 'check_out')
+                    ->latest()
+                    ->limit(1),
+                $this->sortCheckOut === 'latest' ? 'desc' : 'asc'
+            );
         }
 
         if ($this->sortDate === 'latest') {
-            $query->latest();
+            $query->orderBy('storage_applications.created_at', 'desc');
         } elseif ($this->sortDate === 'oldest') {
-            $query->oldest();
+            $query->orderBy('storage_applications.created_at', 'asc');
         }
 
         if ($this->sortName) {
@@ -249,6 +281,21 @@ class StorageApplicationActive extends Component
         }
 
         return $query->paginate($this->paginationInt);
+    }
+
+    #[Computed()]
+    public function modalApplication()
+    {
+        if (!$this->modalData) return null;
+
+        return StorageApplication::with([
+            'applicant',
+            'approver',
+            'storedItems',
+            'openArea.storageRoom',
+            'locker.storageRoom',
+            'qrCode.scanLogs',
+        ])->find($this->modalData);
     }
 
     // Metrics for dashboard cards
@@ -269,6 +316,34 @@ class StorageApplicationActive extends Component
         return StorageApplication::where('storage_application_status', 'approved')
             ->where('semester_id', $currentSemesterId)
             ->count();
+    }
+    #[Computed()]
+    public function pendingCheckinCount()
+    {
+        return StorageApplication::query()
+            ->where('storage_application_status', 'approved')
+            ->whereHas('semester', fn($q) => $q->where('is_current', true))
+            ->whereHas('qrCode', fn($q) => $q->where('status', 'not_scanned'))
+            ->count();
+    }
+    #[Computed()]
+    public function pendingCheckoutCount()
+    {
+        return StorageApplication::query()
+            ->where('storage_application_status', 'approved')
+            ->whereHas('semester', fn($q) => $q->where('is_current', true))
+            // "Pending checkout" implies they are currently checked in
+            ->whereHas('qrCode', fn($q) => $q->where('status', 'checked_in'))
+            ->count();
+    }
+    #[Computed()]
+    public function totalItemsCount()
+    {
+        // This query is slightly different as it starts from StoredItem
+        return StoredItem::whereHas('storageApplication', function ($q) {
+            $q->where('storage_application_status', 'approved')
+                ->whereHas('semester', fn($sq) => $sq->where('is_current', true));
+        })->count();
     }
 
     // Populate the filter dropdowns

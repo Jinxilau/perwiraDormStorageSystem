@@ -153,36 +153,73 @@
 
     <div class="overflow-hidden container-fluid">
 
+        {{-- User Accounts Metrics --}}
         <x-card-matrix :items="[
-            ['title' => $this->users->where('role_id', 1)->count(), 'subtitle' => 'Total Administrator'],
-            ['title' => $this->users->where('role_id', 2)->count(), 'subtitle' => 'Total Staff'],
-            ['title' => $this->users->where('role_id', 3)->count(), 'subtitle' => 'Total Student'],
+            [
+                'title' => $this->users->where('role_id', 1)->count(),
+                'subtitle' => 'Total Administrator',
+                'icon' => 'bi-shield-fill-check',
+                'color' => 'text-danger',
+                'bg' => 'bg-danger bg-opacity-10',
+            ],
+            [
+                'title' => $this->users->where('role_id', 2)->count(),
+                'subtitle' => 'Total Staff',
+                'icon' => 'bi-person-badge-fill',
+                'color' => 'text-primary',
+                'bg' => 'bg-primary bg-opacity-10',
+            ],
+            [
+                'title' => $this->users->where('role_id', 3)->count(),
+                'subtitle' => 'Total Student',
+                'icon' => 'bi-mortarboard-fill',
+                'color' => 'text-info',
+                'bg' => 'bg-info bg-opacity-10',
+            ],
             [
                 'title' => $this->users->where('application_status', 'approved')->count(),
                 'subtitle' => 'Total Approved Accounts',
+                'icon' => 'bi-check-circle-fill',
+                'color' => 'text-success',
+                'bg' => 'bg-success bg-opacity-10',
             ],
             [
                 'title' => $this->users->where('application_status', 'pending')->count(),
                 'subtitle' => 'Total Pending Accounts',
+                'icon' => 'bi-clock-history',
+                'color' => 'text-warning',
+                'bg' => 'bg-warning bg-opacity-10',
             ],
             [
                 'title' => $this->users->where('application_status', 'rejected')->count(),
                 'subtitle' => 'Total Rejected Accounts',
+                'icon' => 'bi-x-circle-fill',
+                'color' => 'text-danger',
+                'bg' => 'bg-danger bg-opacity-10',
             ],
             [
                 'title' => $this->users->count(),
                 'subtitle' => 'Total User Accounts',
+                'icon' => 'bi-people-fill',
+                'color' => 'text-dark',
+                'bg' => 'bg-dark bg-opacity-10',
             ],
             [
                 'title' => $this->users->where('gender', 'male')->count(),
                 'subtitle' => 'Total Male',
+                'icon' => 'bi-gender-male',
+                'color' => 'text-primary',
+                'bg' => 'bg-primary bg-opacity-10',
             ],
             [
                 'title' => $this->users->where('gender', 'female')->count(),
                 'subtitle' => 'Total Female',
+                'icon' => 'bi-gender-female',
+                'color' => 'text-danger',
+                'bg' => 'bg-danger bg-opacity-10',
             ],
         ]" />
-
+        
         <x-filter-options>
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">

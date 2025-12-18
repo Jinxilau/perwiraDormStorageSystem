@@ -11,20 +11,11 @@ class StorageApplication extends Model
     protected $fillable = [
         'storage_application_status',
         'note',
-        'start_date',
-        'end_date',
         'applicant_id',
         'approver_id',
         'open_area_id',
         'locker_id',
         'semester_id',
-    ];
-
-    protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
-        'storage_application_date' => 'date',
-        'expected_check_in' => 'datetime',
     ];
 
     // Eloquent Model Relationship

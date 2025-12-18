@@ -31,7 +31,7 @@
             'title' => 'Storage Application',
             'url' => route('manage_storage_application', ['status' => 'pending']),
             'icon' => 'bi-calendar-week',
-            'path' => 'storage_application',
+            'path' => 'storage_applications',
         ],
         [
             'title' => 'Storage Room',

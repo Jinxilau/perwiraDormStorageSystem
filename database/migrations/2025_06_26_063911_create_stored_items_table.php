@@ -29,6 +29,7 @@ return new class extends Migration
             
             $table->text('item_description')->nullable();
             $table->string('item_photo_path')->nullable();
+            $table->string('item_location_photo')->nullable();
 
             $table->timestamps();
         });

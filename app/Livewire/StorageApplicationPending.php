@@ -32,6 +32,8 @@ class StorageApplicationPending extends Component
     #[Url(except: '')]
     public $semester = '';
     #[Url(except: '')]
+    public $conflictOnly = false;
+    #[Url(except: '')]
     public $storageType = '';
     #[Url(except: '')]
     public $fromRange = '';
@@ -75,6 +77,13 @@ class StorageApplicationPending extends Component
     public function updatedSelectedApplications()
     {
         $this->selectAll = count($this->selectedApplications) === $this->pendingStorageApplications->count();
+    }
+
+    public function updatedConflictOnly($value)
+    {
+        if ($value) {
+            $this->storageType = 'locker';
+        }
     }
 
     public function clearFilters()
@@ -278,8 +287,8 @@ class StorageApplicationPending extends Component
                 $this->processRejection($application);
             });
 
-            $this->dispatch('show_toast', message: 'Application rejected successfully!', type: 'success');
             $this->dispatch('close-modal');
+            $this->dispatch('show_toast', message: 'Application rejected successfully!', type: 'success');
             $this->reset(['rejectionNote', 'selectedApplications']); // Good practice to reset inputs
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
@@ -367,6 +376,19 @@ class StorageApplicationPending extends Component
             ->toArray();
     }
 
+    #[Computed()]
+    public function modalApplication()
+    {
+        if ($this->modalData === null) return null;
+
+        return StorageApplication::with([
+            'applicant',
+            'storedItems',
+            'openArea.storageRoom',
+            'locker.storageRoom',
+        ])->find($this->modalData);
+    }
+
     #[Computed]
     public function bulkApproveDisabled()
     {
@@ -404,6 +426,18 @@ class StorageApplicationPending extends Component
 
         if ($this->semester) {
             $query->where('semester_id', $this->semester);
+        }
+
+        if ($this->conflictOnly) {
+            $query->whereIn('locker_id', function ($subQuery) {
+                $subQuery->select('locker_id')
+                    ->from('storage_applications')
+                    ->where('storage_application_status', 'pending')
+                    ->whereNotNull('locker_id')
+                    ->whereColumn('semester_id', 'storage_applications.semester_id')
+                    ->groupBy('locker_id', 'semester_id')
+                    ->havingRaw('COUNT(*) > 1');
+            });
         }
 
         if ($this->storageType) {

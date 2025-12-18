@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\StorageApplicationDetailController;
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\EnsureUserIsApproved;
 use App\Livewire\AdminDashboard;
@@ -58,7 +59,8 @@ Route::middleware(['auth', CheckRole::class . ':administrator'])->group(function
 // Both Staff and Admin
 Route::middleware(['auth', CheckRole::class . ':staff,administrator'])->group(function () {
     // Have problem when doing full page livewire, because the layout needs to be dynamic, so lazy wont work as the layouts apply late.
-    Route::view('/storage_application', 'admin.manage_storage_application')->name('manage_storage_application');
+    Route::view('/storage_applications', 'admin.manage_storage_application')->name('manage_storage_application');
+    Route::get('/storage_applications/{application}', [StorageApplicationDetailController::class, 'show'])->name('storage_application_detail');
 
     Route::get('/room/{room?}', function ($room = null) {
         return view('admin.manage_storage_room', ['room' => $room]);

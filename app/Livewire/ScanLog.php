@@ -37,6 +37,8 @@ class ScanLog extends Component
 
     public $paginationInt = 10;
 
+    public $modalData; // For passing data to modal
+
     public function mount()
     {
         // Assuming your Semester model has a way to identify the active one, 
@@ -132,6 +134,17 @@ class ScanLog extends Component
         }
 
         return $query->paginate($this->paginationInt);
+    }
+
+    #[Computed()]
+    public function qrHistoryLogs()
+    {
+        if (!$this->modalData) return null;
+
+        return ModelsScanLog::with(['semester'])
+            ->where('qr_code_id', $this->modalData)
+            ->orderByDesc('created_at')
+            ->get();
     }
 
     // Metrics for dashboard cards

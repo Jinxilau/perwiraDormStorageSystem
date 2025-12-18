@@ -1,268 +1,4 @@
 <div>
-    {{-- Modal --}}
-    <x-custom-modal>
-        <x-slot:title>
-            <div class="d-flex justify-content-between align-items-center gap-1 w-100">
-                <span>Application Details</span>
-                <span class="badge bg-secondary rounded-pill fs-6">#{{ $this->modalData }}</span>
-            </div>
-        </x-slot:title>
-
-        <div class="d-flex justify-content-center">
-            <div wire:loading="modalData" class="spinner-border my-3" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </div>
-        @php
-            $modalApplication = App\Models\StorageApplication::with([
-                'applicant',
-                'approver',
-                'storedItems',
-                'openArea.storageRoom',
-                'locker.storageRoom',
-            ])->find($this->modalData);
-        @endphp
-        <div wire:loading.remove="modalData" class="text-start">
-            @if ($modalApplication)
-                <div class="mb-4 pb-3 border-bottom">
-                    <h5 class="text-info mb-3"><i class="bi bi-person-circle me-2"></i>Applicant Information</h5>
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <label class="text-muted small d-block mb-1">ID</label>
-                            <p class="mb-0 fw-medium">{{ $modalApplication->applicant->id ?? 'N/A' }}</p>
-                        </div>
-                        <div class="col-6">
-                            <label class="text-muted small d-block mb-1">Matric No</label>
-                            <p class="mb-0 fw-medium">{{ $modalApplication->applicant->matric_no ?? 'N/A' }}</p>
-                        </div>
-                        <div class="col-6">
-                            <label class="text-muted small d-block mb-1">Name</label>
-                            <p class="mb-0 fw-medium">{{ $modalApplication->applicant->name ?? 'N/A' }}</p>
-                        </div>
-                        <div class="col-6">
-                            <label class="text-muted small d-block mb-1">Email</label>
-                            <p class="mb-0 fw-medium text-break">{{ $modalApplication->applicant->email ?? 'N/A' }}</p>
-                        </div>
-                        <div class="col-6">
-                            <label class="text-muted small d-block mb-1">Phone</label>
-                            <p class="mb-0 fw-medium text-break">
-                                {{ $modalApplication->applicant->phone_number ?? 'N/A' }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="mb-4 pb-3 border-bottom">
-                    <h5 class="text-info mb-3"><i class="bi bi-box-seam me-2"></i>Storage Details</h5>
-
-                    <div class="mb-3">
-                        <label class="text-muted small d-block mb-1">Storage Room:</label>
-                        <p class="mb-0 fw-medium">
-                            @if (!empty($modalApplication->open_area_id) && !empty($modalApplication->locker_id))
-                                {{ $modalApplication->openArea?->storageRoom?->room_name }}
-                            @elseif (!empty($modalApplication->locker_id))
-                                {{ $modalApplication->locker?->storageRoom?->room_name }}
-                            @elseif (!empty($modalApplication->open_area_id))
-                                {{ $modalApplication->openArea?->storageRoom?->room_name }}
-                            @else
-                                <span class="text-muted">N/A</span>
-                            @endif
-                        </p>
-                    </div>
-
-                    <div>
-                        <span class="text-muted small d-block mb-2">Storage Type:</span>
-
-                        @if (!empty($modalApplication->open_area_id) && !empty($modalApplication->locker_id))
-                            <div class="d-flex flex-wrap gap-2">
-                                <div class="d-inline-flex align-items-center bg-light rounded px-3 py-2">
-                                    <i class="bi bi-lock me-2"></i>
-                                    <span class="me-2">Locker</span>
-                                    <span
-                                        class="badge {{ match ($modalApplication->locker->status) {
-                                            'available' => 'text-bg-success',
-                                            'occupied' => 'text-bg-danger',
-                                            default => 'text-bg-secondary',
-                                        } }}">
-                                        {{ ucfirst($modalApplication->locker->status) }}
-                                    </span>
-                                </div>
-                                <div class="d-inline-flex align-items-center bg-light rounded px-3 py-2">
-                                    <i class="bi bi-grid-3x3 me-2"></i>
-                                    <span class="me-2">Open Area</span>
-                                    <span
-                                        class="badge {{ match ($modalApplication->openArea->area_status) {
-                                            'available' => 'text-bg-success',
-                                            'occupied' => 'text-bg-danger',
-                                            default => 'text-bg-secondary',
-                                        } }}">
-                                        {{ ucfirst($modalApplication->openArea->area_status) }}
-                                    </span>
-                                </div>
-                            </div>
-                        @elseif (!empty($modalApplication->locker_id))
-                            <div class="d-inline-flex align-items-center bg-light rounded px-3 py-2">
-                                <i class="bi bi-lock me-2"></i>
-                                <span class="me-2">Locker</span>
-                                <span
-                                    class="badge {{ match ($modalApplication->locker->status) {
-                                        'available' => 'bg-success',
-                                        'occupied' => 'bg-danger',
-                                        default => 'bg-secondary',
-                                    } }}">
-                                    {{ ucfirst($modalApplication->locker->status) }}
-                                </span>
-                            </div>
-                        @elseif (!empty($modalApplication->open_area_id))
-                            <div class="d-inline-flex align-items-center bg-light rounded px-3 py-2">
-                                <i class="bi bi-grid-3x3 me-2"></i>
-                                <span class="me-2">Open Area</span>
-                                <span
-                                    class="badge {{ match ($modalApplication->openArea->area_status) {
-                                        'available' => 'bg-success',
-                                        'occupied' => 'bg-danger',
-                                        default => 'bg-secondary',
-                                    } }}">
-                                    {{ ucfirst($modalApplication->openArea->area_status) }}
-                                </span>
-                            </div>
-                        @else
-                            <span class="text-muted">N/A</span>
-                        @endif
-                    </div>
-                </div>
-                <div class="mb-4 pb-3 border-bottom">
-                    <h5 class="text-info mb-3"><i class="bi bi-archive me-2"></i>Stored Items</h5>
-                    @if ($modalApplication->storedItems->count() > 0)
-                        <div class="row g-3">
-                            @foreach ($modalApplication->storedItems as $item)
-                                <div class="col-12">
-                                    <div class="d-flex align-items-start p-3 bg-light rounded">
-                                        {{-- Item Photo --}}
-                                        @if ($item->item_photo_path)
-                                            <img src="{{ \Storage::disk('public')->url($item->item_photo_path) }}"
-                                                alt="Item Photo" class="rounded shadow-sm me-3"
-                                                style="width: 80px; height: 80px; object-fit: cover;" />
-                                        @else
-                                            {{-- Placeholder for No Image --}}
-                                            <div class="d-flex align-items-center justify-content-center bg-light rounded border text-secondary shadow-sm me-3"
-                                                style="width: 60px; height: 60px;">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                    fill="currentColor" class="bi bi-image" viewBox="0 0 16 16">
-                                                    <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
-                                                    <path
-                                                        d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z" />
-                                                </svg>
-                                            </div>
-                                        @endif
-
-                                        {{-- Item Details --}}
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-2 fw-bold">{{ ucfirst($item->item_name) }}</h6>
-                                            <div class="mb-2">
-                                                <span
-                                                    class="badge bg-primary me-1">{{ ucfirst($item->item_type) }}</span>
-                                                <span
-                                                    class="badge bg-secondary">{{ ucfirst($item->estimated_size) }}</span>
-                                            </div>
-                                            <p class="mb-0 small text-muted">{{ ucfirst($item->item_description) }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-muted text-center mb-0 py-3">No stored items found.</p>
-                    @endif
-                </div>
-                @if ($modalApplication->approver)
-                    <div class="mb-2">
-                        <h5 class="text-info mb-3">Rejected by:</h5>
-                        <div class="row g-3">
-                            <div class="col-6">
-                                <label class="text-muted small d-block mb-1">ID</label>
-                                <p class="mb-0 fw-medium">#{{ $modalApplication->approver->id ?? 'N/A' }}</p>
-                            </div>
-                            <div class="col-6">
-                                <label class="text-muted small d-block mb-1">Name</label>
-                                <p class="mb-0 fw-medium">{{ $modalApplication->approver->name ?? 'N/A' }}</p>
-                            </div>
-                            <div class="col-6">
-                                <label class="text-muted small d-block mb-1">Email</label>
-                                <p class="mb-0 fw-medium text-break">
-                                    {{ $modalApplication->approver->email ?? 'N/A' }}</p>
-                            </div>
-                            <div class="col-6">
-                                <label class="text-muted small d-block mb-1">Phone</label>
-                                <p class="mb-0 fw-medium text-break">
-                                    {{ $modalApplication->approver->phone_number ?? 'N/A' }}</p>
-                            </div>
-                        </div>
-                    </div>
-                @else
-                    <p class="text-muted mb-2">No reviewer information available.</p>
-                @endif
-            @else
-                <p>No application data found.</p>
-            @endif
-        </div>
-    </x-custom-modal>
-
-    {{-- Reject Application Modal --}}
-    <x-custom-modal2>
-        <x-slot:title>
-            <div class="d-flex justify-content-between align-items-center gap-1 w-100">
-                <span>Reject Application</span>
-                <span class="badge bg-secondary rounded-pill fs-6">#{{ $this->modalData2 }}</span>
-            </div>
-        </x-slot:title>
-        <div class="d-flex justify-content-center">
-            <div wire:loading="modalData2" class="spinner-border my-3" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-        </div>
-        @php
-            $this->rejectionNote = $this->modalApplication2?->note ?? '';
-        @endphp
-        <div wire:loading.remove="modalData2" class="pb-3">
-            @if ($this->modalApplication2)
-                {{-- No need to pass ID, the component already knows it via $modalData2 --}}
-                <form wire:submit.prevent="updateNote">
-                    <div class="mb-4">
-                        <label for="rejectionNote" class="form-label fw-semibold">
-                            <i class="bi bi-chat-left-text me-2"></i>Note for the Applicant
-                        </label>
-
-                        {{-- Added wire:dirty to show visual feedback when text changes --}}
-                        <textarea wire:model="rejectionNote" id="rejectionNote"
-                            class="form-control @error('rejectionNote') is-invalid @enderror" rows="5"
-                            placeholder="Provide a clear reason..." required></textarea>
-
-                        @error('rejectionNote')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-
-                        <div class="form-text">
-                            <i class="bi bi-info-circle me-1"></i>
-                            This message will be visible to:
-                            <strong>{{ $this->modalApplication2->applicant->name ?? 'Student' }}</strong>
-                        </div>
-                    </div>
-
-                    <div class="d-flex gap-2 justify-content-end">
-                        {{-- Use wire:click to explicitly close/reset if needed --}}
-                        <button type="button" class="btn btn-secondary" wire:click="$dispatch('close-modal')">
-                            Cancel
-                        </button>
-
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-save me-1"></i> Update Note
-                        </button>
-                    </div>
-                </form>
-            @endif
-        </div>
-    </x-custom-modal2>
-
     {{-- Main Content --}}
     <div x-data="{
         allCol: true,
@@ -280,13 +16,50 @@
         },
     }" x-init="toggleAll()" class="bg-white shadow-sm rounded-lg overflow-hidden">
         <x-card-matrix :items="[
-            ['title' => $this->countTotalRejected, 'subtitle' => 'Total Rejected Application'],
-            ['title' => $this->rejectedThisSemester, 'subtitle' => 'Rejected (Current Semester)'],
-            ['title' => $this->countTotalRejectedToday, 'subtitle' => 'Total Rejected Today.'],
-            ['title' => $this->rejectedThisWeek, 'subtitle' => 'Rejected This Week'],
-            ['title' => $this->countRejectedLockers, 'subtitle' => 'Rejected Lockers'],
-            ['title' => $this->countRejectedOpenAreas, 'subtitle' => 'Rejected Open Areas'],
+            [
+                'title' => $this->countTotalRejected,
+                'subtitle' => 'Total Rejected Application',
+                'icon' => 'bi-x-circle-fill',
+                'color' => 'text-danger',
+                'bg' => 'bg-danger bg-opacity-10',
+            ],
+            [
+                'title' => $this->rejectedThisSemester,
+                'subtitle' => 'Rejected (Current Semester)',
+                'icon' => 'bi-calendar-x-fill',
+                'color' => 'text-danger',
+                'bg' => 'bg-danger bg-opacity-10',
+            ],
+            [
+                'title' => $this->countTotalRejectedToday,
+                'subtitle' => 'Total Rejected Today',
+                'icon' => 'bi-dash-circle-fill',
+                'color' => 'text-warning',
+                'bg' => 'bg-warning bg-opacity-10',
+            ],
+            [
+                'title' => $this->rejectedThisWeek,
+                'subtitle' => 'Rejected This Week',
+                'icon' => 'bi-exclamation-triangle-fill',
+                'color' => 'text-warning',
+                'bg' => 'bg-warning bg-opacity-10',
+            ],
+            [
+                'title' => $this->countRejectedLockers,
+                'subtitle' => 'Rejected Lockers',
+                'icon' => 'bi-lock-fill',
+                'color' => 'text-danger',
+                'bg' => 'bg-danger bg-opacity-10',
+            ],
+            [
+                'title' => $this->countRejectedOpenAreas,
+                'subtitle' => 'Rejected Open Areas',
+                'icon' => 'bi-grid-3x3-gap-fill',
+                'color' => 'text-danger',
+                'bg' => 'bg-danger bg-opacity-10',
+            ],
         ]" />
+
 
         <x-filter-options>
             {{-- Room --}}
@@ -416,7 +189,7 @@
                 <th class="align-middle py-2" x-show="cols.includes('item')">
                     Items
                 </th>
-                <th class="align-middle py-2" x-show="cols.includes('rejectedDate')">
+                <th class="align-middle py-2" x-show="cols.includes('applicationDate')">
                     Application Date
                 </th>
                 <th class="align-middle py-2" x-show="cols.includes('rejectedDate')">
@@ -434,7 +207,7 @@
             </x-slot:header>
 
             @forelse($this->rejectedStorageApplications as $application)
-                <tr wire:key="row-{{ $application->id }}">
+                <tr wire:key="row-{{ $application->id }}" style="white-space: nowrap;">
                     <td class="align-middle" style="width: 1%;">
                         <span class="text-secondary small user-select-none">#</span>
                         <span class="fw-bold text-dark">{{ $application->id }}</span>
@@ -453,19 +226,7 @@
                                     {{ $application->applicant->name ?? 'N/A' }}
                                 </div>
 
-                                <div class="small text-muted mb-1">
-                                    {{ $application->applicant->email ?? 'N/A' }}
-                                    <span class="mx-1">&bull;</span>
-                                    {{ $application->applicant->phone_number ?? 'N/A' }}
-                                </div>
-
                                 <div class="d-flex flex-wrap gap-1">
-                                    <span class="badge bg-light text-secondary border fw-normal">
-                                        {{ ucfirst($application->applicant->gender) ?? '-' }}
-                                    </span>
-                                    <span class="badge bg-light text-secondary border fw-normal">
-                                        Year {{ $application->applicant->year_of_study ?? '-' }}
-                                    </span>
                                     <span
                                         class="badge bg-info-subtle text-info-emphasis border border-info-subtle fw-normal">
                                         {{ $application->applicant->matric_no ?? 'N/A' }}
@@ -476,35 +237,66 @@
                     </td>
                     <td class="align-middle" x-show="cols.includes('storageDetails')">
                         <div class="d-flex flex-column justify-content-center">
+
+                            {{-- 1. Room Name Display (Simplified) --}}
                             <div class="fw-bold text-dark mb-1">
-                                @if (!empty($application->open_area_id) && !empty($application->locker_id))
-                                    {{ $application->openArea?->storageRoom?->room_name ?? 'Unknown Room' }}
-                                @elseif (!empty($application->locker_id))
-                                    {{ $application->locker?->storageRoom?->room_name ?? 'Unknown Room' }}
-                                @elseif (!empty($application->open_area_id))
-                                    {{ $application->openArea?->storageRoom?->room_name ?? 'Unknown Room' }}
+                                @php
+                                    // Resolve the room from either relation
+                                    $room = $application->locker?->storageRoom ?? $application->openArea?->storageRoom;
+                                @endphp
+
+                                @if ($room)
+                                    {{ $room->room_name }}
                                 @else
                                     <span class="text-muted fst-italic">No Assignment</span>
                                 @endif
                             </div>
 
-                            <div class="d-flex flex-wrap gap-1">
-                                @if (!empty($application->open_area_id) && !empty($application->locker_id))
-                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                                        <i class="bi bi-box-seam me-1"></i>Locker {{ $application->locker->code }}
-                                    </span>
-                                    <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle">
-                                        <i class="bi bi-grid me-1"></i>Open Area
-                                    </span>
-                                @elseif (!empty($application->locker_id))
-                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
-                                        <i class="bi bi-box-seam me-1"></i>Locker {{ $application->locker->code }}
-                                    </span>
-                                @elseif (!empty($application->open_area_id))
-                                    <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle">
-                                        <i class="bi bi-grid me-1"></i>Open Area
+                            {{-- 2. Badges Container --}}
+                            <div class="d-flex flex-wrap gap-1 justify-content-center">
+
+                                {{-- A. Locker Badge --}}
+                                @if ($application->locker_id && $application->locker)
+                                    @php
+                                        $isLockerAvailable = $application->locker->status === 'available';
+                                    @endphp
+
+                                    <span
+                                        class="badge border {{ $isLockerAvailable ? 'bg-primary-subtle text-primary border-primary-subtle' : 'bg-danger-subtle text-danger border-danger-subtle' }}"
+                                        @if (!$isLockerAvailable) title="Warning: Locker is {{ $application->locker->status }}" data-bs-toggle="tooltip" @endif>
+
+                                        @if (!$isLockerAvailable)
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                        @else
+                                            <i class="bi bi-box-seam me-1"></i>
+                                        @endif
+
+                                        Locker {{ $application->locker->code }}
                                     </span>
                                 @endif
+
+                                {{-- B. Open Area Badge --}}
+                                @if ($application->open_area_id && $application->openArea)
+                                    @php
+                                        $openArea = $application->openArea;
+                                        // Check if the openArea is available or full
+                                        $isRoomFull = $openArea && $openArea->area_status !== 'available';
+                                    @endphp
+
+                                    <span
+                                        class="badge border {{ $isRoomFull ? 'bg-danger-subtle text-danger border-danger-subtle' : 'bg-info-subtle text-info-emphasis border-info-subtle' }}"
+                                        @if ($isRoomFull) title="Warning: Room is not available" data-bs-toggle="tooltip" @endif>
+
+                                        @if ($isRoomFull)
+                                            <i class="bi bi-exclamation-octagon-fill me-1"></i>
+                                        @else
+                                            <i class="bi bi-grid me-1"></i>
+                                        @endif
+
+                                        Open Area
+                                    </span>
+                                @endif
+
                             </div>
                         </div>
                     </td>
@@ -517,17 +309,36 @@
                         </div>
                         <div class="d-flex flex-column gap-2">
                             @foreach ($application->storedItems as $item)
+                                {{-- Define size-based colors --}}
+                                @php
+                                    $size = strtolower($item->estimated_size);
+                                    $badgeClass = match ($size) {
+                                        'small' => 'bg-success-subtle text-success border-success-subtle',
+                                        'medium' => 'bg-warning-subtle text-warning-emphasis border-warning-subtle',
+                                        'large' => 'bg-danger-subtle text-danger border-danger-subtle',
+                                        default => 'bg-light text-secondary border-secondary-subtle', // Fallback
+                                    };
+
+                                    // Optional: Border color for the container line on the left
+                                    $borderClass = match ($size) {
+                                        'small' => 'border-success',
+                                        'medium' => 'border-warning',
+                                        'large' => 'border-danger',
+                                        default => 'border-secondary',
+                                    };
+                                @endphp
+
                                 <div wire:key="item-{{ $item->id }}"
-                                    class="border-start border-3 border-primary">
+                                    class="border-start border-3 {{ $borderClass }} ps-2"> {{-- Added ps-2 for spacing --}}
                                     <div class="d-flex align-items-center justify-content-between gap-2">
-                                        <div class="flex-grow-1 text-center">
-                                            <div class="fw-semibold text-dark">
-                                                {{ ucfirst($item->item_name) }}
-                                            </div>
-                                            <span class="badge bg-light text-secondary border">
+                                        <div class="flex-grow-1">
+                                            {{-- Apply the dynamic badge class here --}}
+                                            <span class="badge border {{ $badgeClass }}">
                                                 <i class="bi bi-tag-fill me-1"></i>
-                                                {{ ucfirst($item->item_type) }}
+                                                {{ ucfirst($item->estimated_size) }}
                                             </span>
+                                            {{-- Optional: Show item name if available --}}
+                                            {{-- <span class="ms-1 small text-muted">{{ $item->name }}</span> --}}
                                         </div>
                                     </div>
                                 </div>
@@ -625,6 +436,262 @@
         </x-table>
     </div>
 
+    {{-- Application Details Modal --}}
+    <x-custom-modal>
+        <x-slot:title>
+            <div class="d-flex justify-content-between align-items-center gap-1 w-100">
+                <span>Application Details</span>
+                <span class="badge bg-secondary rounded-pill fs-6">#{{ $this->modalData }}</span>
+            </div>
+        </x-slot:title>
+
+        <div class="d-flex justify-content-center">
+            <div wire:loading="modalData" class="spinner-border my-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <div wire:loading.remove="modalData" class="text-start">
+            @if ($this->modalApplication)
+                <div class="mb-4 pb-3 border-bottom">
+                    <h5 class="text-info mb-3"><i class="bi bi-person-circle me-2"></i>Applicant Information</h5>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="text-muted small d-block mb-1">ID</label>
+                            <p class="mb-0 fw-medium">{{ $this->modalApplication->applicant->id ?? 'N/A' }}</p>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small d-block mb-1">Matric No</label>
+                            <p class="mb-0 fw-medium">{{ $this->modalApplication->applicant->matric_no ?? 'N/A' }}</p>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small d-block mb-1">Name</label>
+                            <p class="mb-0 fw-medium">{{ $this->modalApplication->applicant->name ?? 'N/A' }}</p>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small d-block mb-1">Email</label>
+                            <p class="mb-0 fw-medium text-break">
+                                {{ $this->modalApplication->applicant->email ?? 'N/A' }}</p>
+                        </div>
+                        <div class="col-6">
+                            <label class="text-muted small d-block mb-1">Phone</label>
+                            <p class="mb-0 fw-medium text-break">
+                                {{ $this->modalApplication->applicant->phone_number ?? 'N/A' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-4 pb-3 border-bottom">
+                    <h5 class="text-info mb-3"><i class="bi bi-box-seam me-2"></i>Storage Details</h5>
+
+                    <div class="mb-3">
+                        <label class="text-muted small d-block mb-1">Storage Room:</label>
+                        <p class="mb-0 fw-medium">
+                            @if (!empty($this->modalApplication->open_area_id) && !empty($this->modalApplication->locker_id))
+                                {{ $this->modalApplication->openArea?->storageRoom?->room_name }}
+                            @elseif (!empty($this->modalApplication->locker_id))
+                                {{ $this->modalApplication->locker?->storageRoom?->room_name }}
+                            @elseif (!empty($this->modalApplication->open_area_id))
+                                {{ $this->modalApplication->openArea?->storageRoom?->room_name }}
+                            @else
+                                <span class="text-muted">N/A</span>
+                            @endif
+                        </p>
+                    </div>
+
+                    <div>
+                        <span class="text-muted small d-block mb-2">Storage Type:</span>
+
+                        @if (!empty($this->modalApplication->open_area_id) && !empty($this->modalApplication->locker_id))
+                            <div class="d-flex flex-wrap gap-2">
+                                <div class="d-inline-flex align-items-center bg-light rounded px-3 py-2">
+                                    <i class="bi bi-lock me-2"></i>
+                                    <span class="me-2">Locker</span>
+                                    <span
+                                        class="badge {{ match ($this->modalApplication->locker->status) {
+                                            'available' => 'text-bg-success',
+                                            'occupied' => 'text-bg-danger',
+                                            default => 'text-bg-secondary',
+                                        } }}">
+                                        {{ ucfirst($this->modalApplication->locker->status) }}
+                                    </span>
+                                </div>
+                                <div class="d-inline-flex align-items-center bg-light rounded px-3 py-2">
+                                    <i class="bi bi-grid-3x3 me-2"></i>
+                                    <span class="me-2">Open Area</span>
+                                    <span
+                                        class="badge {{ match ($this->modalApplication->openArea->area_status) {
+                                            'available' => 'text-bg-success',
+                                            'occupied' => 'text-bg-danger',
+                                            default => 'text-bg-secondary',
+                                        } }}">
+                                        {{ ucfirst($this->modalApplication->openArea->area_status) }}
+                                    </span>
+                                </div>
+                            </div>
+                        @elseif (!empty($this->modalApplication->locker_id))
+                            <div class="d-inline-flex align-items-center bg-light rounded px-3 py-2">
+                                <i class="bi bi-lock me-2"></i>
+                                <span class="me-2">Locker</span>
+                                <span
+                                    class="badge {{ match ($this->modalApplication->locker->status) {
+                                        'available' => 'bg-success',
+                                        'occupied' => 'bg-danger',
+                                        default => 'bg-secondary',
+                                    } }}">
+                                    {{ ucfirst($this->modalApplication->locker->status) }}
+                                </span>
+                            </div>
+                        @elseif (!empty($this->modalApplication->open_area_id))
+                            <div class="d-inline-flex align-items-center bg-light rounded px-3 py-2">
+                                <i class="bi bi-grid-3x3 me-2"></i>
+                                <span class="me-2">Open Area</span>
+                                <span
+                                    class="badge {{ match ($this->modalApplication->openArea->area_status) {
+                                        'available' => 'bg-success',
+                                        'occupied' => 'bg-danger',
+                                        default => 'bg-secondary',
+                                    } }}">
+                                    {{ ucfirst($this->modalApplication->openArea->area_status) }}
+                                </span>
+                            </div>
+                        @else
+                            <span class="text-muted">N/A</span>
+                        @endif
+                    </div>
+                </div>
+                <div class="mb-4 pb-3 border-bottom">
+                    <h5 class="text-info mb-3"><i class="bi bi-archive me-2"></i>Stored Items</h5>
+                    @if ($this->modalApplication->storedItems->count() > 0)
+                        <div class="row g-3">
+                            @foreach ($this->modalApplication->storedItems as $item)
+                                <div class="col-12">
+                                    <div class="d-flex align-items-start p-3 bg-light rounded">
+                                        {{-- Item Photo --}}
+                                        @if ($item->item_photo_path)
+                                            <img src="{{ \Storage::disk('public')->url($item->item_photo_path) }}"
+                                                alt="Item Photo" class="rounded shadow-sm me-3"
+                                                style="width: 80px; height: 80px; object-fit: cover;" />
+                                        @else
+                                            {{-- Placeholder for No Image --}}
+                                            <div class="d-flex align-items-center justify-content-center bg-light rounded border text-secondary shadow-sm me-3"
+                                                style="width: 60px; height: 60px;">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                    fill="currentColor" class="bi bi-image" viewBox="0 0 16 16">
+                                                    <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                                                    <path
+                                                        d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z" />
+                                                </svg>
+                                            </div>
+                                        @endif
+
+                                        {{-- Item Details --}}
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-2 fw-bold">{{ ucfirst($item->item_name) }}</h6>
+                                            <div class="mb-2">
+                                                <span
+                                                    class="badge bg-primary me-1">{{ ucfirst($item->item_type) }}</span>
+                                                <span
+                                                    class="badge bg-secondary">{{ ucfirst($item->estimated_size) }}</span>
+                                            </div>
+                                            <p class="mb-0 small text-muted">{{ ucfirst($item->item_description) }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-muted text-center mb-0 py-3">No stored items found.</p>
+                    @endif
+                </div>
+                @if ($this->modalApplication->approver)
+                    <div class="mb-2">
+                        <h5 class="text-info mb-3">Rejected by:</h5>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="text-muted small d-block mb-1">ID</label>
+                                <p class="mb-0 fw-medium">#{{ $this->modalApplication->approver->id ?? 'N/A' }}</p>
+                            </div>
+                            <div class="col-6">
+                                <label class="text-muted small d-block mb-1">Name</label>
+                                <p class="mb-0 fw-medium">{{ $this->modalApplication->approver->name ?? 'N/A' }}</p>
+                            </div>
+                            <div class="col-6">
+                                <label class="text-muted small d-block mb-1">Email</label>
+                                <p class="mb-0 fw-medium text-break">
+                                    {{ $this->modalApplication->approver->email ?? 'N/A' }}</p>
+                            </div>
+                            <div class="col-6">
+                                <label class="text-muted small d-block mb-1">Phone</label>
+                                <p class="mb-0 fw-medium text-break">
+                                    {{ $this->modalApplication->approver->phone_number ?? 'N/A' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <p class="text-muted mb-2">No reviewer information available.</p>
+                @endif
+            @else
+                <p>No application data found.</p>
+            @endif
+        </div>
+    </x-custom-modal>
+
+    {{-- Reject Application Modal --}}
+    <x-custom-modal2>
+        <x-slot:title>
+            <div class="d-flex justify-content-between align-items-center gap-1 w-100">
+                <span>Reject Application</span>
+                <span class="badge bg-secondary rounded-pill fs-6">#{{ $this->modalData2 }}</span>
+            </div>
+        </x-slot:title>
+        <div class="d-flex justify-content-center">
+            <div wire:loading="modalData2" class="spinner-border my-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        @php
+            $this->rejectionNote = $this->modalApplication2?->note ?? '';
+        @endphp
+        <div wire:loading.remove="modalData2" class="pb-3">
+            @if ($this->modalApplication2)
+                {{-- No need to pass ID, the component already knows it via $modalData2 --}}
+                <form wire:submit.prevent="updateNote">
+                    <div class="mb-4">
+                        <label for="rejectionNote" class="form-label fw-semibold">
+                            <i class="bi bi-chat-left-text me-2"></i>Note for the Applicant
+                        </label>
+
+                        {{-- Added wire:dirty to show visual feedback when text changes --}}
+                        <textarea wire:model="rejectionNote" id="rejectionNote"
+                            class="form-control @error('rejectionNote') is-invalid @enderror" rows="5"
+                            placeholder="Provide a clear reason..." required></textarea>
+
+                        @error('rejectionNote')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>
+                            This message will be visible to:
+                            <strong>{{ $this->modalApplication2->applicant->name ?? 'Student' }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-end">
+                        {{-- Use wire:click to explicitly close/reset if needed --}}
+                        <button type="button" class="btn btn-secondary" wire:click="$dispatch('close-modal')">
+                            Cancel
+                        </button>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-1"></i> Update Note
+                        </button>
+                    </div>
+                </form>
+            @endif
+        </div>
+    </x-custom-modal2>
 </div>
 
 @assets

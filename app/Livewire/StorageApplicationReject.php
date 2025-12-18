@@ -99,29 +99,29 @@ class StorageApplicationReject extends Component
                 // Lock the application row for update to prevent race conditions
                 $application = StorageApplication::lockForUpdate()->findOrFail($applicationId);
 
-                // 1. Safety Check: Is the locker still available?
-                // If the application has a specific locker assigned, we must ensure 
-                // no one else has taken it since the rejection.
-                if ($application->locker_id) {
-                    $locker = Locker::lockForUpdate()->find($application->locker_id);
+                // // 1. Safety Check: Is the locker still available?
+                // // If the application has a specific locker assigned, we must ensure 
+                // // no one else has taken it since the rejection.
+                // if ($application->locker_id) {
+                //     $locker = Locker::lockForUpdate()->find($application->locker_id);
 
-                    if ($locker->status !== 'available') {
-                        throw new \Exception("Cannot undo rejection. The assigned Locker ({$locker->id}) is no longer available.");
-                    }
+                //     if ($locker->status !== 'available') {
+                //         throw new \Exception("Cannot undo rejection. The assigned Locker ({$locker->id}) is no longer available.");
+                //     }
 
-                    // 2. Re-lock the locker (Set to 'unavailable' or 'pending' depending on your flow)
-                    // This ensures no one else can book it while this app returns to pending.
-                    $locker->update(['status' => 'reserved']);
-                }
+                //     // 2. Re-lock the locker (Set to 'unavailable' or 'pending' depending on your flow)
+                //     // This ensures no one else can book it while this app returns to pending.
+                //     $locker->update(['status' => 'reserved']);
+                // }
 
-                // Same logic for Open Area if applicable
-                if ($application->open_area_id) {
-                    $openArea = $application->openArea()->lockForUpdate()->first();
-                    if ($openArea->status !== 'available') {
-                        throw new \Exception("Cannot undo rejection. The Open Area is no longer available.");
-                    }
-                    $openArea->update(['status' => 'unavailable']);
-                }
+                // // Same logic for Open Area if applicable
+                // if ($application->open_area_id) {
+                //     $openArea = $application->openArea()->lockForUpdate()->first();
+                //     if ($openArea->status !== 'available') {
+                //         throw new \Exception("Cannot undo rejection. The Open Area is no longer available.");
+                //     }
+                //     $openArea->update(['status' => 'unavailable']);
+                // }
 
                 // 3. Reset Application Status
                 $application->update([
@@ -259,7 +259,21 @@ class StorageApplicationReject extends Component
         return Semester::orderBy('created_at', 'desc')->get();
     }
 
-    #[Computed]
+    #[Computed()]
+    public function modalApplication()
+    {
+        if (!$this->modalData) return null;
+
+        return StorageApplication::with([
+            'applicant',
+            'approver',
+            'storedItems',
+            'openArea.storageRoom',
+            'locker.storageRoom',
+        ])->find($this->modalData);
+    }
+
+    #[Computed()]
     public function modalApplication2()
     {
         if (!$this->modalData2) return null;
