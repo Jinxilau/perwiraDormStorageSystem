@@ -395,23 +395,23 @@
                     </td>
                     <td class="align-middle"> {{-- Actions --}}
                         <div class="flex items-center space-x-2" style="white-space: nowrap">
-                            <button wire:click="$set('modalData', {{ $application->id }}); $dispatch('display_modal')"
-                                title="View Details" class="btn btn-sm border border-secondary"
-                                style="padding: 0 2px;" type="button" data-bs-toggle="modal"
+                            <a href="{{ route('storage_application_detail', $application->id) }}"
+                                title="View Details" class="btn btn-sm btn-outline-secondary"
+                                style="padding: 0 2px;">
                                 data-bs-target="#viewModal">
-                                <i class="bi bi-eye"></i>
-                            </button>
+                                <i class="bi bi-eye-fill"></i>
+                            </a>
 
                             <button
                                 wire:click="$set('modalData2', {{ $application->id }}); $dispatch('display_modal2')"
-                                class="text-info btn btn-sm border border-info" style="padding: 0 2px;"
+                                class="btn btn-sm btn-outline-info" style="padding: 0 2px;"
                                 title="Edit Rejection Note">
                                 <i class="bi bi-pencil-square"></i>
                             </button>
 
                             <button wire:click="undoRejectApplication({{ $application->id }})"
                                 wire:confirm="Are you sure you want to undo reject the application?"
-                                class="text-warning btn btn-sm border border-warning" style="padding: 0 2px;"
+                                class="btn btn-sm btn-outline-warning" style="padding: 0 2px;"
                                 title="Undo Reject">
                                 <i class="bi bi-arrow-counterclockwise"></i>
                             </button>

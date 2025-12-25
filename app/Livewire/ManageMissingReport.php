@@ -5,8 +5,6 @@ namespace App\Livewire;
 use App\Models\MissingReport;
 use App\Models\Semester;
 use App\Models\StorageRoom;
-use App\Models\User;
-use App\Notifications\MissingReportMadeNotification;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Computed;
@@ -73,6 +71,12 @@ class ManageMissingReport extends Component
             $this->selectedReports = [];
         }
     }
+
+    public function updatedPaginationInt()
+    {
+        $this->reset(['selectAll', 'selectedReports']);
+    }
+
 
     public function updatedSelectedReports()
     {
@@ -175,6 +179,19 @@ class ManageMissingReport extends Component
         return $query->paginate($this->paginationInt);
     }
 
+    // Modal
+    #[Computed()]
+    public function modalReport2()
+    {
+        if ($this->modalData2 === null) return null;
+
+        return MissingReport::with([
+            'storedItems.storageApplication.applicant',
+            'storedItems.storageApplication.locker.storageRoom',
+            'storedItems.storageApplication.openArea.storageRoom',
+        ])->find($this->modalData2);
+    }
+
     // Metrics for dashboard cards
     #[Computed]
     public function reportCounts()
@@ -205,7 +222,7 @@ class ManageMissingReport extends Component
             ->where('semester_id', $currentSemesterId)
             ->count();
     }
-    
+
     // Populate the filter dropdowns
     #[Computed()]
     public function rooms()

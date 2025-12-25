@@ -428,22 +428,22 @@
                     </td>
                     <td class="align-middle"> {{-- Actions --}}
                         <div class="flex items-center space-x-2" style="white-space: nowrap">
-                            <button wire:click="$set('modalData', {{ $application->id }}); $dispatch('display_modal')"
-                                title="View Details" class="btn btn-sm border border-secondary"
-                                style="padding: 0 2px;" type="button">
-                                <i class="bi bi-eye"></i>
-                            </button>
+                            <a href="{{ route('storage_application_detail', $application->id) }}"
+                                title="View Details" class="btn btn-sm btn-outline-secondary"
+                                style="padding: 0 2px;">
+                                <i class="bi bi-eye-fill"></i>
+                            </a>
 
                             <button wire:click="checkin({{ $application->id }})"
                                 wire:confirm="Are you sure you want to check in this storage?"
-                                class="text-success btn btn-sm border border-success" style="padding: 0 2px;"
+                                class="btn btn-sm btn-outline-success" style="padding: 0 2px;"
                                 title="Check In">
                                 <i class="bi bi-box-arrow-in-right"></i>
                             </button>
 
                             <button wire:click="checkout({{ $application->id }})"
                                 wire:confirm="Are you sure you want to check out this storage?"
-                                class="text-danger btn btn-sm border border-danger" style="padding: 0 2px;"
+                                class="btn btn-sm btn-outline-danger" style="padding: 0 2px;"
                                 title="Check Out">
                                 <i class="bi bi-box-arrow-left"></i>
                             </button>

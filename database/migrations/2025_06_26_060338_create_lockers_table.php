@@ -14,13 +14,17 @@ return new class extends Migration
         Schema::create('lockers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('storage_room_id')->constrained('storage_rooms')->onDelete('cascade');
-            
+
             $table->string('code', 50);
-            $table->string('size', 50); 
-            $table->enum('status', ['available', 'reserved', 'occupied', 'under_maintenance'])->default('available');
-            
+            $table->string('size', 50);
+            $table->enum('status', [
+                'available', // can be assigned
+                'reserved', // assigned but not yet occupied/checked in
+                'occupied', // currently in use/checked in
+                'under_maintenance' // temporarily unavailable
+            ])->default('available');
+
             $table->timestamps();
-            
         });
     }
 

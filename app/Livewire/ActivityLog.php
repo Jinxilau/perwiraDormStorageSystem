@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\ActivityLog as ModelsActivityLog;
 use App\Models\Semester;
 use App\Models\User;
+use Carbon\Carbon;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -25,7 +26,7 @@ class ActivityLog extends Component
     #[Url(except: '')]
     public $toRange = '';
     #[Url(except: '')]
-    public $sortDate = '';
+    public $sortDate = 'latest';
     #[Url(except: '')]
     public $sortName = '';
 
@@ -54,23 +55,37 @@ class ActivityLog extends Component
         $this->paginationInt = 10; # Pagination Amount
     }
 
-    #[Computed()]
+    public function updated($property)
+    {
+        if (in_array($property, [
+            'search',
+            'semester',
+            'role',
+            'fromRange',
+            'toRange',
+            'sortDate',
+            'sortName',
+            'paginationInt',
+        ])) {
+            $this->resetPage();
+        }
+    }
+
+    #[Computed]
     public function logs()
     {
-        $query = ModelsActivityLog::with(['user.userRole']);
+        $query = ModelsActivityLog::query()
+            ->with(['user.userRole', 'semester']);
 
         if ($this->search) {
             $query->where(function ($q) {
-
                 if (is_numeric($this->search)) {
                     $q->where('id', $this->search);
                 }
 
-                $q->whereHas("user", function ($userQuery) {
-                    $userQuery->where(function ($q) {
-                        $q->where('name', 'like', "%" . $this->search . "%")
-                            ->orWhere('matric_no', 'like', '%' . $this->search . "%");
-                    });
+                $q->whereHas('user', function ($userQuery) {
+                    $userQuery->where('name', 'like', "%{$this->search}%")
+                        ->orWhere('matric_no', 'like', "%{$this->search}%");
                 });
             });
         }
@@ -79,33 +94,31 @@ class ActivityLog extends Component
             $query->where('semester_id', $this->semester);
         }
 
-        if (!empty($this->role)) {
-            $query->whereHas('user.userRole', function ($roleQuery) {
-                $roleQuery->where('role_id', $this->role);
-            });
+        if ($this->role) {
+            $query->whereHas(
+                'user.userRole',
+                fn($q) =>
+                $q->where('role_id', $this->role)
+            );
         }
 
-
-        if ($this->fromRange && $this->toRange) {
-            $query->whereBetween('created_at', [$this->fromRange, $this->toRange]);
-        } elseif ($this->fromRange) {
-            $query->whereDate('created_at', '>=', $this->fromRange);
-        } elseif ($this->toRange) {
-            $query->whereDate('created_at', '<=', $this->toRange);
+        if ($this->fromRange || $this->toRange) {
+            $query->whereBetween('created_at', [
+                $this->fromRange ? now()->parse($this->fromRange)->startOfDay() : now()->minValue(),
+                $this->toRange ? now()->parse($this->toRange)->endOfDay() : now(),
+            ]);
         }
 
-        if ($this->sortDate === 'latest') {
-            $query->latest();
-        } elseif ($this->sortDate === 'oldest') {
+        if ($this->sortDate === 'oldest') {
             $query->oldest();
+        } else {
+            $query->latest();
         }
 
         if ($this->sortName) {
-            $query->orderBy(
-                User::select('name')
-                    ->whereColumn('users.id', 'activity_logs.user_id'),
-                $this->sortName === 'desc' ? 'desc' : 'asc'
-            );
+            $query->join('users', 'users.id', '=', 'activity_logs.user_id')
+                ->orderBy('users.name', $this->sortName)
+                ->select('activity_logs.*');
         }
 
         return $query->paginate($this->paginationInt);

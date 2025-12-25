@@ -462,24 +462,21 @@
                     </td>
                     <td class="align-middle"> {{-- Actions --}}
                         <div class="flex items-center space-x-2" style="white-space: nowrap">
-                            <button
-                                wire:click="$set('modalData', {{ $application->id }}); $dispatch('display_modal');"
-                                title="View Details" class="btn btn-smborder border-secondary"
-                                style="padding: 0 2px;" type="button">
-                                <i class="bi bi-eye"></i>
-                            </button>
+                            <a href="{{ route('storage_application_detail', $application->id) }}"
+                                title="View Details" class="btn btn-sm btn-outline-secondary"
+                                style="padding: 0 2px;">
+                                <i class="bi bi-eye-fill"></i>
+                            </a>
 
                             <button wire:click="approveApplication({{ $application->id }})"
                                 wire:confirm="Are you sure you want to approve this application?"
-                                class="text-success btn btn-sm border border-success" style="padding: 0 2px;"
-                                title="Approve">
+                                class="btn btn-sm btn-outline-success" style="padding: 0 2px;" title="Approve">
                                 <i class="bi bi-check"></i>
                             </button>
 
                             <button
                                 wire:click="$set('modalData2', {{ $application->id }}); $dispatch('display_modal2');"
-                                class="text-danger btn btn-sm border border-danger" style="padding: 0 2px;"
-                                title="Reject">
+                                class="btn btn-sm btn-outline-danger" style="padding: 0 2px;" title="Reject">
                                 <i class="bi bi-x"></i>
                             </button>
                         </div>
@@ -509,7 +506,7 @@
             </div>
         </x-slot:title>
 
-        <div wire:loading="modalData2" class="text-center w-100 py-4">
+        <div wire:loading="modalData" class="text-center w-100 py-4">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
@@ -622,6 +619,7 @@
                                         class="badge {{ match ($this->modalApplication->locker->status) {
                                             'available' => 'text-bg-success',
                                             'occupied' => 'text-bg-danger',
+                                            'reserved' => 'bg-warning text-dark',
                                             default => 'text-bg-secondary',
                                         } }}">
                                         {{ ucfirst($this->modalApplication->locker->status) }}
@@ -648,6 +646,7 @@
                                     class="badge {{ match ($this->modalApplication->locker->status) {
                                         'available' => 'bg-success',
                                         'occupied' => 'bg-danger',
+                                        'reserved' => 'bg-warning text-dark',
                                         default => 'bg-secondary',
                                     } }}">
                                     {{ ucfirst($this->modalApplication->locker->status) }}

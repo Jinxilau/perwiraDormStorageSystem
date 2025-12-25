@@ -146,7 +146,7 @@
                     {{-- Action Buttons --}}
                     <div class="mt-4 d-flex gap-2">
                         <button wire:click="viewDetails({{ $report->id }})" class="btn btn-primary">
-                            <i class="bi bi-eye"></i> View Full Details
+                            <i class="bi bi-eye-fill"></i> View Full Details
                         </button>
 
                         @if ($report->status === 'pending' || $report->status === 'investigating')

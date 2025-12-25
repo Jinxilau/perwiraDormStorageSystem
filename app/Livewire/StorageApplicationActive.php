@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\QRCode as ModelsQRCode;
 use App\Models\ScanLog;
 use App\Models\Semester;
 use App\Models\StorageApplication;
@@ -93,7 +94,7 @@ class StorageApplicationActive extends Component
 
         try {
             DB::transaction(function () use ($application) {
-                $qr = QRCode::where('id', $application->qrCode->id)
+                $qr = ModelsQRCode::where('id', $application->qrCode->id)
                     ->lockForUpdate()
                     ->first();
 
@@ -140,7 +141,7 @@ class StorageApplicationActive extends Component
 
         try {
             DB::transaction(function () use ($application) {
-                $qr = QRCode::where('id', $application->qrCode->id)
+                $qr = ModelsQRCode::where('id', $application->qrCode->id)
                     ->lockForUpdate()
                     ->first();
 

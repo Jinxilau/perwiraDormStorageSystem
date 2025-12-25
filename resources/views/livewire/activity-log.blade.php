@@ -6,11 +6,34 @@
 
     <div class="overflow-hidden container-fluid">
         <x-card-matrix :items="[
-            ['title' => $this->todayLogs, 'subtitle' => 'Activity Today', 'icon' => 'bi-calendar-check'],
-            ['title' => $this->logs->count(), 'subtitle' => 'Total Activity', 'icon' => 'bi-collection'],
-            ['title' => $this->activeUsersToday, 'subtitle' => 'Active Users', 'icon' => 'bi-people'],
-            ['title' => $this->topAction, 'subtitle' => 'Top Action', 'icon' => 'bi-lightning-charge'],
-            
+            [
+                'title' => $this->todayLogs,
+                'subtitle' => 'Activity Today',
+                'icon' => 'bi-calendar-check-fill',
+                'color' => 'text-success',
+                'bg' => 'bg-success bg-opacity-10',
+            ],
+            [
+                'title' => $this->logs->count(),
+                'subtitle' => 'Total Activity',
+                'icon' => 'bi-collection-fill',
+                'color' => 'text-primary',
+                'bg' => 'bg-primary bg-opacity-10',
+            ],
+            [
+                'title' => $this->activeUsersToday,
+                'subtitle' => 'Active Users',
+                'icon' => 'bi-people-fill',
+                'color' => 'text-info',
+                'bg' => 'bg-info bg-opacity-10',
+            ],
+            [
+                'title' => $this->topAction,
+                'subtitle' => 'Top Action',
+                'icon' => 'bi-lightning-charge-fill',
+                'color' => 'text-warning',
+                'bg' => 'bg-warning bg-opacity-10',
+            ],
         ]" />
 
         {{-- Filter Options --}}
@@ -128,7 +151,7 @@
 
                     {{-- 2. User Profile --}}
                     <td class="align-middle">
-                        <div class="d-flex align-items-center gap-1">
+                        <div class="d-flex align-items-center">
                             <div class="flex-shrink-0">
                                 <div class="rounded-circle bg-primary-subtle text-primary fw-bold d-flex justify-content-center align-items-center text-uppercase"
                                     style="height: 30px; width: 30px;">
@@ -141,22 +164,10 @@
                                     {{ $log->user->name ?? 'N/A' }}
                                 </div>
 
-                                <div class="small text-muted mb-1">
-                                    {{ $log->user->email ?? 'N/A' }}
-                                    <span class="mx-1">&bull;</span>
-                                    {{ $log->user->phone_number ?? 'N/A' }}
-                                </div>
-
                                 <div class="d-flex flex-wrap gap-1">
-                                    <span class="badge bg-light text-secondary border fw-normal">
-                                        {{ ucfirst($log->user->gender) ?? '-' }}
-                                    </span>
-                                    <span class="badge bg-light text-secondary border fw-normal">
-                                        Year {{ $log->user->year_of_study ?? '-' }}
-                                    </span>
                                     <span
                                         class="badge bg-info-subtle text-info-emphasis border border-info-subtle fw-normal">
-                                        {{ $log->user->matric_no ?? 'N/A' }}
+                                        {{ $log->user->matric_no ?? ($log->user->id ?? 'N/A') }}
                                     </span>
                                 </div>
                             </div>
@@ -197,29 +208,23 @@
                             <div class="d-flex align-items-center gap-2">
                                 <i class="bi {{ $icon }}"></i>
                                 <span class="text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px;">
-                                    {{ $log->action }}
+                                    {{ strtoupper($log->action) }}
                                 </span>
                             </div>
                         </span>
                     </td>
 
                     {{-- 5. Description --}}
-                    <td>
-                        <div class="d-flex flex-column" style="min-width: 220px;">
-                            {{-- Description: Primary Text --}}
-                            <span class="fw-medium text-dark mb-2 text-wrap" style="line-height: 1.5;">
-                                {{ $log->description }}
-                            </span>
-
-                            {{-- IP Address: Secondary Metadata --}}
-                            <div class="d-flex align-items-center">
-                                <span
-                                    class="badge bg-light text-secondary border rounded-pill fw-normal font-monospace py-1 px-2 d-flex align-items-center">
-                                    {{-- Network Icon --}}
-                                    <i class="bi bi-hdd-network me-2 text-muted" style="font-size: 0.75rem;"></i>
-                                    {{ $log->ip_address }}
-                                </span>
-                            </div>
+                    <td class="align-middle">
+                        <div class="border rounded bg-light p-2 small text-secondary"
+                            style="max-height: 120px; overflow-y: auto; min-width: 100px;">
+                            @if (!empty($log->description))
+                                <div class="lh-sm">
+                                    {{ $log->description }}
+                                </div>
+                            @else
+                                <span class="text-muted fst-italic opacity-50">N/A</span>
+                            @endif
                         </div>
                     </td>
 

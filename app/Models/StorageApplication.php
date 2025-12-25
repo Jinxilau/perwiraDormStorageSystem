@@ -53,6 +53,17 @@ class StorageApplication extends Model
     {
         return $this->hasOne(QRCode::class, 'storage_application_id');
     }
+    public function scanLogs()
+    {
+        return $this->hasManyThrough(
+            ScanLog::class,
+            QRCode::class,
+            'storage_application_id', // FK on qr_codes
+            'qr_code_id',             // FK on scan_logs
+            'id',
+            'id'
+        );
+    }
 
     public function activityLogs()
     {

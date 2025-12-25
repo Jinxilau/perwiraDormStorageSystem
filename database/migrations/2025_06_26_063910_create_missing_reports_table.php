@@ -40,9 +40,6 @@ return new class extends Migration
             $table->text('admin_note')->nullable();
 
             $table->timestamps();
-
-            // $table->foreignId('qr_code_id')->constrained('q_r_codes')->onDelete('cascade');
-            // $table->text('additional_information')->nullable();
         });
     }
 

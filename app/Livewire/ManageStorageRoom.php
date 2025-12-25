@@ -2,7 +2,9 @@
 
 namespace App\Livewire;
 
+use App\Models\Locker;
 use App\Models\OpenArea;
+use App\Models\StorageApplication;
 use App\Models\StorageRoom;
 use App\Models\StoredItem;
 use Exception;
@@ -13,40 +15,33 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Lazy;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 class ManageStorageRoom extends Component
 {
-    public $roomId;
+    #[Url(as: 'room', except: '')]
+    public $roomId = null;
+
     public $roomStatus;
 
-    public $locker; // Selected Locker
-
-    #[Validate('required|in:available,occupied,under_maintenance')]
     public $lockerStatus;
-    #[Validate('required|regex:/^\d+x\d+x\d+cm$/')]
+
     public $lockerSize;
 
-    public function mount(?int $room = null)
-    {
-        if ($room === null) return redirect()->route('storage_room', ['room' => 1]);
+    public $modalData; # Locker Id
 
-        $this->roomId = $room;
+    public function mount()
+    {
+        $this->roomId ??= StorageRoom::min('id');
+
+        abort_unless(
+            StorageRoom::whereKey($this->roomId)->exists(),
+            404
+        );
+
         $this->roomStatus = $this->storageRoom->room_status === "open" ? true : false;
-    }
-
-    #[On('show-modal')]
-    public function showModal($id)
-    {
-        $this->locker = $this->storageRoom->lockers->where('id', $id)->first();
-        if (!empty($this->locker)) {
-            $this->lockerStatus = $this->locker->status;
-            $this->lockerSize = $this->locker->size;
-            $this->dispatch('display_modal');
-        } else {
-            $this->dispatch('show_toast', message: 'Something went wrong.', type: 'fail');
-        }
     }
 
     public function toggleRoomStatus()
@@ -56,31 +51,53 @@ class ManageStorageRoom extends Component
 
             StorageRoom::findOrFail($this->roomId)->update(['room_status' => $status]);
 
-            $this->dispatch('status_updated', message: "The storage room is changed to {$status}.", type: "success");
+            $this->dispatch('show_toast', message: "The storage room is changed to {$status}.", type: "success");
 
             $this->roomStatus = !$this->roomStatus;
         } catch (Exception $e) {
-            $this->dispatch('status_updated', message: "Something went wrong. Please try again.", type: 'fail');
+            $this->dispatch('show_toast', message: "Something went wrong. Please try again.", type: 'fail');
             Log::error($e->getMessage());
         }
     }
 
     public function toggleAreaStatus(string $value)
     {
-        try {
-            $this->storageRoom->openAreas->area_status = $value;
-            $this->storageRoom->openAreas->save();
+        // 1. Validate the input status
+        $allowedStatuses = ['available', 'occupied', 'under_maintenance'];
+        if (!in_array($value, $allowedStatuses)) {
+            $this->dispatch('show_toast', message: "Invalid status selection.", type: "fail");
+            return;
+        }
 
-            $this->dispatch('status_updated', message: "The open area status is changed to {$value}.", type: "success");
+        try {
+            $openArea = $this->storageRoom->openAreas;
+
+            if (!$openArea) {
+                throw new Exception('Open area not found');
+            }
+
+            // 2. Update status
+            $openArea->update(['area_status' => $value]);
+
+            $this->dispatch('show_toast', message: "Status updated to " . ucfirst(str_replace('_', ' ', $value)), type: "success");
         } catch (Exception $e) {
-            $this->dispatch('status_updated', message: "Something went wrong. Please try again.", type: "fail");
-            Log::error($e->getMessage());
+            Log::error("Error updating area status: " . $e->getMessage());
+            $this->dispatch('show_toast', message: "Something went wrong. Please try again.", type: "fail");
         }
     }
 
     public function editLocker()
     {
-        $this->validate();
+        $this->validate([
+            'lockerStatus' => 'required|in:available,occupied,reserved',
+            'lockerSize'   => 'required|regex:/^\d+x\d+x\d+$/'
+        ]);
+
+        // Additional Validation: Prevent changing occupied locker to available if it still has items
+        if ($this->locker->status === 'occupied' && ! $this->locker->canBeMarkedAvailable()) {
+            $this->dispatch('show_toast', message: 'This locker still contains items and cannot be marked as available.', type: 'fail');
+            return;
+        }
 
         // If validation passes → continue logic
         $this->locker->update([
@@ -88,47 +105,72 @@ class ManageStorageRoom extends Component
             'size'   => $this->lockerSize,
         ]);
 
-        $this->dispatch('status_updated', message: "You edited locker {$this->locker->id}", type: "success");
+        $this->dispatch('show_toast', message: "Locker {$this->locker->code} updated successfully.", type: "success");
+        $this->reset(['lockerStatus', 'lockerSize', 'modalData']);
+        $this->dispatch('close-modal');
     }
 
-    #[Computed()]
-    public function storageRooms()
+    #[Computed]
+    public function rooms()
     {
-        return StorageRoom::with(['lockers', 'openAreas.storageApplications'])->get();
+        return StorageRoom::select('id', 'room_name', 'room_status')->get();
     }
 
-    #[Computed()]
+
+    #[Computed]
     public function storageRoom()
     {
-        return $this->storageRooms->where('id', $this->roomId)->first();
+        return StorageRoom::with([
+            'lockers',
+            'openAreas.storageApplications'
+        ])->findOrFail($this->roomId);
     }
 
+    // Modal
+    #[Computed()]
+    public function locker()
+    {
+        if (!$this->modalData) {
+            return null;
+        }
+
+        // Use find() for cleaner code.
+        // Use with() to load the room so the modal doesn't have to run extra queries.
+        return Locker::with(['storageRoom'])
+            ->find($this->modalData);
+    }
+    #[Computed]
+    public function lockerApplication()
+    {
+        if (! $this->locker) {
+            return null;
+        }
+
+        return StorageApplication::with('applicant')
+            ->where('locker_id', $this->locker->id)
+            ->whereIn('storage_application_status', ['pending', 'approved'])
+            ->latest()
+            ->first();
+    }
+
+    // Metrics
     #[Computed()]
     public function totalLockers()
     {
         return $this->storageRoom->lockers->count();
     }
-    #[Computed()]
-    public function availableLockers()
+    #[Computed]
+    public function lockerStats()
     {
-        return $this->storageRoom->lockers->where('status', 'available')->count();
-    }
-    #[Computed()]
-    public function unavailableLockers()
-    {
-        return $this->totalLockers - $this->availableLockers;
-    }
-    #[Computed()]
-    public function occupiedLockers()
-    {
-        return $this->storageRoom->lockers->where('status', 'occupied')->count();
-    }
-    #[Computed()]
-    public function reservedLockers()
-    {
-        return $this->storageRoom->lockers->where('status', 'reserved')->count();
-    }
+        $lockers = $this->storageRoom->lockers;
 
+        return [
+            'total'     => $lockers->count(),
+            'available' => $lockers->where('status', 'available')->count(),
+            'occupied'  => $lockers->where('status', 'occupied')->count(),
+            'reserved'  => $lockers->where('status', 'reserved')->count(),
+        ];
+    }
     #[Computed()]
     public function openAreaStoredItems()
     {

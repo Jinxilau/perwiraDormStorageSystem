@@ -268,7 +268,7 @@
                                     <div x-data="{ open: false }">
 
                                         {{-- Header: Badge + Tiny Toggle Link --}}
-                                        <div class="d-flex align-items-center justify-content-between">
+                                        <div class="d-flex align-items-center justify-content-center">
                                             <button @click="open = !open"
                                                 class="btn badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill">
                                                 {{ $count }} {{ Str::plural('Item', $count) }}
@@ -342,14 +342,16 @@
 
                                     {{-- View Storage Application --}}
                                     <a href="{{ route('storage_application_detail', $application->id) }}"
-                                        class="btn btn-sm btn-outline-primary" title="View Storage Application">
-                                        <i class="bi bi-box-seam"></i>
+                                        class="btn btn-sm btn-outline-secondary" title="View Storage Application"
+                                        style="padding: 0 2px;">
+                                        <i class="bi bi-eye-fill"></i>
                                     </a>
 
                                     {{-- View QR History --}}
                                     <button
                                         wire:click="$set('modalData', {{ $log->qr_code_id }}); $dispatch('display_modal');"
-                                        class="btn btn-sm btn-outline-secondary" title="View QR Scan History">
+                                        class="btn btn-sm btn-outline-primary" title="View QR Scan History"
+                                        style="padding: 0 2px;">
                                         <i class="bi bi-clock-history"></i>
                                     </button>
 

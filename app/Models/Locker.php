@@ -13,6 +13,15 @@ class Locker extends Model
         'status'
     ];
 
+    // Check if the locker has any stored items， true means it cannot be marked as available
+    public function canBeMarkedAvailable(): bool
+    {
+        return $this->storageApplications()->where('storage_application_status', 'approved')->whereHas('qrCode', function ($query) {
+            // The locker is only "unavailable" if the QR status is NOT checked_out
+            $query->where('status', '!=', 'checked_out');
+        })->exists();
+    }
+
     // Eloquent Model Relationship
     public function storageRoom()
     {
@@ -22,10 +31,5 @@ class Locker extends Model
     {
         return $this->hasMany(StorageApplication::class, 'locker_id');
     }
-
-    // public function storageApplications()
-    // {
-    //     return $this->hasMany(StorageApplication::class, 'locker_id', 'locker_id');
-    // }
 
 }

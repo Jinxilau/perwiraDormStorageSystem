@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\StorageApplicationDetailController;
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\EnsureUserIsApproved;
 use App\Livewire\AdminDashboard;
@@ -9,6 +8,7 @@ use App\Livewire\ManageMissingReport;
 use App\Livewire\ManageStorageApplication;
 use App\Livewire\ManageStorageRoom;
 use App\Livewire\ManageUser;
+use App\Livewire\MissingDetails;
 use App\Livewire\MissingReport;
 use App\Livewire\MyReport;
 use App\Livewire\MyStorage;
@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
 
-Route::view('dashboard', 'dashboard')->middleware(['auth', 'verified'])->name('dashboard');
+// Route::view('login', 'pages.auth.login')->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::view('profile', 'profile')->middleware(['auth'])->name('profile');
 
@@ -50,7 +50,10 @@ Route::middleware(['auth', EnsureUserIsApproved::class, CheckRole::class . ':stu
 Route::middleware(['auth', CheckRole::class . ':administrator'])->group(function () {
     Route::get('/admin/dashboard', AdminDashboard::class)->name('admin_dashboard');
     Route::get('/admin/user', ManageUser::class)->name('manage_user');
+
     Route::get('/admin/missing_report', ManageMissingReport::class)->name('manage_missing');
+    Route::get('/admin/missing_report/{report}', MissingDetails::class)->name('missing_report_detail');
+
     Route::get('/admin/notifications', AdminNotification::class)->name('admin_notification');
     Route::get('/admin/setting', Setting::class)->name('setting');
     Route::get('/admin/storage_insight', StorageInsight::class)->name('storage_insight');
@@ -60,10 +63,12 @@ Route::middleware(['auth', CheckRole::class . ':administrator'])->group(function
 Route::middleware(['auth', CheckRole::class . ':staff,administrator'])->group(function () {
     // Have problem when doing full page livewire, because the layout needs to be dynamic, so lazy wont work as the layouts apply late.
     Route::view('/storage_applications', 'admin.manage_storage_application')->name('manage_storage_application');
-    Route::get('/storage_applications/{application}', [StorageApplicationDetailController::class, 'show'])->name('storage_application_detail');
+    Route::get('/storage_applications/{application}', function ($application) {
+        return view('admin.storage-details', ['application' => $application]);
+    })->name('storage_application_detail');
 
-    Route::get('/room/{room?}', function ($room = null) {
-        return view('admin.manage_storage_room', ['room' => $room]);
+    Route::get('/room', function () {
+        return view('admin.manage_storage_room');
     })->name('storage_room');
 
     Route::view('/scanqr', 'admin.scan_qr')->name('scan_qr');
