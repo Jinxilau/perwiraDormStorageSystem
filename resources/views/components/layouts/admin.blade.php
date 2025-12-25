@@ -16,6 +16,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     {{-- ApexChart --}}
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    {{-- QR Reader --}}
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    {{-- Alpine js --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
 </head>
 
 <body class="d-md-flex min-vh-100">
@@ -113,10 +117,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous">
     </script>
-    {{-- QR Reader --}}
-    <script src="https://unpkg.com/html5-qrcode"></script>
-    {{-- Alpine js --}}
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+
 
     @stack('scripts')
     <script>
