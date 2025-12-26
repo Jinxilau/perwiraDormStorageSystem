@@ -2,17 +2,20 @@
 
 namespace App\Livewire;
 
+use App\Exports\StorageReportExport;
 use App\Models\Locker;
 use App\Models\QRCode;
 use App\Models\ScanLog;
 use App\Models\Semester;
 use App\Models\StorageApplication;
 use App\Models\StoredItem;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Maatwebsite\Excel\Facades\Excel;
 
 #[Layout('components.layouts.admin')]
 #[Title('Storage Insight')]
@@ -395,6 +398,21 @@ class StorageInsight extends Component
 
     private function loadMetrics()
     {
+        $unclaimedItems = DB::table('storage_applications')
+            ->join('semesters as app_sem', 'storage_applications.semester_id', '=', 'app_sem.id')
+            ->join('semesters as next_sem', function ($join) {
+                $join->on('next_sem.academic_year', '=', 'app_sem.academic_year')
+                    ->whereRaw('next_sem.semester_no = app_sem.semester_no + 1');
+            })
+            ->join('q_r_codes', 'q_r_codes.storage_application_id', '=', 'storage_applications.id')
+            ->where('q_r_codes.status', '!=', 'checked_out')
+            ->whereDate(
+                DB::raw('DATE_ADD(next_sem.start_date, INTERVAL 7 DAY)'),
+                '<',
+                Carbon::now()
+            )
+            ->count();
+
         $this->metrics = [
             'totalApplications' => StorageApplication::count(),
 
@@ -405,8 +423,27 @@ class StorageInsight extends Component
                 1
             ),
 
-            'unclaimedItems' => StorageApplication::where('storage_application_status', 'overdue')->count(),
+            'unclaimedItems' => $unclaimedItems,
         ];
+    }
+
+    public function exportExcel()
+    {
+        return Excel::download(new StorageReportExport, 'storage-report.xlsx');
+    }
+
+    public function exportPdf()
+    {
+        $data = [
+            'metrics' => $this->metrics,
+            'storageDemand' => $this->storageDemandValues,
+        ];
+
+        $pdf = Pdf::loadView('reports.dashboard-pdf', $data);
+        return response()->streamDownload(
+            fn() => print($pdf->output()),
+            'dashboard-report.pdf'
+        );
     }
 
     public function render()

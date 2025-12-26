@@ -192,36 +192,246 @@
         [x-ref] {
             min-height: 350px;
         }
+
+        /* Export and Print Buttons */
+        .btn-success {
+            background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+            border: none;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #146c43 0%, #0f5132 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(25, 135, 84, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #565e64 100%);
+            border: none;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #565e64 0%, #3d4449 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        .gap-2 {
+            gap: 0.5rem !important;
+        }
+
+        /* Metric Cards */
+        .metric-card {
+            border: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .metric-card:hover::before {
+            opacity: 1;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .metric-card .card-body {
+            padding: 1.5rem;
+        }
+
+        .metric-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover .metric-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .metric-icon i {
+            font-size: 1.75rem;
+        }
+
+        .bg-primary-light {
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+
+        .bg-success-light {
+            background-color: rgba(25, 135, 84, 0.1);
+        }
+
+        .bg-info-light {
+            background-color: rgba(13, 202, 240, 0.1);
+        }
+
+        .bg-warning-light {
+            background-color: rgba(255, 193, 7, 0.1);
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        /* Print Styles */
+        @media print {
+
+            .btn,
+            [wire\:loading] {
+                display: none !important;
+            }
+
+            .card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .metric-card,
+            .card {
+                box-shadow: none !important;
+                border: 1px solid #dee2e6 !important;
+            }
+
+            .card-header {
+                background: #f8f9fa !important;
+                color: #000 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        /* Animation for metric values */
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .metric-value {
+            animation: countUp 0.6s ease-out;
+        }
+
+        /* Chart Actions Buttons */
+        .chart-actions .btn {
+            border-radius: 6px;
+            font-size: 0.875rem;
+            padding: 0.375rem 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .chart-actions .btn-light:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .chart-actions .btn-dark:hover {
+            background-color: #1a1d20;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        @media print {
+            .chart-actions {
+                display: none !important;
+            }
+        }
     </style>
 
     <div class="container-fluid py-4">
+        {{-- Export and Print Buttons --}}
+        <div class="d-flex justify-content-end align-items-center gap-2">
+            <button wire:click="exportExcel" class="btn btn-success">
+                <i class="bi bi-file-earmark-excel me-2"></i>Export Excel
+            </button>
+            <button onclick="window.print()" class="btn btn-secondary">
+                <i class="bi bi-printer me-2"></i>Print Dashboard
+            </button>
+        </div>
+
         {{-- Key Metrics Section --}}
-        <div class="row mb-4">
+        <div class="row g-4 mb-4">
             <div class="col-md-3">
-                <div class="card text-center">
-                    <h6>Total Applications</h6>
-                    <h3>{{ $metrics['totalApplications'] }}</h3>
+                <div class="card metric-card shadow-sm text-center h-100">
+                    <div class="card-body">
+                        <div class="metric-icon bg-primary-light mb-3">
+                            <i class="bi bi-file-earmark-text text-primary"></i>
+                        </div>
+                        <h6 class="metric-label text-muted mb-2">Total Applications</h6>
+                        <h3 class="metric-value text-primary mb-0">{{ $metrics['totalApplications'] }}</h3>
+                    </div>
                 </div>
             </div>
 
             <div class="col-md-3">
-                <div class="card text-center">
-                    <h6>Active Stored Items</h6>
-                    <h3>{{ $metrics['activeItems'] }}</h3>
+                <div class="card metric-card shadow-sm text-center h-100">
+                    <div class="card-body">
+                        <div class="metric-icon bg-success-light mb-3">
+                            <i class="bi bi-box-seam text-success"></i>
+                        </div>
+                        <h6 class="metric-label text-muted mb-2">Active Stored Items</h6>
+                        <h3 class="metric-value text-success mb-0">{{ $metrics['activeItems'] }}</h3>
+                    </div>
                 </div>
             </div>
 
             <div class="col-md-3">
-                <div class="card text-center">
-                    <h6>Locker Occupancy</h6>
-                    <h3>{{ $metrics['lockerOccupancyRate'] }}%</h3>
+                <div class="card metric-card shadow-sm text-center h-100">
+                    <div class="card-body">
+                        <div class="metric-icon bg-info-light mb-3">
+                            <i class="bi bi-door-closed text-info"></i>
+                        </div>
+                        <h6 class="metric-label text-muted mb-2">Locker Occupancy</h6>
+                        <h3 class="metric-value text-info mb-0">{{ $metrics['lockerOccupancyRate'] }}%</h3>
+                    </div>
                 </div>
             </div>
 
             <div class="col-md-3">
-                <div class="card text-center">
-                    <h6>Unclaimed Items</h6>
-                    <h3>{{ $metrics['unclaimedItems'] }}</h3>
+                <div class="card metric-card shadow-sm text-center h-100">
+                    <div class="card-body">
+                        <div class="metric-icon bg-warning-light mb-3">
+                            <i class="bi bi-exclamation-triangle text-warning"></i>
+                        </div>
+                        <h6 class="metric-label text-muted mb-2">Unclaimed Items</h6>
+                        <h3 class="metric-value text-warning mb-0">{{ $metrics['unclaimedItems'] }}</h3>
+                    </div>
                 </div>
             </div>
         </div>
@@ -361,10 +571,15 @@
             {{-- Item Size Breakdown --}}
             <div class="col-lg-6">
                 <div class="card shadow-sm h-100">
-                    <div class="card-header bg-success text-white">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-pie-chart-fill me-2"></i>Item Size Breakdown
                         </h5>
+                        <div class="chart-actions">
+                            <button class="btn btn-sm btn-light" @click="$dispatch('download-size-chart')">
+                                <i class="bi bi-download"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         @if (empty($sizeLabels))
@@ -378,6 +593,15 @@
                                 init() {
                                     this.$nextTick(() => {
                                         this.renderChart();
+                                    });
+                                },
+                            
+                                downloadPng() {
+                                    this.chart.dataURI().then(({ imgURI }) => {
+                                        const link = document.createElement('a');
+                                        link.href = imgURI;
+                                        link.download = 'item-size-breakdown.png';
+                                        link.click();
                                     });
                                 },
                             
@@ -419,7 +643,7 @@
                                     this.chart = new ApexCharts(this.$refs.sizeChart, options);
                                     this.chart.render();
                                 }
-                            }">
+                            }" @download-size-chart.window="downloadPng()">
                                 <div x-ref="sizeChart"></div>
                             </div>
                         @endif
@@ -430,10 +654,16 @@
             {{-- Item Type Breakdown --}}
             <div class="col-lg-6">
                 <div class="card shadow-sm h-100">
-                    <div class="card-header bg-info text-white">
+                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-diagram-3-fill me-2"></i>Item Type Breakdown
                         </h5>
+                        <div class="chart-actions">
+                            <button class="btn btn-sm btn-light" @click="$dispatch('download-type-chart')">
+                                <i class="bi bi-download"></i>
+                            </button>
+                        </div>
+
                     </div>
                     <div class="card-body">
                         @if (empty($typeLabels))
@@ -447,6 +677,15 @@
                                 init() {
                                     this.$nextTick(() => {
                                         this.renderChart();
+                                    });
+                                },
+                            
+                                downloadPng() {
+                                    this.chart.dataURI().then(({ imgURI }) => {
+                                        const link = document.createElement('a');
+                                        link.href = imgURI;
+                                        link.download = 'item-type-breakdown.png';
+                                        link.click();
                                     });
                                 },
                             
@@ -488,7 +727,7 @@
                                     this.chart = new ApexCharts(this.$refs.typeChart, options);
                                     this.chart.render();
                                 }
-                            }">
+                            }" @download-type-chart.window="downloadPng()">
                                 <div x-ref="typeChart"></div>
                             </div>
                         @endif
@@ -499,10 +738,15 @@
             {{-- Item Condition Breakdown --}}
             <div class="col-12">
                 <div class="card shadow-sm">
-                    <div class="card-header bg-warning text-dark">
+                    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-star-fill me-2"></i>Item Condition Breakdown
                         </h5>
+                        <div class="chart-actions">
+                            <button class="btn btn-sm btn-light" @click="$dispatch('download-condition-chart')">
+                                <i class="bi bi-download"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         @if (empty($conditionLabels))
@@ -516,6 +760,15 @@
                                 init() {
                                     this.$nextTick(() => {
                                         this.renderChart();
+                                    });
+                                },
+                            
+                                downloadPng() {
+                                    this.chart.dataURI().then(({ imgURI }) => {
+                                        const link = document.createElement('a');
+                                        link.href = imgURI;
+                                        link.download = 'item-condition-breakdown.png';
+                                        link.click();
                                     });
                                 },
                             
@@ -558,7 +811,7 @@
                                     this.chart.render();
                                 }
                             }">
-                                <div x-ref="conditionChart"></div>
+                                <div x-ref="conditionChart" @download-condition-chart.window="downloadPng()"></div>
                             </div>
                         @endif
                     </div>
@@ -568,10 +821,15 @@
             {{-- Check-in vs Check-out per Semester --}}
             <div class="col-12">
                 <div class="card shadow-sm">
-                    <div class="card-header bg-danger text-white">
+                    <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-arrow-left-right me-2"></i>Check-in vs Check-out per Semester
                         </h5>
+                        <div class="chart-actions">
+                            <button class="btn btn-sm btn-light" @click="$dispatch('download-check-chart')">
+                                <i class="bi bi-download"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         @if (empty($checkLabels))
@@ -586,6 +844,15 @@
                                 init() {
                                     this.$nextTick(() => {
                                         this.renderChart();
+                                    });
+                                },
+
+                                downloadPng() {
+                                    this.chart.dataURI().then(({ imgURI }) => {
+                                        const link = document.createElement('a');
+                                        link.href = imgURI;
+                                        link.download = 'check-in-vs-check-out.png';
+                                        link.click();
                                     });
                                 },
                             
@@ -625,7 +892,7 @@
                                     this.chart.render();
                                 }
                             }">
-                                <div x-ref="checkChart"></div>
+                                <div x-ref="checkChart" @download-check-chart.window="downloadPng()"></div>
                             </div>
                         @endif
                     </div>
@@ -635,10 +902,15 @@
             {{-- Locker vs Open Space Usage per Semester --}}
             <div class="col-lg-6">
                 <div class="card shadow-sm h-100">
-                    <div class="card-header bg-secondary text-white">
+                    <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-grid-3x3-gap-fill me-2"></i>Locker vs Open Space Usage
                         </h5>
+                        <div class="chart-actions">
+                            <button class="btn btn-sm btn-light" @click="$dispatch('download-usage-chart')">
+                                <i class="bi bi-download"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         @if (empty($usageLabels))
@@ -656,6 +928,15 @@
                                     });
                                 },
                             
+                                downloadPng() {
+                                    this.chart.dataURI().then(({ imgURI }) => {
+                                        const link = document.createElement('a');
+                                        link.href = imgURI;
+                                        link.download = 'locker-vs-open-space-usage.png';
+                                        link.click();
+                                    });
+                                },
+                                
                                 renderChart() {
                                     if (!this.$refs.stackedChart) return;
                             
@@ -695,7 +976,7 @@
                                     this.chart = new ApexCharts(this.$refs.stackedChart, options);
                                     this.chart.render();
                                 }
-                            }">
+                            }" @download-usage-chart.window="downloadPng()">
                                 <div x-ref="stackedChart"></div>
                             </div>
                         @endif
@@ -706,11 +987,16 @@
             {{-- Locker Occupancy Rate per Semester --}}
             <div class="col-lg-6">
                 <div class="card shadow-sm h-100">
-                    <div class="card-header"
+                    <div class="card-header d-flex justify-content-between align-items-center"
                         style="background: linear-gradient(135deg, #6610f2 0%, #520dc2 100%); color: white;">
                         <h5 class="card-title mb-0">
                             <i class="bi bi-speedometer2 me-2"></i>Locker Occupancy Rate
                         </h5>
+                        <div class="chart-actions">
+                            <button class="btn btn-sm btn-light" @click="$dispatch('download-occupancy-chart')">
+                                <i class="bi bi-download"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body">
                         @if (empty($occupancyLabels))
@@ -727,6 +1013,15 @@
                                     });
                                 },
                             
+                                downloadPng() {
+                                    this.chart.dataURI().then(({ imgURI }) => {
+                                        const link = document.createElement('a');
+                                        link.href = imgURI;
+                                        link.download = 'locker-occupancy-rate.png';
+                                        link.click();
+                                    });
+                                },
+                                
                                 renderChart() {
                                     if (!this.$refs.radialChart) return;
                             
@@ -789,7 +1084,7 @@
                                     this.chart = new ApexCharts(this.$refs.radialChart, options);
                                     this.chart.render();
                                 }
-                            }">
+                            }" @download-usage-chart.window="downloadPng()">
                                 <div x-ref="radialChart"></div>
                             </div>
                         @endif
