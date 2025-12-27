@@ -331,24 +331,20 @@
                             </td>
                             <td class="align-middle">
                                 <div class="flex align-items-center" style="white-space: nowrap">
-                                    <button
-                                        wire:click="$set('userId', {{ $user->id }}); $dispatch('display_modal');"
-                                        title="View Details" class="btn btn-sm btn-outline-secondary"
-                                        style="padding: 0;" type="button">
+                                    <a href="{{ route('user_details', ['user' => $user->id]) }}" title="View Details"
+                                        class="btn btn-sm btn-outline-secondary" style="padding: 0;">
                                         <i class="bi bi-eye-fill"></i>
-                                    </button>
+                                    </a>
 
                                     <button wire:click="approveUser({{ $user->id }})"
                                         wire:confirm="Are you sure you want to approve this application?"
-                                        class="btn btn-sm btn-outline-success" style="padding: 0;"
-                                        title="Approve">
+                                        class="btn btn-sm btn-outline-success" style="padding: 0;" title="Approve">
                                         <i class="bi bi-check"></i>
                                     </button>
 
                                     <button wire:click="rejectUser({{ $user->id }})"
                                         wire:confirm="Are you sure you want to reject this application?"
-                                        class="btn btn-sm btn-outline-danger" style="padding: 0;"
-                                        title="Reject">
+                                        class="btn btn-sm btn-outline-danger" style="padding: 0;" title="Reject">
                                         <i class="bi bi-x"></i>
                                     </button>
                                 </div>
@@ -371,7 +367,7 @@
         </div>
     </div>
 
-    <x-custom-modal>
+    {{-- <x-custom-modal>
         <x-slot:title>
             <div class="d-flex justify-content-between align-items-center gap-1 w-100">
                 <span>User Details</span>
@@ -514,7 +510,7 @@
                 </form>
             @endif
         </div>
-    </x-custom-modal>
+    </x-custom-modal> --}}
 
 
 </div>

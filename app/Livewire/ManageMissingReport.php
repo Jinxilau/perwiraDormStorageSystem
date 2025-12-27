@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\MissingReport;
 use App\Models\Semester;
 use App\Models\StorageRoom;
+use App\Notifications\MissingReportStatusNotification;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Computed;
@@ -110,6 +111,19 @@ class ManageMissingReport extends Component
                 'status' => $this->newStatus,
                 'admin_note' => $this->adminNote,
             ]);
+
+            $student = $this->report
+                ->storedItems
+                ->first()
+                ?->storageApplication
+                ?->applicant;
+
+            if ($student) {
+                $student->notify(
+                    new MissingReportStatusNotification($report, $this->newStatus)
+                );
+            }
+
 
             $this->dispatch('show_toast', message: 'Missing Report status updated successfully.', type: 'success');
 

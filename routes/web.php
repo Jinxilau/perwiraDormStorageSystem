@@ -16,12 +16,14 @@ use App\Livewire\ScanLog;
 use App\Livewire\ScanQr;
 use App\Livewire\Setting;
 use App\Livewire\StaffDashboard;
+use App\Livewire\StaffNotification;
 use App\Livewire\StorageApplication;
 use App\Livewire\StorageApplicationCreate;
 use App\Livewire\StorageApplicationEdit;
 use App\Livewire\StorageInsight;
 use App\Livewire\StudentDashboard;
 use App\Livewire\StudentNotifications;
+use App\Livewire\UserDetails;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/login');
@@ -49,7 +51,9 @@ Route::middleware(['auth', EnsureUserIsApproved::class, CheckRole::class . ':stu
 // Administrator
 Route::middleware(['auth', CheckRole::class . ':administrator'])->group(function () {
     Route::get('/admin/dashboard', AdminDashboard::class)->name('admin_dashboard');
+
     Route::get('/admin/user', ManageUser::class)->name('manage_user');
+    Route::get('/admin/user/{user}', UserDetails::class)->name('user_details');
 
     Route::get('/admin/missing_report', ManageMissingReport::class)->name('manage_missing');
     Route::get('/admin/missing_report/{report}', MissingDetails::class)->name('missing_report_detail');
@@ -62,11 +66,12 @@ Route::middleware(['auth', CheckRole::class . ':administrator'])->group(function
 // Both Staff and Admin
 Route::middleware(['auth', CheckRole::class . ':staff,administrator'])->group(function () {
     // Have problem when doing full page livewire, because the layout needs to be dynamic, so lazy wont work as the layouts apply late.
+
+    // Storage Application Management
     Route::view('/storage_applications', 'admin.manage_storage_application')->name('manage_storage_application');
     Route::get('/storage_applications/{application}', function ($application) {
         return view('admin.storage-details', ['application' => $application]);
     })->name('storage_application_detail');
-
     Route::get('storage_applications/{application}/checkin-out', function ($application) {
         return view('admin.check-in-application', ['application' => $application]);
     })->name('check_in_application');
@@ -76,14 +81,16 @@ Route::middleware(['auth', CheckRole::class . ':staff,administrator'])->group(fu
     })->name('storage_room');
 
     Route::view('/scanqr', 'admin.scan_qr')->name('scan_qr');
+
     Route::view('/scan_log', 'admin.scan_log')->name('scan_log');
+    
     Route::view('/activity_log', 'admin.activity_log')->name('activity_log');
 });
 
 // Staff
 Route::middleware(['auth', CheckRole::class . ':staff'])->group(function () {
     Route::get('/staff/dashboard', StaffDashboard::class)->name('staff_dashboard');
-    // Route::get('staff/notification', )->name('staff_notification');
+    Route::get('staff/notification', StaffNotification::class)->name('staff_notification');
 });
 
 require __DIR__ . '/auth.php';

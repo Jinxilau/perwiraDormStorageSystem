@@ -1,4 +1,8 @@
-<x-layouts.admin title="Manage Storage Application">
-    {{-- No need lazy because it is nested livewire component --}}
+@php
+    // Determine the layout name based on the authenticated user's role
+$layout = auth()->user()->role_id == 1 ? 'layouts.admin' : 'layouts.staff';
+@endphp
+
+<x-dynamic-component :component="$layout" title="Manage Storage Application">
     <livewire:manage-storage-application />
-</x-layouts.admin>
+</x-dynamic-component>

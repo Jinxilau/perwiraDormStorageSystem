@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\MissingReport;
+use App\Notifications\MissingReportStatusNotification;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Title;
@@ -66,32 +67,70 @@ class MissingDetails extends Component
     {
         $this->validate(['status' => 'required|in:pending,investigating,found,lost,dismissed']);
 
+        $oldStatus = $this->report->status;
+
+        // Prevent duplicate notifications
+        if ($oldStatus === $this->status) {
+            return;
+        }
+
         $this->report->update([
             'status' => $this->status
         ]);
+
+        // Notify student
+        $student = $this->report
+            ->storedItems
+            ->first()
+            ?->storageApplication
+            ?->applicant;
+
+        if ($student) {
+            $student->notify(
+                new MissingReportStatusNotification($this->report, $this->status)
+            );
+        }
 
         $this->closeStatusModal();
 
         $this->dispatch('show_toast', message: 'Report status updated successfully!', type: 'success');
 
-        // Refresh the report
         $this->report->refresh();
     }
 
     public function quickUpdateStatus($newStatus)
     {
-        $this->status = $newStatus;
-
-        if (in_array($newStatus, ['pending', 'investigating', 'found', 'lost', 'dismissed'])) {
-            $this->report->update([
-                'status' => $newStatus
-            ]);
-
-            $this->dispatch('show_toast', message: 'Report status updated to ' . ucfirst($newStatus) . '!', type: 'success');
-
-            $this->report->refresh();
+        if (!in_array($newStatus, ['pending', 'investigating', 'found', 'lost', 'dismissed'])) {
+            return;
         }
+
+        $oldStatus = $this->report->status;
+
+        if ($oldStatus === $newStatus) {
+            return;
+        }
+
+        $this->report->update([
+            'status' => $newStatus
+        ]);
+
+        $student = $this->report
+            ->storedItems
+            ->first()
+            ?->storageApplication
+            ?->applicant;
+
+        if ($student) {
+            $student->notify(
+                new MissingReportStatusNotification($this->report, $newStatus)
+            );
+        }
+
+        $this->dispatch('show_toast', message: 'Report status updated to ' . ucfirst($newStatus) . '!', type: 'success');
+
+        $this->report->refresh();
     }
+
 
     public function updateNote()
     {

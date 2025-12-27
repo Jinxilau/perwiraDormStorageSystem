@@ -7,6 +7,8 @@ use App\Models\OpenArea;
 use App\Models\StorageApplication;
 use App\Models\StorageRoom;
 use App\Models\StoredItem;
+use App\Models\User;
+use App\Notifications\StorageRoomStatusNotification;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -47,16 +49,43 @@ class ManageStorageRoom extends Component
     public function toggleRoomStatus()
     {
         try {
-            $status = $this->roomStatus ? "closed" : "open";
+            $room = StorageRoom::findOrFail($this->roomId);
 
-            StorageRoom::findOrFail($this->roomId)->update(['room_status' => $status]);
+            $newStatus = $this->roomStatus ? 'closed' : 'open';
 
-            $this->dispatch('show_toast', message: "The storage room is changed to {$status}.", type: "success");
+            // Prevent unnecessary updates
+            if ($room->room_status === $newStatus) {
+                return;
+            }
+
+            $room->update(['room_status' => $newStatus]);
+
+            // Notify students
+            if ($newStatus === 'open') {
+                // notify students
+                User::where('role_id', '3')
+                    ->chunk(100, function ($students) use ($room) {
+                        foreach ($students as $student) {
+                            $student->notify(new StorageRoomStatusNotification($room));
+                        }
+                    });
+            }    
 
             $this->roomStatus = !$this->roomStatus;
+
+            $this->dispatch(
+                'show_toast',
+                message: "The storage room is changed to {$newStatus}.",
+                type: "success"
+            );
         } catch (Exception $e) {
-            $this->dispatch('show_toast', message: "Something went wrong. Please try again.", type: 'fail');
-            Log::error($e->getMessage());
+            $this->dispatch(
+                'show_toast',
+                message: "Something went wrong. Please try again.",
+                type: 'fail'
+            );
+
+            Log::error($e);
         }
     }
 

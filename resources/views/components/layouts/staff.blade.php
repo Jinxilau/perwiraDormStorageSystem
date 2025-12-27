@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title }}</title>
-    @vite(['resources\css\admin.css', 'resources\css\sidebar2.css', 'resources\css\notification.css'])
+    <title>{{ $title . ' | Perwira Dorm Storage System' }}</title>
+    @vite(['resources\css\admin.css', 'resources\css\sidebar2.css', 'resources\css\notification.css', 'resources\css\modal.css', 'resources\css\placeholder.css'])
     @stack('styles')
     {{-- Livewire Style --}}
     @livewireStyles
@@ -14,9 +14,16 @@
         integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    {{-- ApexChart --}}
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    {{-- QR Reader --}}
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    {{-- Alpine js --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
 </head>
 
 <body class="d-md-flex min-vh-100">
+    {{-- Sidebar --}}
     <x-sidebar2 :items="[
         [
             'title' => 'Dashboard',
@@ -25,40 +32,40 @@
             'path' => 'staff/dashboard',
         ],
         [
-            'title' => 'Manage Storage Application',
-            'url' => route('manage_storage_pending'),
-            'icon' => 'bi-speedometer',
-            'path' => 'storage/*',
+            'title' => 'Storage Application',
+            'url' => route('manage_storage_application', ['status' => 'pending']),
+            'icon' => 'bi-calendar-week',
+            'path' => 'storage_applications',
         ],
         [
-            'title' => 'Manage Storage Room',
+            'title' => 'Storage Room',
             'url' => route('storage_room'),
-            'icon' => 'bi-speedometer',
-            'path' => 'room/*',
-        ],
-        [
-            'title' => 'Scan Logs',
-            'url' => route('staff_dashboard'),
-            'icon' => 'bi-speedometer',
-            'path' => 'storage/*',
-        ],
-        [
-            'title' => 'System Activity Log',
-            'url' => route('staff_dashboard'),
-            'icon' => 'bi-speedometer',
-            'path' => 'storage/*',
-        ],
-        [
-            'title' => 'Notifications',
-            'url' => route('staff_dashboard'),
-            'icon' => 'bi-speedometer',
-            'path' => 'storage/*',
+            'icon' => 'bi-box-seam',
+            'path' => 'room',
         ],
         [
             'title' => 'Scan QR Code',
-            'url' => route('staff_dashboard'),
-            'icon' => 'bi-speedometer',
-            'path' => 'storage/*',
+            'url' => route('scan_qr'),
+            'icon' => 'bi-qr-code-scan',
+            'path' => 'scanqr',
+        ],
+        [
+            'title' => 'Scan Logs',
+            'url' => route('scan_log'),
+            'icon' => 'bi-card-list',
+            'path' => 'scan_log',
+        ],
+        [
+            'title' => 'System Activity Log',
+            'url' => route('activity_log'),
+            'icon' => 'bi-card-list',
+            'path' => 'activity_log',
+        ],
+        [
+            'title' => 'Notifications',
+            'url' => route('staff_notification'),
+            'icon' => 'bi-bell',
+            'path' => 'staff/notifications',
         ],
     ]" />
 
@@ -66,6 +73,9 @@
     <main id="main-content">
         {{ $slot }}
     </main>
+
+    {{-- Toast Message --}}
+    <x-toast-message />
 
     {{-- Livewire --}}
     @livewireScripts
@@ -79,9 +89,51 @@
     </script>
     @stack('scripts')
     <script>
-        let userid = {{ Auth::user()->id }};
-        Echo.private(`App.Models.User.${userid}`).notification((notification) => {
-            Livewire.dispatch('notificationReceived');
+        document.addEventListener('livewire:navigated', () => {
+            const sidebar = document.getElementById('sidebar');
+            const toggleButton = document.getElementById('sidebar-toggle-btn');
+            const icon = toggleButton.querySelector('i');
+            const mainContent = document.getElementById('maincontent');
+            const mediaQuery = window.matchMedia('(max-width: 768px)');
+
+            if (!sidebar || !toggleButton || !icon) return;
+
+            // Sidebar: Initial load check
+            if (mediaQuery.matches) {
+                sidebar.classList.add('closed');
+                icon.classList.replace('bi-x-lg', 'bi-list');
+            } else {
+                sidebar.classList.remove('closed');
+                icon.classList.replace('bi-list', 'bi-x-lg');
+            }
+
+            // Sidebar: Resize check
+            mediaQuery.addEventListener('change', e => {
+                if (e.matches) {
+                    sidebar.classList.add('closed');
+                    toggleButton.classList.toggle('rotate');
+                    icon.classList.replace('bi-x-lg', 'bi-list');
+                } else {
+                    sidebar.classList.remove('closed');
+                    toggleButton.classList.toggle('rotate');
+                    icon.classList.replace('bi-list', 'bi-x-lg');
+                }
+            });
+
+            // Sidebar: Toggle Button
+            toggleButton.addEventListener('click', () => {
+                sidebar.classList.toggle('closed');
+                toggleButton.classList.toggle('rotate');
+
+                if (sidebar.classList.contains('closed')) {
+                    icon.classList.replace('bi-x-lg', 'bi-list');
+                } else {
+                    icon.classList.replace('bi-list', 'bi-x-lg');
+                }
+            })
+
+        }, {
+            once: true
         });
     </script>
 </body>
