@@ -28,8 +28,7 @@ return new class extends Migration
             ])->default('misc');
             
             $table->text('item_description')->nullable();
-            $table->string('item_photo_path')->nullable();
-            $table->string('item_location_photo')->nullable();
+            $table->string('item_photo_path')->nullable(); # Photo of the item itself
 
             $table->timestamps();
         });

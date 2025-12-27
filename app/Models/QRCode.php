@@ -12,7 +12,9 @@ class QRCode extends Model
         'qr_token',
         'scanned_count',
         'qr_expires_at',
-        'status'
+        'status',
+        'checkin_item_photo',
+        'storage_zone',
     ];
 
     protected $casts = [

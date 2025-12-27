@@ -175,18 +175,13 @@
                                     };
                                 @endphp
                                 <button type="button" wire:key="locker-{{ $locker->id }}"
-                                    class="btn {{ $statusColor }} d-flex flex-column justify-content-center align-items-center border border-dark border-2 shadow-sm py-3"
+                                    class="btn {{ $statusColor }} d-flex justify-content-center align-items-center border border-dark border-2 shadow-sm py-3"
                                     style="border-style: inset; aspect-ratio: 1/1;"
                                     wire:click="$set('modalData', {{ $locker->id }}); $dispatch('display_modal');"
                                     @disabled($locker->status === 'occupied' && $locker->canBeMarkedAvailable() === true)>
                                     
                                     <span class="fw-bold fs-5">{{ $locker->code }}</span>
                                     {{-- Small Indicator Icon --}}
-                                    @if ($locker->status === 'occupied')
-                                        <i class="bi bi-lock-fill small"></i>
-                                    @elseif($locker->status === 'available')
-                                        <i class="bi bi-unlock small"></i>
-                                    @endif
                                 </button>
                             @endforeach
                         </div>

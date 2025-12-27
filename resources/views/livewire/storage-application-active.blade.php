@@ -67,6 +67,13 @@
                 'color' => 'text-secondary',
                 'bg' => 'bg-secondary bg-opacity-10',
             ],
+            [
+                'title' => $this->unclaimedCount,
+                'subtitle' => 'Unclaimed Storages',
+                'icon' => 'bi-exclamation-triangle-fill',
+                'color' => 'text-danger',
+                'bg' => 'bg-danger bg-opacity-10',
+            ],
         ]" />
 
         {{-- Filtering Options --}}
@@ -117,7 +124,7 @@
                     <option value="not_scanned">Not Checked In</option>
                     <option value="checked_in">Checked In</option>
                     <option value="checked_out">Checked Out</option>
-                    <option value="expired">Expired</option>
+                    {{-- <option value="expired">Expired</option> --}}
                 </select>
             </div>
 
@@ -374,6 +381,10 @@
                             <span class="badge text-bg-success">
                                 {{ ucwords(str_replace('_', ' ', $application->qrCode->status)) }}
                             </span>
+                        @elseif($application->is_unclaimed)
+                            <span class="badge text-bg-danger">
+                                Unclaimed
+                            </span>
                         @else
                             <span class="badge text-bg-danger">
                                 Not Checked In
@@ -434,19 +445,15 @@
                                 <i class="bi bi-eye-fill"></i>
                             </a>
 
-                            <button wire:click="checkin({{ $application->id }})"
-                                wire:confirm="Are you sure you want to check in this storage?"
-                                class="btn btn-sm btn-outline-success" style="padding: 0 2px;"
-                                title="Check In">
+                            <a href="{{ route('check_in_application', $application->id) }}"
+                                class="btn btn-sm btn-outline-success" style="padding: 0 2px;" title="Check In">
                                 <i class="bi bi-box-arrow-in-right"></i>
-                            </button>
+                            </a>
 
-                            <button wire:click="checkout({{ $application->id }})"
-                                wire:confirm="Are you sure you want to check out this storage?"
-                                class="btn btn-sm btn-outline-danger" style="padding: 0 2px;"
-                                title="Check Out">
+                            <a href="{{ route('check_in_application', $application->id) }}"
+                                class="btn btn-sm btn-outline-danger" style="padding: 0 2px;" title="Check Out">
                                 <i class="bi bi-box-arrow-left"></i>
-                            </button>
+                            </a>
                         </div>
                     </td>
                 </tr>

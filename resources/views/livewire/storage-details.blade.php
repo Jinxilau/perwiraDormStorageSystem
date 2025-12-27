@@ -47,6 +47,12 @@
                                     @else
                                         <span class="badge bg-danger">Rejected</span>
                                     @endif
+
+                                    @if ($application->is_unclaimed)
+                                        <span class="badge bg-danger ms-2">
+                                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Unclaimed
+                                        </span>
+                                    @endif
                                 </p>
                             </div>
                         </div>
@@ -68,6 +74,25 @@
                                     <label class="text-muted small mb-1">Semester</label>
                                     <p class="fw-bold">{{ $application->semester->academic_year ?? 'N/A' }} -
                                         {{ $application->semester->semester_no ?? 'N/A' }}</p>
+                                </div>
+                            </div>
+                        @endif
+
+                        @if ($application->is_unclaimed)
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <div class="alert alert-danger d-flex align-items-start">
+                                        <i class="bi bi-exclamation-triangle-fill me-3 fs-4"></i>
+                                        <div>
+                                            <h6 class="alert-heading mb-2">Storage Not Claimed</h6>
+                                            <p class="mb-0 small">
+                                                This storage has not been checked in within 7 days after the next
+                                                semester started.
+                                                The items may need to be cleared or the application may need follow-up
+                                                action.
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         @endif
@@ -97,13 +122,18 @@
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h6 class="alert-heading"><i class="bi bi-lock"></i> Locker Assigned</h6>
                                     <span
-                                        class="badge {{ match ($this->application->locker->status) {
-                                            'available' => 'bg-success',
-                                            'occupied' => 'bg-danger',
-                                            'reserved' => 'bg-warning text-dark',
+                                        class="badge {{ match (true) {
+                                            // If the application is approved, show as success regardless of locker state
+                                            $this->application->storage_application_status === 'approved' => 'bg-success',
+                                        
+                                            $application->locker->status === 'available' => 'bg-success',
+                                            $application->locker->status === 'occupied' => 'bg-danger',
+                                            $application->locker->status === 'reserved' => 'bg-warning text-dark',
                                             default => 'bg-secondary',
                                         } }}">
-                                        {{ ucfirst($this->application->locker->status) }}
+                                        {{ $this->application->locker->status === 'reserved' && $this->application->storage_application_status === 'approved'
+                                            ? 'Allocated'
+                                            : ucfirst($this->application->locker->status) }}
                                     </span>
                                 </div>
                                 <hr>
@@ -307,14 +337,6 @@
                                                         <a href="{{ Storage::disk('public')->url($item->item_photo_path) }}"
                                                             target="_blank" class="btn btn-sm btn-outline-primary">
                                                             <i class="bi bi-image"></i>
-                                                        </a>
-                                                    @endif
-
-                                                    @if ($item->item_location_photo)
-                                                        <a href="{{ Storage::disk('public')->url($item->item_location_photo) }}"
-                                                            target="_blank"
-                                                            class="btn btn-sm btn-outline-secondary ms-1">
-                                                            <i class="bi bi-geo-alt"></i>
                                                         </a>
                                                     @endif
                                                 </td>
@@ -560,6 +582,29 @@
             </form>
         </div>
     </x-custom-modal2>
+
+    @push('styles')
+        <style>
+            .card {
+                border: none;
+                border-radius: 10px;
+            }
+
+            .card-header {
+                border-radius: 10px 10px 0 0 !important;
+                padding: 1rem 1.25rem;
+            }
+
+            .badge {
+                padding: 0.5em 1em;
+                font-size: 0.875rem;
+            }
+
+            .alert-danger {
+                border-left: 4px solid #dc3545;
+            }
+        </style>
+    @endpush
 
 </div>
 @push('styles')

@@ -67,6 +67,10 @@ Route::middleware(['auth', CheckRole::class . ':staff,administrator'])->group(fu
         return view('admin.storage-details', ['application' => $application]);
     })->name('storage_application_detail');
 
+    Route::get('storage_applications/{application}/checkin-out', function ($application) {
+        return view('admin.check-in-application', ['application' => $application]);
+    })->name('check_in_application');
+    
     Route::get('/room', function () {
         return view('admin.manage_storage_room');
     })->name('storage_room');

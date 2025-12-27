@@ -81,104 +81,54 @@ class StorageApplicationActive extends Component
         }, 'qr-code.svg');
     }
 
-    public function checkin(StorageApplication $application)
-    {
-        // 1. Refresh data to ensure we aren't checking a cached/stale status
-        // (e.g., if another admin checked it in 2 seconds ago)
-        $application->load(['qrCode', 'locker', 'openArea']);
+    // public function checkout(StorageApplication $application)
+    // {
+    //     $application->load(['qrCode', 'locker', 'openArea']);
 
-        if (!$application->qrCode) {
-            $this->dispatch('show_toast', message: "Error: No QR Code linked to this application.", type: "fail");
-            return;
-        }
+    //     if (!$application->qrCode) {
+    //         $this->dispatch('show_toast', message: "Error: No QR Code found.", type: "fail");
+    //         return;
+    //     }
 
-        try {
-            DB::transaction(function () use ($application) {
-                $qr = ModelsQRCode::where('id', $application->qrCode->id)
-                    ->lockForUpdate()
-                    ->first();
+    //     try {
+    //         DB::transaction(function () use ($application) {
+    //             $qr = ModelsQRCode::where('id', $application->qrCode->id)
+    //                 ->lockForUpdate()
+    //                 ->first();
 
-                // 2. Logic Check
-                if ($application->qrCode->status === 'checked_in') {
-                    throw new \Exception('Already checked in');
-                }
+    //             // 1. Logic Checks (Order Matters!)
+    //             if ($qr->status === 'checked_out') {
+    //                 throw new \Exception("This storage has already been checked out.");
+    //             }
 
-                // 3. Create Log
-                ScanLog::create([
-                    'qr_code_id' => $application->qrCode->id,
-                    'event_type' => 'check_in'
-                ]);
+    //             if ($qr->status !== 'checked_in') {
+    //                 // If it's 'pending' or 'new', they can't check out yet.
+    //                 throw new \Exception("Item must be Checked In before it can be Checked Out.");
+    //             }
 
-                // 4. Update QR Status
-                $qr->update(['status' => 'checked_in']);
-                $qr->increment('scanned_count');
+    //             // 2. Create Scan Log
+    //             ScanLog::create([
+    //                 'qr_code_id' => $qr->id,
+    //                 'event_type' => 'check_out'
+    //             ]);
 
-                // 5. Update Room Status
-                if ($application->locker) {
-                    $application->locker->update(['status' => 'occupied']);
-                }
-                if ($application->openArea) {
-                    $application->openArea->update(['status' => 'occupied']);
-                }
-            });
+    //             $qr->update(['status' => 'checked_out']);
+    //             $qr->increment('scanned_count');
 
-            $this->dispatch('show_toast', message: "Check in successfully!", type: "success");
-        } catch (\Exception $e) {
-            DB::rollBack(); // Undo changes if error occurs
-            Log::error("Checkin Error: " . $e->getMessage());
-            $this->dispatch('show_toast', message: "{$e->getMessage()}", type: "fail");
-        }
-    }
+    //             if ($application->locker) {
+    //                 $application->locker->update(['status' => 'available']);
+    //             }
+    //             if ($application->openArea) {
+    //                 $application->openArea->update(['status' => 'available']);
+    //             }
+    //         });
 
-    public function checkout(StorageApplication $application)
-    {
-        $application->load(['qrCode', 'locker', 'openArea']);
-
-        if (!$application->qrCode) {
-            $this->dispatch('show_toast', message: "Error: No QR Code found.", type: "fail");
-            return;
-        }
-
-        try {
-            DB::transaction(function () use ($application) {
-                $qr = ModelsQRCode::where('id', $application->qrCode->id)
-                    ->lockForUpdate()
-                    ->first();
-
-                // 1. Logic Checks (Order Matters!)
-                if ($qr->status === 'checked_out') {
-                    throw new \Exception("This storage has already been checked out.");
-                }
-
-                if ($qr->status !== 'checked_in') {
-                    // If it's 'pending' or 'new', they can't check out yet.
-                    throw new \Exception("Item must be Checked In before it can be Checked Out.");
-                }
-
-                // 2. Create Scan Log
-                ScanLog::create([
-                    'qr_code_id' => $qr->id,
-                    'event_type' => 'check_out'
-                ]);
-
-                $qr->update(['status' => 'checked_out']);
-                $qr->increment('scanned_count');
-
-                if ($application->locker) {
-                    $application->locker->update(['status' => 'available']);
-                }
-                if ($application->openArea) {
-                    $application->openArea->update(['status' => 'available']);
-                }
-            });
-
-            $this->dispatch('show_toast', message: "Check-out successful!", type: "success");
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error("Checkout Error: " . $e->getMessage());
-            $this->dispatch('show_toast', message: "System error during check-out.", type: "fail");
-        }
-    }
+    //         $this->dispatch('show_toast', message: "Check-out successful!", type: "success");
+    //     } catch (\Exception $e) {
+    //         Log::error("Checkout Error: " . $e->getMessage());
+    //         $this->dispatch('show_toast', message: "System error during check-out.", type: "fail");
+    //     }
+    // }
 
     #[Computed()]
     public function approvedStorageApplications()
@@ -345,6 +295,11 @@ class StorageApplicationActive extends Component
             $q->where('storage_application_status', 'approved')
                 ->whereHas('semester', fn($sq) => $sq->where('is_current', true));
         })->count();
+    }
+    #[Computed()]
+    public function unclaimedCount()
+    {
+        return StorageApplication::unclaimed()->count();
     }
 
     // Populate the filter dropdowns
