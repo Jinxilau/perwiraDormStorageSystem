@@ -12,6 +12,7 @@ use App\Notifications\StorageRoomStatusNotification;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Request;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Lazy;
@@ -60,6 +61,9 @@ class ManageStorageRoom extends Component
 
             $room->update(['room_status' => $newStatus]);
 
+            // Log activity
+            $this->logRoomStatusChange($room, $newStatus);
+
             // Notify students
             if ($newStatus === 'open') {
                 // notify students
@@ -69,7 +73,7 @@ class ManageStorageRoom extends Component
                             $student->notify(new StorageRoomStatusNotification($room));
                         }
                     });
-            }    
+            }
 
             $this->roomStatus = !$this->roomStatus;
 
@@ -89,7 +93,17 @@ class ManageStorageRoom extends Component
         }
     }
 
-    public function toggleAreaStatus(string $value)
+    protected function logRoomStatusChange($room, $status)
+    {
+        $room->activityLogs()->create([
+            'user_id' => Auth::id(),
+            'action' => $status === 'open' ? 'opened' : 'closed',
+            'description' => "Storage room \"{$room->room_name}\" was {$status}.",
+            'ip_address' => request()->ip(),
+        ]);
+    }
+
+    public function toggleAreaStatus($value)
     {
         // 1. Validate the input status
         $allowedStatuses = ['available', 'occupied', 'under_maintenance'];

@@ -15,10 +15,34 @@ use Livewire\Component;
 #[Lazy()]
 class MyReport extends Component
 {
-    #[Computed()]
-    public function studentStorageApplication()
+    #[Computed]
+    public function storageApplication()
     {
-        return StorageApplication::where('applicant_id', Auth::user()->id)->with(['storedItems.missingReport'])->first();
+        return StorageApplication::query()
+            ->where('applicant_id', Auth::id())
+            ->with([
+                'semester',
+                'approver',
+                'openArea',
+                'locker',
+                'storedItems.missingReport',
+            ])
+            ->first();
+    }
+    
+    #[Computed]
+    public function reports()
+    {
+        if (! $this->storageApplication) {
+            return collect();
+        }
+
+        return $this->storageApplication
+            ->storedItems
+            ->pluck('missingReport')
+            ->filter()
+            ->unique('id')
+            ->values();
     }
 
     public function render()

@@ -42,7 +42,7 @@ class StorageRoomStatusNotification extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject('Storage Room Availability Update')
             ->greeting('Hello ' . ($notifiable->name ?? 'Student') . ',')
-            ->line('The storage room "' . $this->room->name . '" status has been updated.')
+            ->line('The storage room "' . $this->room->room_name . '" status has been updated.')
             ->line(
                 $this->status === 'open'
                     ? 'The storage room is now OPEN and available for check-in.'
@@ -56,7 +56,7 @@ class StorageRoomStatusNotification extends Notification implements ShouldQueue
         return [
             'type' => $this->status === 'open' ? 'announcement' : 'warning',
             'title' => $this->status === 'open' ? 'Storage Room Opened' : 'Storage Room Closed',
-            'message' => $this->status === 'open' ? 'Storage room "' . $this->room->name . '" is now available for check-in.' : 'Storage room "' . $this->room->name . '" is currently closed.',
+            'message' => $this->status === 'open' ? 'Storage room "' . $this->room->room_name . '" is now available for check-in.' : 'Storage room "' . $this->room->room_name . '" is currently closed.',
             'room_id' => $this->room->id,
         ];
     }
@@ -65,7 +65,7 @@ class StorageRoomStatusNotification extends Notification implements ShouldQueue
     {
         return new BroadcastMessage([
             'title' => $this->status === 'open' ? 'Storage Room Opened' : 'Storage Room Closed',
-            'message' => $this->status === 'open' ? 'Storage room "' . $this->room->name . '" is now OPEN for check-in.' : 'Storage room "' . $this->room->name . '" is currently CLOSED.',
+            'message' => $this->status === 'open' ? 'Storage room "' . $this->room->room_name . '" is now OPEN for check-in.' : 'Storage room "' . $this->room->room_name . '" is currently CLOSED.',
             'room_id' => $this->room->id,
         ]);
     }

@@ -22,6 +22,12 @@ class StorageRoom extends Model
         return $this->hasMany(Locker::class);
     }
 
+    public function activityLogs()
+    {
+        return $this->morphMany(ActivityLog::class, 'subject');
+    }
+
+
     public function getAvailableStorageAttribute(): bool
     {
         return $this->availableLockers()->count() > 0 || $this->openAreas()->where('area_status', 'available')->exists();

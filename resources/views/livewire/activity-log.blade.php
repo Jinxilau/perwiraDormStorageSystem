@@ -198,6 +198,8 @@
                                 'deleted', 'destroy' => ['danger', 'bi-trash'], // Red for destructive
                                 'approved', 'approve' => ['info', 'bi-check-lg'], // Info/Teal for status
                                 'rejected', 'reject' => ['warning', 'bi-x-circle'], // Orange for warning
+                                'opened' => ['success', 'bi-door-open'],
+                                'closed' => ['warning', 'bi-door-closed'],
                                 default => ['secondary', 'bi-activity'], // Grey fallback
                             };
                         @endphp

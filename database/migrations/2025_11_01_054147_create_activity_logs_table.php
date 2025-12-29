@@ -18,6 +18,18 @@ return new class extends Migration
             $table->morphs('subject'); // The model that the action was performed on
 
             $table->string('action'); // A short key describing the action
+            /*
+                [$colorClass, $icon] = match ($log->action) {
+                    'created', 'store' => ['success', 'bi-plus-lg'], // Green for positive add
+                    'updated', 'edit' => ['primary', 'bi-pencil'], // Blue for neutral edit
+                    'deleted', 'destroy' => ['danger', 'bi-trash'], // Red for destructive
+                    'approved', 'approve' => ['info', 'bi-check-lg'], // Info/Teal for status
+                    'rejected', 'reject' => ['warning', 'bi-x-circle'], // Orange for warning
+                    default => ['secondary', 'bi-activity'], // Grey fallback
+                };
+
+            */
+
             $table->text('description')->nullable(); // Human readable text
             $table->ipAddress('ip_address')->nullable();
 
