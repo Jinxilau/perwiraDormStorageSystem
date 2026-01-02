@@ -143,10 +143,10 @@
                             Student Information
                         </th>
                         <th class="align-middle py-2">
-                            Items Counts
+                            Items
                         </th>
                         <th class="align-middle py-2">
-                            Activty Type
+                            Activity Type
                         </th>
                         <th class="align-middle py-2">
                             Timestamp

@@ -59,7 +59,7 @@ class StorageDetails extends Component
         QRCode::create([
             'storage_application_id' => $application->id,
             'qr_token' => Str::uuid(),
-            'qr_expires_at' => Carbon::now()->addDays(7)
+            // 'qr_expires_at' => Carbon::now()->addDays(7)
         ]);
 
         // 3. Update Application Status

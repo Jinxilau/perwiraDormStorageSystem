@@ -1,7 +1,7 @@
 <div>
     @include('livewire.includes.header2', [
-        'title' => 'QR Code Scan Logs',
-        'subtitle' => 'View and monitor all QR code scan activities in the system.',
+        'title' => 'Activity Log',
+        'subtitle' => 'Monitor user activities and actions within the system.',
     ])
 
     <div class="overflow-hidden container-fluid">

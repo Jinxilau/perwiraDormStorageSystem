@@ -129,7 +129,7 @@ class StorageApplicationPending extends Component
         QRCode::create([
             'storage_application_id' => $application->id,
             'qr_token' => Str::uuid(),
-            'qr_expires_at' => Carbon::now()->addDays(7)
+            // 'qr_expires_at' => Carbon::now()->addDays(7)
         ]);
 
         // 3. Update Application Status
@@ -147,7 +147,6 @@ class StorageApplicationPending extends Component
         }
 
         // 5. Activity Log (Standardized)
-        // Assuming you have the relationship set up as seen in your first method
         $application->activityLogs()->create([
             'user_id' => Auth::id(),
             'action' => 'approved', // Standardized action name

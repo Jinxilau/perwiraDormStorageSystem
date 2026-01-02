@@ -4,9 +4,9 @@
         'subtitle' => 'View and track your missing item reports',
     ])
 
-    @if ($this->studentStorageApplication)
+    @if ($this->storageApplication)
         @php
-            $items = $this->studentStorageApplication->storedItems;
+            $items = $this->storageApplication->storedItems;
             $reports = $items->pluck('missingReport')->filter()->unique('id')->sortByDesc('created_at')->values();
         @endphp
         
