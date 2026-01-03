@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Semester;
 use App\Models\Setting as ModelsSetting;
 use App\Models\StorageRoom;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Lazy;
@@ -123,12 +124,20 @@ class Setting extends Component
             'selectedSemesterId' => 'required|exists:semesters,id',
         ]);
 
-        ModelsSetting::set('storage_application_enabled', $this->storage_application_enabled);
-        ModelsSetting::set('missing_report_enabled', $this->missing_report_enabled);
+        DB::transaction(function () {
+            // 1. Save standard settings
+            ModelsSetting::set('storage_application_enabled', $this->storage_application_enabled);
+            ModelsSetting::set('missing_report_enabled', $this->missing_report_enabled);
 
-        Semester::query()->update(['is_current' => false]);
-        Semester::where('id', $this->selectedSemesterId)->update(['is_current' => true]);
+            // 2. Update Semester Status
+            // CRITICAL: You MUST set all to NULL first. 
+            // If you try to set one to '1' while another is already '1', MySQL will throw a duplicate error.
+            Semester::query()->update(['is_current' => null]);
 
+            // 3. Set the selected semester to 1
+            Semester::where('id', $this->selectedSemesterId)->update(['is_current' => 1]);
+        });
+        
         $this->dispatch('show_toast', message: "Settings updated successfully!", type: "success");
     }
 

@@ -9,6 +9,11 @@ class Setting extends Model
 {
     protected $fillable = ['key', 'value'];
 
+    protected $casts = [
+        'value' => 'boolean',
+    ];
+
+
     public static function get($key, $default = null)
     {
         // Fetch from cache/database(if not exist)

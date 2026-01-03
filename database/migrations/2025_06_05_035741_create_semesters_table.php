@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -13,17 +14,22 @@ return new class extends Migration
     {
         Schema::create('semesters', function (Blueprint $table) {
             $table->id();
+            $table->string('academic_year');
+            $table->integer('semester_no');
+            $table->date('start_date');
+            $table->date('end_date');
 
-            $table->string('academic_year'); // Example: "2024/2025"
-            $table->tinyInteger('semester_no'); // 1 or 2
-            $table->date('start_date')->nullable();
-            $table->date('end_date')->nullable();
-            $table->boolean('is_current')->default(false);
+            // 1. Make it nullable
+            $table->boolean('is_current')->nullable()->default(null);
 
             $table->timestamps();
 
-            // Check to ensure unique academic year and semester number combination
+            // 2. Add composite unique for upsert safety
             $table->unique(['academic_year', 'semester_no']);
+
+            // 3. The MySQL Trick: Standard Unique Index
+            // MySQL allows multiple NULLs, but only ONE '1'.
+            $table->unique('is_current');
         });
     }
 

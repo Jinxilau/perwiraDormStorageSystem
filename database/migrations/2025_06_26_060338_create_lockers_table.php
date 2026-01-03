@@ -25,6 +25,8 @@ return new class extends Migration
             ])->default('available');
 
             $table->timestamps();
+
+            $table->unique(['storage_room_id', 'code']); // Unique code per room
         });
     }
 
