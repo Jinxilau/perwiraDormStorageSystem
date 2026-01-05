@@ -1,6 +1,10 @@
 /* @tailwind base;
 @tailwind components;
 @tailwind utilities; */
+@import './sidebar2.css';
+@import './notification.css';
+@import './modal.css';
+@import './placeholder.css';
 
 * {
     margin: 0;

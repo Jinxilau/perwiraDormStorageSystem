@@ -1,3 +1,10 @@
+@import "./sidebar2.css";
+@import "./header.css";
+@import "./footer.css";
+@import "./notification.css";
+@import "./modal.css";
+@import "./placeholder.css";
+
 * {
     margin: 0;
     padding: 0;
