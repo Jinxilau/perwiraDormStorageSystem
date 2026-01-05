@@ -6,7 +6,7 @@
                 <!-- Header Card -->
                 <div class="card shadow-sm border-0 mb-4">
                     <div class="card-body text-center py-4">
-                        <img src="{{ Vite::asset('resources\images\icons\perwira_logo.png') }}" alt="Logo"
+                        <img src="{{ Vite::asset('resources/images/icons/perwira_logo.png') }}" alt="Logo"
                             class="img-fluid" style="width: 300px; object-fit: cover; margin-top: -30px; margin-bottom: -30px;">
                         <h1 class="fw-bold text-dark mb-2 h2">Account Application</h1>
                         <p class="text-muted mb-0">Perwira Dorm Storage System</p>

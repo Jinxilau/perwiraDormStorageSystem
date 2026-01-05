@@ -41,7 +41,7 @@ new #[Layout('layouts.guest')] class extends Component {
             class="col-lg-5 d-none d-lg-flex flex-column justify-content-center align-items-center bg-primary bg-gradient bg-opacity-75 text-white p-5 rounded-start shadow-sm border">
             <div class="text-center">
                 <div>
-                    <img src="{{ Vite::asset('resources\images\icons\perwira_logo.png') }}" alt="Logo"
+                    <img src="{{ Vite::asset('resources/images/icons/perwira_logo.png') }}" alt="Logo"
                         class="img-fluid" style="width: 500px; object-fit: cover; margin-bottom: -30px">
                 </div>
                 <h1 class="h2 fw-bold mb-3">Perwira Dorm<br>Storage System</h1>
