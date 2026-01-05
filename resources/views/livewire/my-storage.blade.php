@@ -70,6 +70,10 @@
                                         <i class="bi bi-download me-1"></i> Download QR
                                     </button>
                                 </div>
+                                {{-- QR Code Token --}}
+                                <p class="mt-2 text-break small text-muted">
+                                    {{ $application->qrCode->qr_token }}
+                                </p>
                             </div>
                             {{-- Check-in and Check-out Dates --}}
                             <div class="col-md-8">

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('missing_reports', function (Blueprint $table) {
             $table->id();
-            // $table->foreignId('semester_id')->nullable()->constrained('semesters')->nullOnDelete();
+            $table->foreignId('semester_id')->nullable()->constrained('semesters')->nullOnDelete();
 
             $table->enum('status', [
                 'pending', // Student submitted, Admin hasn't looked yet
