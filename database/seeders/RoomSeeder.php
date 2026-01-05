@@ -19,15 +19,11 @@ class RoomSeeder extends Seeder
                 'id' => 1,
                 'room_name' => 'E1-03',
                 'room_status' => 'open',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
             ],
             [
                 'id' => 2,
                 'room_name' => 'E1-06',
                 'room_status' => 'open',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
             ],
         ]);
     }
