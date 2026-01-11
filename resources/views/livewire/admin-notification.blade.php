@@ -141,11 +141,11 @@
                         </div>
                     </div>
                 @empty
-                    <div class="card border-0 empty-state-card">
+                    <div class="card border-0 empty-state-card-notification">
                         <div class="card-body text-center py-5">
                             <div class="mb-4">
                                 <div
-                                    class="empty-state-icon rounded-circle d-inline-flex align-items-center justify-content-center">
+                                    class="empty-state-icon-notification rounded-circle d-inline-flex align-items-center justify-content-center">
                                     <i class="bi bi-filter fs-1 text-white"></i>
                                 </div>
                             </div>
@@ -286,13 +286,13 @@
         }
 
         /* Empty State */
-        .empty-state-card {
+        .empty-state-card-notification {
             border-radius: 16px;
             background: white;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
         }
 
-        .empty-state-icon {
+        .empty-state-icon-notification {
             width: 120px;
             height: 120px;
             background: #0d6efd;

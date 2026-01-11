@@ -4,10 +4,17 @@ namespace App\Exports;
 
 use App\Models\StorageApplication;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Worksheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class StorageReportExport implements FromCollection, WithHeadings, WithMapping
+class StorageReportExport implements FromCollection, WithHeadings, WithMapping, WithStyles, WithColumnWidths, WithTitle
 {
     public function collection()
     {
@@ -63,5 +70,56 @@ class StorageReportExport implements FromCollection, WithHeadings, WithMapping
             ucfirst($row->storage_application_status),
             $row->created_at->format('Y-m-d'),
         ];
+    }
+
+    public function styles($sheet)
+    {
+        return [
+            // Style the header row
+            1 => [
+                'font' => [
+                    'bold' => true,
+                    'size' => 12,
+                    'color' => ['rgb' => 'FFFFFF'],
+                ],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => '4472C4'], // Blue background
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+            ],
+            // Add borders to all cells
+            'A1:I' . ($this->collection()->count() + 1) => [
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    public function columnWidths(): array
+    {
+        return [
+            'A' => 15,  // Application ID
+            'B' => 18,  // Academic Year
+            'C' => 15,  // Semester
+            'D' => 25,  // Applicant Name
+            'E' => 15,  // Storage Type
+            'F' => 18,  // Locker / Area
+            'G' => 20,  // Storage Room
+            'H' => 20,  // Application Status
+            'I' => 15,  // Applied At
+        ];
+    }
+
+    public function title(): string
+    {
+        return 'Perwira Dorm Storage Report';
     }
 }

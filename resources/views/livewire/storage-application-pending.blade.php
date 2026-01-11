@@ -103,7 +103,7 @@
             ],
             [
                 'title' => $this->newTodayCount,
-                'subtitle' => 'Received Today',
+                'subtitle' => 'Application Received Today',
                 'icon' => 'bi-file-earmark-plus-fill',
                 'color' => 'text-success',
                 'bg' => 'bg-success bg-opacity-10',
@@ -124,7 +124,7 @@
 
             {{-- Semester Filter --}}
             <div class="col-md-4 col-lg-3">
-                <label class="form-label small text-muted fw-bold">Semester</label>
+                <label class="form-label small text-muted fw-bold">Year & Semester</label>
                 <select class="form-select bg-light border-0" wire:model.live="semester">
                     <option value="">All Semesters</option>
                     @foreach ($this->semesters as $sem)
@@ -142,8 +142,17 @@
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Conflicts</label>
                 <select class="form-select bg-light border-0" wire:model.live="conflictOnly">
-                    <option value="">All</option>
+                    <option value="0">All</option>
                     <option value="1">Conflicted Only</option>
+                </select>
+            </div>
+
+            {{-- Stale Filter --}}
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">Waiting Time</label>
+                <select class="form-select bg-light border-0" wire:model="staleOnly">
+                    <option value="0">All</option>
+                    <option value="1">Waiting > 7 Days</option>
                 </select>
             </div>
 
@@ -154,7 +163,7 @@
                     <option value="">All Types</option>
                     <option value="locker">Locker</option>
                     <option value="openArea">Open Area</option>
-                    <option value="lockerOpenArea">Locker + Open Area</option>
+                    {{-- <option value="lockerOpenArea">Locker + Open Area</option> --}}
                 </select>
             </div>
 
@@ -180,6 +189,7 @@
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Sort: Date</label>
                 <select class="form-select bg-light border-0" wire:model="sortDate">
+                    <option value="">Default (No Sorting)</option>
                     <option value="latest">Latest First</option>
                     <option value="oldest">Oldest First</option>
                 </select>
@@ -188,6 +198,7 @@
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Sort: Name</label>
                 <select class="form-select bg-light border-0" wire:model="sortName">
+                    <option value="">Default (No Sorting)</option>
                     <option value="asc">A-Z</option>
                     <option value="desc">Z-A</option>
                 </select>
@@ -484,11 +495,17 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="px-3 py-5 text-center">
+                    <td colspan="20" class="px-3 py-5 text-center">
                         <div>
                             <i class="bi bi-folder2-open mx-auto" style="font-size: 60px"></i>
-                            <h3 class="mt-4">No Pending Applications Found</h3>
-                            <p class="mt-2 text-muted">There are no pending storage applications to review.</p>
+                            <h3 class="mt-4">No Pending Applications Match the Selected Filters</h3>
+                            <p class="mt-2 text-muted">Try adjusting your filters to see more results.</p>
+                            <div class="mt-3">
+                                <button class="btn btn-link text-danger text-decoration-none fw-bold small"
+                                    wire:click.prevent="clearFilters" @click="allCol = true; toggleAll()">
+                                    <i class="bi bi-x-circle me-1"></i> Clear Filters
+                                </button>
+                            </div>
                         </div>
                     </td>
                 </tr>

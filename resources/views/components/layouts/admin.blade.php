@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ Vite::asset('resources/images/favicon.jpg') }}">
     <title>{{ $title . ' | Perwira Dorm Storage System' }}</title>
     @vite(['resources/css/admin.css'])
     @stack('styles')

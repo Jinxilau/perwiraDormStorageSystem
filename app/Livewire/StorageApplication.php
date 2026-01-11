@@ -213,7 +213,7 @@ class StorageApplication extends Component
     public function selectRoom($roomId)
     {
         $this->roomForm->selectedRoom = $roomId;
-        $this->roomForm->selectedStorageType = [];
+        $this->roomForm->selectedStorageType = null;
         $this->roomForm->selectedLockerId = null;
         $this->roomForm->loadRoomDetails();
     }
@@ -221,7 +221,7 @@ class StorageApplication extends Component
     public function selectLocker($lockerId)
     {
         $this->roomForm->selectedLockerId = $lockerId;
-        $this->roomForm->selectedStorageType[] = 'locker';
+        $this->roomForm->selectedStorageType = 'locker';
     }
 
     private function resetAllForms() # Reset Item Form
@@ -301,7 +301,7 @@ class StorageApplication extends Component
             DB::beginTransaction();
             // Check locker availability again before final submission
             $locker = null;
-            if (in_array('locker', $this->roomForm->selectedStorageType)) {
+            if ($this->roomForm->selectedStorageType === 'locker') {
                 $locker = $this->roomForm->checkLockerStatus($this->roomForm->selectedLockerId);
                 if (!$locker) {
                     session()->flash('error', 'The selected locker is no longer available. Please choose a different locker.');
@@ -311,7 +311,7 @@ class StorageApplication extends Component
             }
             // Check open area availability
             $openArea = null;
-            if (in_array('open_area', $this->roomForm->selectedStorageType)) {
+            if ($this->roomForm->selectedStorageType === 'open_area') {
                 $openArea = $this->roomForm->checkAreaStatus();
                 if (!$openArea) {
                     session()->flash('error', 'The selected open area is no longer available. Please choose a different storage option.');
@@ -378,7 +378,7 @@ class StorageApplication extends Component
             $oldLockerId = $this->application->locker_id;
             // Check locker availability again before final submission
             $locker = null;
-            if (in_array('locker', $this->roomForm->selectedStorageType)) {
+            if ($this->roomForm->selectedStorageType === 'locker') {
                 $locker = $this->roomForm->checkLockerStatus($this->roomForm->selectedLockerId, $oldLockerId);
                 if (!$locker) {
                     session()->flash('error', 'The selected locker is no longer available. Please choose a different locker.');
@@ -388,7 +388,7 @@ class StorageApplication extends Component
             }
             // Check open area availability
             $openArea = null;
-            if (in_array('open_area', $this->roomForm->selectedStorageType)) {
+            if ($this->roomForm->selectedStorageType === 'open_area') {
                 $openArea = $this->roomForm->checkAreaStatus();
                 if (!$openArea) {
                     session()->flash('error', 'The selected open area is no longer available. Please choose a different storage option.');

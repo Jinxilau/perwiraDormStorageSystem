@@ -10,7 +10,7 @@ use Livewire\Form;
 class StorageApplicationRoom extends Form
 {
     public $selectedRoom = null;
-    public $selectedStorageType = []; // 'open_area' / 'locker'
+    public $selectedStorageType = null; // 'open_area' / 'locker'
     public $selectedLockerId = null;
 
     public $availableLockers = [];
@@ -20,9 +20,8 @@ class StorageApplicationRoom extends Form
     {
         $this->validate([
             'selectedRoom' => 'required',
-            'selectedStorageType' => 'required|array',
-            'selectedStorageType.*' => 'in:open_area,locker',
-            'selectedLockerId' => 'required_if:selectedStorageType,locker'
+            'selectedStorageType' => 'required|in:open_area,locker', // Changed: removed array validation
+            'selectedLockerId' => 'required_if:selectedStorageType,locker' // Works the same way
         ]);
     }
 
@@ -93,24 +92,31 @@ class StorageApplicationRoom extends Form
     // Load existing room selection for edit mode
     public function loadExistingRoom($storageApplication)
     {
-        $this->selectedStorageType = [];
+        // Reset to defaults
+        $this->selectedStorageType = null;
         $this->selectedRoom = null;
         $this->selectedLockerId = null;
 
+        // Determine which storage type was selected based on what's populated
         if ($storageApplication->locker_id && $storageApplication->open_area_id) {
-            $this->selectedStorageType = ['locker', 'open_area'];
+            // CHANGED: User previously had both, but now can only have one
+            // Default to locker since it's more specific
+            $this->selectedStorageType = 'locker';
             $this->selectedRoom = $storageApplication->locker->storage_room_id;
             $this->selectedLockerId = $storageApplication->locker_id;
         } elseif ($storageApplication->open_area_id) {
-            $this->selectedStorageType = ['open_area'];
+            // User selected open area only
+            $this->selectedStorageType = 'open_area';
             $this->selectedRoom = $storageApplication->openArea->storage_room_id;
             $this->openArea = $storageApplication->openArea;
         } elseif ($storageApplication->locker_id) {
-            $this->selectedStorageType = ['locker'];
+            // User selected locker only
+            $this->selectedStorageType = 'locker';
             $this->selectedRoom = $storageApplication->locker->storage_room_id;
             $this->selectedLockerId = $storageApplication->locker_id;
         }
 
+        // Load room details
         $this->loadRoomDetails();
     }
 }

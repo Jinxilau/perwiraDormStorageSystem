@@ -31,7 +31,7 @@ class StorageApplicationReject extends Component
     #[Url(except: '')]
     public $storageType = '';
     #[Url(except: '')]
-    public $sortApplicationDate = '';
+    public $sortApplicationDate = 'latest';
     #[Url(except: '')]
     public $rejectedDate = '';
     #[Url(except: '')]
@@ -43,6 +43,16 @@ class StorageApplicationReject extends Component
     public $modalData2; # application id for modal reject
 
     public $rejectionNote = '';
+
+    protected function resetsPage()
+    {
+        return ['search', 'room', 'semester', 'storageType'];
+    }
+
+    public function updatedPaginationInt()
+    {
+        $this->resetPage();
+    }
 
     public function mount()
     {
@@ -57,14 +67,24 @@ class StorageApplicationReject extends Component
 
     public function clearFilters()
     {
-        $this->search = '';
-        $this->room = '';
-        $this->storageType = '';
-        $this->sortApplicationDate = '';
-        $this->rejectedDate = '';
-        $this->sortName = '';
+        // Resets all specified properties to their initial values
+        $this->reset([
+            'search',
+            'room',
+            'semester',
+            'storageType',
+            'sortApplicationDate',
+            'rejectedDate',
+            'sortName'
+        ]);
 
+        // Reset pagination to 10
         $this->paginationInt = 10;
+
+        // Ensure the user goes back to page 1
+        $this->resetPage();
+
+        $this->dispatch('show_toast', message: 'Filters cleared.', type: 'success');
     }
 
     public function updateNote()
@@ -149,11 +169,13 @@ class StorageApplicationReject extends Component
 
                 if (is_numeric($this->search)) {
                     $q->where('id', $this->search);
+                } else {
+                    $q->whereHas('applicant', function ($userQuery) {
+                        $userQuery
+                            ->where('name', 'like', "%{$this->search}%")
+                            ->orWhere('matric_no', 'like', "%{$this->search}%");
+                    });
                 }
-
-                $q->whereHas("applicant", function ($userQuery) {
-                    $userQuery->where('name', 'like', "%" . $this->search . "%")->orWhere('matric_no', 'like', '%' . $this->search . "%");
-                });
             });
         }
 
@@ -176,21 +198,19 @@ class StorageApplicationReject extends Component
                 $query->whereNotNull('locker_id');
             } elseif ($this->storageType === 'openArea') {
                 $query->whereNotNull('open_area_id');
-            } elseif ($this->storageType === 'lockerOpenArea') {
-                $query->whereNotNull('locker_id')->whereNotNull('open_area_id');
             }
         }
 
-        if ($this->sortApplicationDate === 'latest') {
-            $query->latest();
-        } elseif ($this->sortApplicationDate === 'oldest') {
-            $query->oldest();
-        }
-
-        if ($this->rejectedDate === 'latest') {
-            $query->orderBy('updated_at', 'desc');
-        } elseif ($this->rejectedDate === 'oldest') {
-            $query->orderBy('updated_at', 'asc');
+        if ($this->sortApplicationDate) {
+            $query->orderBy(
+                'created_at',
+                $this->sortApplicationDate === 'latest' ? 'desc' : 'asc'
+            );
+        } elseif ($this->rejectedDate) {
+            $query->orderBy(
+                'updated_at',
+                $this->rejectedDate === 'latest' ? 'desc' : 'asc'
+            );
         }
 
         if ($this->sortName) {

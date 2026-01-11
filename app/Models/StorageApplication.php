@@ -94,30 +94,38 @@ class StorageApplication extends Model
     */
     public function scopeUnclaimed($query)
     {
-        return $query->join('semesters as app_sem', 'storage_applications.semester_id', '=', 'app_sem.id')
+        return $query->select('storage_applications.*') // Only take columns from the main table
+            ->join('semesters as app_sem', 'storage_applications.semester_id', '=', 'app_sem.id')
             ->join('semesters as next_sem', function ($join) {
                 $join->on(function ($q) {
-                    // Case 1: Semester 1 → Semester 2 (same academic year)
+                    // Case 1: Same academic year (Sem 1 -> Sem 2)
                     $q->whereColumn('next_sem.academic_year', 'app_sem.academic_year')
                         ->whereColumn('next_sem.semester_no', DB::raw('app_sem.semester_no + 1'));
                 })->orOn(function ($q) {
-                    // Case 2: Semester 2 → Semester 1 (next academic year)
+                    // Case 2: Next academic year (Sem 2 -> Sem 1)
                     $q->whereColumn('app_sem.semester_no', DB::raw(2))
                         ->whereColumn('next_sem.semester_no', DB::raw(1))
-                        ->whereRaw("CAST(SUBSTRING_INDEX(next_sem.academic_year, '/', 1) AS UNSIGNED) = CAST(SUBSTRING_INDEX(app_sem.academic_year, '/', 2) AS UNSIGNED)");
+                        ->whereRaw("
+                            CAST(TRIM(SUBSTRING_INDEX(next_sem.academic_year, '/', 1)) AS UNSIGNED) = 
+                            CAST(TRIM(SUBSTRING_INDEX(app_sem.academic_year, '/', -1)) AS UNSIGNED)
+                        ");
                 });
             })
             ->join('q_r_codes', 'q_r_codes.storage_application_id', '=', 'storage_applications.id')
             ->where('q_r_codes.status', '!=', 'checked_out')
-            // Based on the notice, items are disposed 1 week after the start of the next semester 
-            ->whereDate(DB::raw('DATE_ADD(next_sem.start_date, INTERVAL 7 DAY)'), '<', Carbon::now());
+            // Logic: Today is greater than (Start Date + 7 Days)
+            ->whereDate(DB::raw('DATE_ADD(next_sem.start_date, INTERVAL 7 DAY)'), '<', now())
+            ->groupBy('storage_applications.id'); // CRITICAL: Prevents duplicate rows
     }
 
-    // $application->is_unclaimed
+    // $application->is_unclaimed, $unclaimedOnes = StorageApplication::unclaimed()->get();
     public function getIsUnclaimedAttribute(): bool
     {
         // 1. If it's already checked out, it's not "unclaimed"
-        if (!$this->qrCode || $this->qrCode?->status === 'checked_out') {
+        if (!$this->qrCode) {
+            return false;
+        }
+        if ($this->qrCode->status === 'checked_out') {
             return false;
         }
 
@@ -133,7 +141,7 @@ class StorageApplication extends Model
             })
             ->first();
 
-        if (!$nextSemester) {
+        if (!$nextSemester || !$nextSemester->start_date) {
             return false;
         }
 

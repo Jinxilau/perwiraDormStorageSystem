@@ -31,8 +31,10 @@ class StorageApplicationPending extends Component
     public $room = '';
     #[Url(except: '')]
     public $semester = '';
-    #[Url(except: '')]
-    public $conflictOnly = false;
+    #[Url(except: 0)]
+    public $conflictOnly = 0;
+    #[Url(except: 0)]
+    public $staleOnly = 0;
     #[Url(except: '')]
     public $storageType = '';
     #[Url(except: '')]
@@ -40,7 +42,7 @@ class StorageApplicationPending extends Component
     #[Url(except: '')]
     public $toRange = '';
     #[Url(except: '')]
-    public $sortDate = '';
+    public $sortDate = 'latest';
     #[Url(except: '')]
     public $sortName = '';
 
@@ -53,6 +55,17 @@ class StorageApplicationPending extends Component
     public $selectAll = false;
 
     public $rejectionNote = '';
+
+    protected function resetsPage()
+    {
+        // If any of these properties change, go back to page 1
+        return ['search', 'room', 'semester', 'storageType', 'fromRange', 'toRange', 'conflictOnly', 'staleOnly'];
+    }
+
+    public function updatedPaginationInt()
+    {
+        $this->resetPage();
+    }
 
     public function mount()
     {
@@ -88,15 +101,26 @@ class StorageApplicationPending extends Component
 
     public function clearFilters()
     {
-        $this->search = '';
-        $this->room = '';
-        $this->storageType = '';
-        $this->fromRange = '';
-        $this->toRange = '';
-        $this->sortDate = 'latest';
-        $this->sortName = '';
+        // Resets all properties to their initial values defined above
+        $this->reset([
+            'search',
+            'room',
+            'semester',
+            'conflictOnly',
+            'staleOnly',
+            'storageType',
+            'fromRange',
+            'toRange',
+            'sortDate',
+            'sortName',
+            'paginationInt'
+        ]);
 
-        $this->paginationInt = 10; # Pagination Amount
+        // If you are using WithPagination, always reset the page 
+        // to avoid "No records found" on page 2+ after clearing
+        $this->resetPage();
+
+        $this->dispatch('show_toast', message: 'Filters cleared.', type: 'success');
     }
 
     private function processApproval(StorageApplication $application)
@@ -402,14 +426,15 @@ class StorageApplicationPending extends Component
 
         if ($this->search) {
             $query->where(function ($q) {
-
                 if (is_numeric($this->search)) {
                     $q->where('id', $this->search);
+                } else {
+                    $q->whereHas('applicant', function ($userQuery) {
+                        $userQuery
+                            ->where('name', 'like', "%{$this->search}%")
+                            ->orWhere('matric_no', 'like', "%{$this->search}%");
+                    });
                 }
-
-                $q->WhereHas("applicant", function ($userQuery) {
-                    $userQuery->where('name', 'like', "%" . $this->search . "%")->orWhere('matric_no', 'like', '%' . $this->search . "%");
-                });
             });
         }
 
@@ -427,7 +452,7 @@ class StorageApplicationPending extends Component
             $query->where('semester_id', $this->semester);
         }
 
-        if ($this->conflictOnly) {
+        if ((int) $this->conflictOnly === 1) {
             $query->whereIn('locker_id', function ($subQuery) {
                 $subQuery->select('locker_id')
                     ->from('storage_applications')
@@ -439,22 +464,29 @@ class StorageApplicationPending extends Component
             });
         }
 
+        if ((int) $this->staleOnly === 1) {
+            $query->where('created_at', '<=', Carbon::now()->subDays(7));
+        }
+
         if ($this->storageType) {
             if ($this->storageType === 'locker') {
                 $query->whereNotNull('locker_id');
             } elseif ($this->storageType === 'openArea') {
                 $query->whereNotNull('open_area_id');
-            } elseif ($this->storageType === 'lockerOpenArea') {
-                $query->whereNotNull('locker_id')->whereNotNull('open_area_id');
             }
         }
 
         if ($this->fromRange && $this->toRange) {
-            $query->whereBetween('created_at', [$this->fromRange, $this->toRange]);
+            if ($this->fromRange && $this->toRange) {
+                $query->whereBetween('created_at', [
+                    Carbon::parse($this->fromRange)->startOfDay(),
+                    Carbon::parse($this->toRange)->endOfDay(),
+                ]);
+            }
         } elseif ($this->fromRange) {
-            $query->whereDate('created_at', '>=', $this->fromRange);
+            $query->where('created_at', '>=', Carbon::parse($this->fromRange)->startOfDay());
         } elseif ($this->toRange) {
-            $query->whereDate('created_at', '<=', $this->toRange);
+            $query->where('created_at', '<=', Carbon::parse($this->toRange)->endOfDay());
         }
 
         if ($this->sortDate === 'latest') {

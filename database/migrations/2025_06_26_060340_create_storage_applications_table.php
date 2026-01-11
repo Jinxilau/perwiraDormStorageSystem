@@ -23,6 +23,11 @@ return new class extends Migration
             $table->text('note')->nullable(); # Admin's note
             // $table->date('start_date'); // These not used anymore, because can be replaced using operational period in the storagerooms table
             // $table->date('end_date');
+            $table->check(
+                '(locker_id IS NOT NULL AND open_area_id IS NULL)
+                OR
+                (locker_id IS NULL AND open_area_id IS NOT NULL)'
+            );
 
             $table->timestamps();
 

@@ -538,7 +538,7 @@
                                                         <h5 class="mb-2">Open Area Storage</h5>
                                                         <div class="form-check">
                                                             <input id="openAreaOption" class="form-check-input"
-                                                                type="checkbox" value="open_area"
+                                                                type="radio" name="storageType" value="open_area"
                                                                 wire:model.live="roomForm.selectedStorageType">
                                                             <label for="openAreaOption" class="form-check-label">
                                                                 Use open space for general storage (non-locker items)
@@ -548,6 +548,7 @@
                                                 </div>
                                             </div>
                                         </div>
+
                                         {{-- Locker --}}
                                         <div class="storage-type-box">
                                             <div class="d-flex align-items-center justify-content-between mb-3">
@@ -556,8 +557,8 @@
                                                     <div class="flex-grow-1">
                                                         <h5 class="mb-2">Secure Locker</h5>
                                                         <div class="form-check">
-                                                            <input class="form-check-input" type="checkbox"
-                                                                value="locker" id="lockerOption"
+                                                            <input class="form-check-input" type="radio"
+                                                                name="storageType" value="locker" id="lockerOption"
                                                                 wire:model.live="roomForm.selectedStorageType">
                                                             <label class="form-check-label" for="lockerOption">
                                                                 I want to use a secure locker for valuable items
@@ -566,7 +567,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            @if (in_array('locker', $this->roomForm->selectedStorageType ?? []))
+                                            @if ($this->roomForm->selectedStorageType === 'locker')
                                                 <!-- Legend -->
                                                 <div class="d-flex gap-4 mb-3 flex-wrap">
                                                     <div class="legend-item">
@@ -592,11 +593,11 @@
                                                 <div class="locker-grid">
                                                     @foreach ($this->roomForm->availableLockers as $locker)
                                                         <div class="locker-item
-                                                {{ $locker['status'] === 'available' ? 'available' : '' }}
-                                                {{ $locker['status'] === 'under_maintenance' ? 'maintenance' : '' }}
-                                                {{ $locker['status'] === 'occupied' ? 'occupied' : '' }}
-                                                {{ $locker['status'] === 'reserved' ? 'occupied' : '' }}
-                                                {{ $this->roomForm->selectedLockerId == $locker['id'] ? 'selected' : '' }}"
+                                                            {{ $locker['status'] === 'available' ? 'available' : '' }}
+                                                            {{ $locker['status'] === 'under_maintenance' ? 'maintenance' : '' }}
+                                                            {{ $locker['status'] === 'occupied' ? 'occupied' : '' }}
+                                                            {{ $locker['status'] === 'reserved' ? 'occupied' : '' }}
+                                                            {{ $this->roomForm->selectedLockerId == $locker['id'] ? 'selected' : '' }}"
                                                             @if ($locker['status'] === 'available') wire:click="selectLocker({{ $locker['id'] }})" @endif>
                                                             {{ $locker['locker_number'] }}
                                                         </div>
@@ -613,7 +614,7 @@
                                         <i class="bi bi-arrow-left me-2"></i>Back
                                     </button>
                                     <button type="button" wire:click.prevent="nextStep" class="btn btn-primary"
-                                        {{ !$this->roomForm->selectedStorageType || (in_array('locker', $this->roomForm->selectedStorageType ?? []) && !$this->roomForm->selectedLockerId) ? 'disabled' : '' }}>
+                                        {{ !$this->roomForm->selectedStorageType || ($this->roomForm->selectedStorageType === 'locker' && !$this->roomForm->selectedLockerId) ? 'disabled' : '' }}>
                                         Confirm Selection<i class="bi bi-arrow-right ms-2"></i>
                                     </button>
                                 </div>

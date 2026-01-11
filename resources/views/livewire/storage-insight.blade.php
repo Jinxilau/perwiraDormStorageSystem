@@ -380,8 +380,8 @@
             <button wire:click="exportExcel" class="btn btn-success">
                 <i class="bi bi-file-earmark-excel me-2"></i>Export Excel
             </button>
-            <button onclick="window.print()" class="btn btn-secondary">
-                <i class="bi bi-printer me-2"></i>Print Dashboard
+            <button wire:click="exportPdf" class="btn btn-danger">
+                <i class="bi bi-file-pdf me-2"></i>Export PDF
             </button>
         </div>
 
@@ -846,7 +846,7 @@
                                         this.renderChart();
                                     });
                                 },
-
+                            
                                 downloadPng() {
                                     this.chart.dataURI().then(({ imgURI }) => {
                                         const link = document.createElement('a');
@@ -936,7 +936,7 @@
                                         link.click();
                                     });
                                 },
-                                
+                            
                                 renderChart() {
                                     if (!this.$refs.stackedChart) return;
                             
@@ -1021,7 +1021,7 @@
                                         link.click();
                                     });
                                 },
-                                
+                            
                                 renderChart() {
                                     if (!this.$refs.radialChart) return;
                             

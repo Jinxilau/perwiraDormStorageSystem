@@ -30,6 +30,8 @@ class StorageApplicationActive extends Component
     public $semester = '';
     #[Url(except: '')]
     public $storageType = '';
+    #[Url]
+    public int $unclaimedOnly = 0;
     #[Url(except: '')]
     public $qrStatus = '';
     #[Url(except: '')]
@@ -37,13 +39,55 @@ class StorageApplicationActive extends Component
     #[Url(except: '')]
     public $sortCheckOut = '';
     #[Url(except: '')]
-    public $sortDate = '';
+    public $sortDate = 'latest';
     #[Url(except: '')]
     public $sortName = '';
 
     public $paginationInt = 10;
 
     public $modalData;
+
+    protected function resetsPage()
+    {
+        return ['search', 'room', 'semester', 'storageType', 'qrStatus'];
+    }
+
+    public function updatedPaginationInt()
+    {
+        $this->resetPage();
+    }
+
+    // Reset other sorts when Check-In sort is changed
+    public function updatedSortCheckIn($value)
+    {
+        if ($value) {
+            $this->reset(['sortCheckOut', 'sortName', 'sortDate']);
+        }
+    }
+
+    // Reset other sorts when Check-Out sort is changed
+    public function updatedSortCheckOut($value)
+    {
+        if ($value) {
+            $this->reset(['sortCheckIn', 'sortName', 'sortDate']);
+        }
+    }
+
+    // Reset other sorts when Applicant Name sort is changed
+    public function updatedSortName($value)
+    {
+        if ($value) {
+            $this->reset(['sortCheckIn', 'sortCheckOut', 'sortDate']);
+        }
+    }
+
+    // Reset other sorts when Application Date sort is changed
+    public function updatedSortDate($value)
+    {
+        if ($value) {
+            $this->reset(['sortCheckIn', 'sortCheckOut', 'sortName']);
+        }
+    }
 
     public function mount()
     {
@@ -58,15 +102,24 @@ class StorageApplicationActive extends Component
 
     public function clearFilters()
     {
-        $this->search = '';
-        $this->room = '';
-        $this->storageType = '';
-        $this->sortCheckIn = '';
-        $this->sortCheckOut = '';
-        $this->sortDate = 'latest';
-        $this->sortName = '';
+        $this->reset([
+            'search',
+            'room',
+            'semester',
+            'storageType',
+            'unclaimedOnly',
+            'qrStatus',
+            'sortCheckIn',
+            'sortCheckOut',
+            'sortDate',
+            'sortName',
+            'paginationInt'
+        ]);
 
-        $this->paginationInt = 10; # Pagination Amount
+        // Crucial: Reset pagination to page 1
+        $this->resetPage();
+
+        $this->dispatch('show_toast', message: 'Filters cleared.', type: 'success');
     }
 
     public function downloadQrCode($id)
@@ -133,30 +186,36 @@ class StorageApplicationActive extends Component
     #[Computed()]
     public function approvedStorageApplications()
     {
+        // 1. Prepare the subquery for Scan Logs (Aggregates logs once)
+        $scanTimesSubquery = DB::table('scan_logs')
+            ->select('qr_code_id')
+            ->selectRaw("MAX(CASE WHEN event_type = 'check_in' THEN created_at END) as last_check_in")
+            ->selectRaw("MAX(CASE WHEN event_type = 'check_out' THEN created_at END) as last_check_out")
+            ->groupBy('qr_code_id');
+
         $query = StorageApplication::query()
             ->with(['applicant', 'approver', 'storedItems', 'openArea.storageRoom', 'locker.storageRoom', 'qrCode.scanLogs', 'semester'])
             ->where('storage_application_status', 'approved');
 
-        // --- START OF FIX ---
-        // 1. Join q_r_codes so the database "sees" the table for your sorting logic
-        $query->leftJoin('q_r_codes', 'storage_applications.id', '=', 'q_r_codes.storage_application_id');
+        // 2. Joins & Selection
+        $query->select('storage_applications.*')
+            ->leftJoin('q_r_codes as qr', 'qr.storage_application_id', '=', 'storage_applications.id')
+            // This connects the aggregated scan times to your QR codes
+            ->leftJoinSub($scanTimesSubquery, 'scan_times', 'scan_times.qr_code_id', '=', 'qr.id');
 
-        // 2. IMPORTANT: Explicitly select storage_applications.* to avoid ID collisions
-        // (Both tables have an 'id' column; without this, the QR code ID might overwrite the App ID in the results)
-        $query->select('storage_applications.*');
-        // --- END OF FIX ---
-
+        // 3. Apply Filters
         if ($this->search) {
             $query->where(function ($q) {
                 if (is_numeric($this->search)) {
                     // Specify table name to avoid ambiguous column error
                     $q->where('storage_applications.id', $this->search);
+                } else {
+                    $q->whereHas('applicant', function ($userQuery) {
+                        $userQuery
+                            ->where('name', 'like', "%{$this->search}%")
+                            ->orWhere('matric_no', 'like', "%{$this->search}%");
+                    });
                 }
-
-                $q->whereHas("applicant", function ($userQuery) {
-                    $userQuery->where('name', 'like', "%" . $this->search . "%")
-                        ->orWhere('matric_no', 'like', '%' . $this->search . "%");
-                });
             });
         }
 
@@ -180,55 +239,33 @@ class StorageApplicationActive extends Component
                 $query->whereNotNull('storage_applications.locker_id');
             } elseif ($this->storageType === 'openArea') {
                 $query->whereNotNull('storage_applications.open_area_id');
-            } elseif ($this->storageType === 'lockerOpenArea') {
-                $query->whereNotNull('storage_applications.locker_id')
-                    ->whereNotNull('storage_applications.open_area_id');
             }
+        }
+
+        if ($this->unclaimedOnly === 1) {
+            $query->unclaimed();
         }
 
         if ($this->qrStatus) {
             // Since we joined the table, we can filter directly on the column
             // instead of using whereHas, which is slightly more performant
-            $query->where('q_r_codes.status', $this->qrStatus);
+            $query->where('qr.status', $this->qrStatus);
         }
 
-        // This logic now works because 'q_r_codes' is joined above
+        // 4. Apply Sorting
         if ($this->sortCheckIn) {
-            $query->orderBy(
-                DB::table('scan_logs')
-                    ->select('created_at')
-                    ->whereColumn('scan_logs.qr_code_id', 'q_r_codes.id')
-                    ->where('event_type', 'check_in')
-                    ->latest()
-                    ->limit(1),
-                $this->sortCheckIn === 'latest' ? 'desc' : 'asc'
-            );
-        }
-
-        if ($this->sortCheckOut) {
-            $query->orderBy(
-                DB::table('scan_logs')
-                    ->select('created_at')
-                    ->whereColumn('scan_logs.qr_code_id', 'q_r_codes.id')
-                    ->where('event_type', 'check_out')
-                    ->latest()
-                    ->limit(1),
-                $this->sortCheckOut === 'latest' ? 'desc' : 'asc'
-            );
-        }
-
-        if ($this->sortDate === 'latest') {
-            $query->orderBy('storage_applications.created_at', 'desc');
-        } elseif ($this->sortDate === 'oldest') {
-            $query->orderBy('storage_applications.created_at', 'asc');
-        }
-
-        if ($this->sortName) {
+            $query->orderBy('scan_times.last_check_in', $this->sortCheckIn === 'latest' ? 'desc' : 'asc');
+        } elseif ($this->sortCheckOut) {
+            $query->orderBy('scan_times.last_check_out', $this->sortCheckOut === 'latest' ? 'desc' : 'asc');
+        } elseif ($this->sortName) {
             $query->orderBy(
                 User::select('name')
                     ->whereColumn('users.id', 'storage_applications.applicant_id'),
                 $this->sortName === 'desc' ? 'desc' : 'asc'
             );
+        } else {
+            $direction = ($this->sortDate === 'oldest') ? 'asc' : 'desc';
+            $query->orderBy('storage_applications.created_at', $direction);
         }
 
         return $query->paginate($this->paginationInt);

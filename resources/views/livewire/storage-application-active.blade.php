@@ -91,7 +91,7 @@
 
             {{-- Semester Filter --}}
             <div class="col-md-4 col-lg-3">
-                <label class="form-label small text-muted fw-bold">Semester</label>
+                <label class="form-label small text-muted fw-bold">Year & Semester</label>
                 <select class="form-select bg-light border-0" wire:model.live="semester">
                     <option value="">All Semesters</option>
                     @foreach ($this->semesters as $sem)
@@ -112,7 +112,15 @@
                     <option value="">All Types</option>
                     <option value="locker">Locker</option>
                     <option value="openArea">Open Area</option>
-                    <option value="lockerOpenArea">Locker + Open Area</option>
+                </select>
+            </div>
+
+            {{-- Unclaimed --}}
+            <div class="col-md-4 col-lg-3">
+                <label class="form-label small text-muted fw-bold">Show Unclaimed</label>
+                <select class="form-select bg-light border-0" wire:model="unclaimedOnly">
+                    <option value="0">All</option>
+                    <option value="1">Unclaimed Only</option>
                 </select>
             </div>
 
@@ -134,7 +142,7 @@
                     Sort By Check-In Date
                 </label>
                 <select class="form-select bg-light border-0" wire:model.live="sortCheckIn">
-                    <option value="">None</option>
+                    <option value="">Default (No Sorting)</option>
                     <option value="latest">Latest</option>
                     <option value="oldest">Oldest</option>
                 </select>
@@ -146,7 +154,7 @@
                     Sort By Check-Out Date
                 </label>
                 <select class="form-select bg-light border-0" wire:model.live="sortCheckOut">
-                    <option value="">None</option>
+                    <option value="">Default (No Sorting)</option>
                     <option value="latest">Latest</option>
                     <option value="oldest">Oldest</option>
                 </select>
@@ -158,6 +166,7 @@
                     Sort By Application Date
                 </label>
                 <select class="form-select bg-light border-0" wire:model.live="sortDate">
+                    <option value="">Default (No Sorting)</option>
                     <option value="latest">Latest</option>
                     <option value="oldest">Oldest</option>
                 </select>
@@ -169,6 +178,7 @@
                     Sort By Applicant Name
                 </label>
                 <select class="form-select bg-light border-0" wire:model.live="sortName">
+                    <option value="">Default (No Sorting)</option>
                     <option value="asc">Ascending</option>
                     <option value="desc">Descending</option>
                 </select>
@@ -372,21 +382,21 @@
                             <span class="text-muted">-</span>
                         @endif
                     </td>
-                    <td class="align-middle" x-show="cols.includes('status')"> {{-- Status --}}
-                        @if ($application->qrCode->status === 'checked_in')
-                            <span class="badge text-bg-warning">
-                                {{ ucwords(str_replace('_', ' ', $application->qrCode->status)) }}
-                            </span>
-                        @elseif ($application->qrCode->status === 'checked_out')
+                    <td class="align-middle" x-show="cols.includes('status')">
+                        @if ($application->qrCode?->status === 'checked_out')
                             <span class="badge text-bg-success">
-                                {{ ucwords(str_replace('_', ' ', $application->qrCode->status)) }}
+                                Checked Out
                             </span>
-                        @elseif($application->is_unclaimed)
+                        @elseif ($application->is_unclaimed)
                             <span class="badge text-bg-danger">
                                 Unclaimed
                             </span>
+                        @elseif ($application->qrCode?->status === 'checked_in')
+                            <span class="badge text-bg-warning">
+                                Checked In
+                            </span>
                         @else
-                            <span class="badge text-bg-danger">
+                            <span class="badge text-bg-secondary">
                                 Not Checked In
                             </span>
                         @endif
@@ -461,9 +471,15 @@
                 <tr>
                     <td colspan="20" class="px-3 py-5 text-center">
                         <div>
-                            <i class="bi bi-file-earmark-text mx-auto" style="font-size: 60px"></i>
-                            <h3 class="mt-4">No Active Applications Found</h3>
-                            <p class="mt-2 text-nuted">There are no active storage applications to view.</p>
+                            <i class="bi bi-folder2-open mx-auto" style="font-size: 60px"></i>
+                            <h3 class="mt-4">No Active Applications Match the Selected Filters</h3>
+                            <p class="mt-2 text-muted">Try adjusting your filters to see more results.</p>
+                            <div class="mt-3">
+                                <button class="btn btn-link text-danger text-decoration-none fw-bold small"
+                                    wire:click.prevent="clearFilters" @click="allCol = true; toggleAll()">
+                                    <i class="bi bi-x-circle me-1"></i> Clear Filters
+                                </button>
+                            </div>
                         </div>
                     </td>
                 </tr>

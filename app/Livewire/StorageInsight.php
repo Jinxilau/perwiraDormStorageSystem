@@ -422,17 +422,56 @@ class StorageInsight extends Component
 
     public function exportPdf()
     {
+        if (class_exists('\Debugbar')) {
+            debugbar()->disable();
+        }
+
         $data = [
             'metrics' => $this->metrics,
-            'storageDemand' => $this->storageDemandValues,
+            'storageDemand' => [
+                'labels' => $this->storageDemandLabels,
+                'values' => $this->storageDemandValues,
+            ],
+            'itemSizes' => [
+                'labels' => $this->sizeLabels,
+                'values' => $this->sizeValues,
+            ],
+            'itemTypes' => [
+                'labels' => $this->typeLabels,
+                'values' => $this->typeValues,
+            ],
+            'itemConditions' => [
+                'labels' => $this->conditionLabels,
+                'values' => $this->conditionValues,
+            ],
+            'checkActivity' => [
+                'labels' => $this->checkLabels,
+                'checkIn' => $this->checkInData,
+                'checkOut' => $this->checkOutData,
+            ],
+            'lockerVsOpenSpace' => [
+                'labels' => $this->usageLabels,
+                'locker' => $this->lockerData,
+                'openSpace' => $this->openSpaceData,
+            ],
+            'occupancy' => [
+                'labels' => $this->occupancyLabels,
+                'rates' => $this->lockerOccupancyRates,
+            ],
         ];
 
-        $pdf = Pdf::loadView('reports.dashboard-pdf', $data);
+        $pdf = Pdf::loadView('reports.dashboard-pdf', $data)
+            ->setPaper('a4', 'portrait');
+
+        // 2. Use streamDownload for Livewire compatibility
         return response()->streamDownload(
-            fn() => print($pdf->output()),
-            'dashboard-report.pdf'
+            function () use ($pdf) {
+                echo $pdf->output();
+            },
+            'storage-insight-report-' . now()->format('Y-m-d') . '.pdf'
         );
     }
+
 
     public function render()
     {
