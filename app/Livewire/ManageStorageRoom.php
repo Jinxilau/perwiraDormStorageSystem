@@ -96,7 +96,7 @@ class ManageStorageRoom extends Component
         } catch (Exception $e) {
             $this->dispatch(
                 'show_toast',
-                message: "Something went wrong. Please try again. {$e->getMessage()}",
+                message: "Something went wrong. Please try again.",
                 type: 'fail'
             );
 
