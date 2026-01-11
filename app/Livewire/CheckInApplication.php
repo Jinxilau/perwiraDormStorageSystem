@@ -94,6 +94,9 @@ class CheckInApplication extends Component
 
             // Optional: reset upload field
             $this->reset('checkin_item_photo');
+            session()->flash('success', 'Page refreshed and filters cleared.');
+
+            return $this->redirectRoute('check_in_application', navigate: true);
         } catch (\Throwable $e) {
             Log::error('Check-in failed', [
                 'application_id' => $this->application->id,
@@ -152,6 +155,9 @@ class CheckInApplication extends Component
             DB::commit();
 
             $this->dispatch('show_toast', message: "Check-out successful!", type: "success");
+            session()->flash('success', 'Page refreshed and filters cleared.');
+
+            return $this->redirectRoute('check_in_application', navigate: true);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());

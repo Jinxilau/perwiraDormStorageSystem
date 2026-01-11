@@ -26,7 +26,7 @@ class StorageRoom extends Model
 
         if ($hasActiveLockerApps) return false;
 
-        $hasActiveOpenAreaApps = $this->openArea()
+        $hasActiveOpenAreaApps = $this->openAreas()
             ->whereHas('storageApplications', fn($q) => $q->whereIn('storage_application_status', $activeStatuses))
             ->exists();
 

@@ -291,9 +291,22 @@ class StorageApplication extends Component
             return;
         }
 
-        if (Auth::user()->applyStorage()->exists()) {
-            session()->flash('error', 'You already have a storage application.');
-            $this->dispatch('show_toast', message: 'You already have a storage application.', type: 'fail');
+        // Check if user already has an application for the current semester
+        $current = Semester::where('is_current', true)->first();
+
+        if (!$current) {
+            session()->flash('error', 'There is something wrong. Please contact admin.');
+            $this->dispatch('show_toast', message: 'There is something wrong. Please contact admin.', type: 'fail');
+            return;
+        }
+
+        $alreadyAppliedThisSemester = ModelsStorageApplication::where('applicant_id', Auth::id())
+            ->where('semester_id', $current->id)
+            ->exists();
+
+        if ($alreadyAppliedThisSemester) {
+            session()->flash('error', 'You already have a storage application for the current semester.');
+            $this->dispatch('show_toast', message: 'You already have a storage application for the current semester.', type: 'fail');
             return;
         }
 
@@ -332,7 +345,7 @@ class StorageApplication extends Component
                 'locker_id' => $locker ? $locker->id : null,
                 'storage_application_status' => 'pending',
             ]);
-            
+
             // No reserved before approve storage application
             // if ($locker) {
             //     $locker->update([

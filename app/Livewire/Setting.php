@@ -139,6 +139,7 @@ class Setting extends Component
         });
         
         $this->dispatch('show_toast', message: "Settings updated successfully!", type: "success");
+        $this->refreshData();
     }
 
     #[Computed()]

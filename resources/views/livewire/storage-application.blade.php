@@ -1069,7 +1069,7 @@
                                                 Room</small>
                                             <span class="fw-medium">{{ $this->roomForm->selectedRoom }}</span>
                                         </div>
-                                        @if (in_array('locker', $this->roomForm->selectedStorageType))
+                                        @if ('locker' === $this->roomForm->selectedStorageType)
                                             <div class="d-flex flex-column">
                                                 <small class="text-muted text-uppercase mb-1"
                                                     style="font-size: 0.75rem; letter-spacing: 0.5px;">Selected

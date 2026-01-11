@@ -7,8 +7,12 @@
 
     @php
         $enabled = \App\Models\Setting::get('storage_application_enabled', true);
+        $current = \App\Models\Semester::where('is_current', true)->first();
+        $alreadyAppliedThisSemester = \App\Models\StorageApplication::where('applicant_id', Auth::id())
+            ->where('semester_id', $current->id)
+            ->exists();
     @endphp
-    @if (Auth::user()->applyStorage()->exists())
+    @if ($alreadyAppliedThisSemester)
         <div class="text-center py-5">
             <div class="card shadow-sm border-0 bg-white d-inline-block p-4" style="max-width: 500px;">
                 <div class="card-body">

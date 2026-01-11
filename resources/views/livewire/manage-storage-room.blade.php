@@ -222,7 +222,7 @@
                                 @endphp
                                 <button type="button" wire:key="locker-{{ $locker->id }}"
                                     class="btn {{ $statusColor }} d-flex justify-content-center align-items-center border border-dark border-2 shadow-sm py-3"
-                                    style="border-style: inset; aspect-ratio: 1/1;"
+                                    style="border-style: inset; aspect-ratio: 1/1; max-height: 100px;"
                                     wire:click="$set('modalData', {{ $locker->id }}); $dispatch('display_modal');"
                                     @disabled($locker->status === 'occupied' && $locker->canBeMarkedAvailable() === true)>
 
@@ -350,25 +350,27 @@
                 </form>
 
                 {{-- Delete Locker Section --}}
-                <hr class="my-4">
-                <div class="mt-3">
-                    <h6 class="fw-bold text-danger">Danger Zone</h6>
-                    <p class="text-muted small">Delete this locker permanently. This action cannot be undone.</p>
+                @if (auth()->user()->role_id === 1)
+                    <hr class="my-4">
+                    <div class="mt-3">
+                        <h6 class="fw-bold text-danger">Danger Zone</h6>
+                        <p class="text-muted small">Delete this locker permanently. This action cannot be undone.</p>
 
-                    @if ($this->locker->canBeDeleted())
-                        <button type="button" class="btn btn-outline-danger w-100" wire:click="deleteLocker"
-                            wire:confirm="Are you sure you want to delete locker {{ $this->locker->code }}? This action cannot be undone.">
-                            <i class="bi bi-trash"></i> Delete Locker
-                        </button>
-                    @else
-                        <button type="button" class="btn btn-outline-secondary w-100" disabled>
-                            <i class="bi bi-lock"></i> Cannot Delete (Locker In Use)
-                        </button>
-                        <small class="text-danger d-block mt-2">
-                            This locker cannot be deleted because it has active storage applications.
-                        </small>
-                    @endif
-                </div>
+                        @if ($this->locker->canBeDeleted())
+                            <button type="button" class="btn btn-outline-danger w-100" wire:click="deleteLocker"
+                                wire:confirm="Are you sure you want to delete locker {{ $this->locker->code }}? This action cannot be undone.">
+                                <i class="bi bi-trash"></i> Delete Locker
+                            </button>
+                        @else
+                            <button type="button" class="btn btn-outline-secondary w-100" disabled>
+                                <i class="bi bi-lock"></i> Cannot Delete (Locker In Use)
+                            </button>
+                            <small class="text-danger d-block mt-2">
+                                This locker cannot be deleted because it has active storage applications.
+                            </small>
+                        @endif
+                    </div>
+                @endif
             @endif
         </div>
     </x-custom-modal>

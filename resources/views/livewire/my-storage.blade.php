@@ -34,7 +34,16 @@
                     <div>
                         @if ($application->storage_application_status === 'approved')
                             <span class="badge bg-success px-3 py-2">
-                                <i class="bi bi-check-circle me-1"></i>Approved
+                                <i class="bi bi-check-circle me-1"></i>
+                                @if ($application->qrCode?->status === 'checked_out')
+                                    Checked Out
+                                @elseif ($application->is_unclaimed)
+                                    Unclaimed
+                                @elseif ($application->qrCode?->status === 'checked_in')
+                                    Checked In
+                                @else
+                                    Approved
+                                @endif
                             </span>
                         @elseif($application->storage_application_status === 'pending')
                             <span class="badge bg-warning text-dark px-3 py-2">
@@ -222,7 +231,8 @@
                                                         class="badge bg-light text-dark border">{{ ucwords(str_replace('_', ' ', $item->item_type)) }}</span>
                                                 </p>
                                                 <p class="text-muted small mb-1">
-                                                    <i class="bi bi-rulers me-1"></i>{{ ucfirst($item->estimated_size) }}
+                                                    <i
+                                                        class="bi bi-rulers me-1"></i>{{ ucfirst($item->estimated_size) }}
                                                 </p>
                                                 @if ($item->item_description)
                                                     <p class="text-muted small mb-0">

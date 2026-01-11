@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -23,15 +24,12 @@ return new class extends Migration
             $table->text('note')->nullable(); # Admin's note
             // $table->date('start_date'); // These not used anymore, because can be replaced using operational period in the storagerooms table
             // $table->date('end_date');
-            $table->check(
-                '(locker_id IS NOT NULL AND open_area_id IS NULL)
-                OR
-                (locker_id IS NULL AND open_area_id IS NOT NULL)'
-            );
-
             $table->timestamps();
-
         });
+        
+        DB::statement('ALTER TABLE storage_applications ADD CONSTRAINT check_storage_type 
+        CHECK ((locker_id IS NOT NULL AND open_area_id IS NULL) 
+        OR (locker_id IS NULL AND open_area_id IS NOT NULL))');
     }
 
     /**

@@ -212,10 +212,10 @@ class ManageMissingReport extends Component
     {
         return MissingReport::selectRaw("
             COUNT(*) as total,
-            SUM(status = 'under_investigation') as under_investigation,
-            SUM(status = 'resolved') as resolved,
-            SUM(status = 'pending') as pending,
-            SUM(status = 'dismissed') as dismissed
+            COALESCE(SUM(status = 'under_investigation'), 0) as under_investigation,
+            COALESCE(SUM(status = 'resolved'), 0) as resolved,
+            COALESCE(SUM(status = 'pending'), 0) as pending,
+            COALESCE(SUM(status = 'dismissed'), 0) as dismissed
         ")->first();
     }
     #[Computed()]
