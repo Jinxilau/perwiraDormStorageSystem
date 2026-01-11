@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Livewire\Forms\MissingItemForm;
 use App\Models\MissingReport as ModelsMissingReport;
+use App\Models\Setting;
 use App\Models\StorageApplication;
 use App\Models\StoredItem;
 use App\Models\User;
@@ -167,7 +168,7 @@ class MissingReport extends Component
                 'witnesses_and_info' => $this->form->addInfo,
                 'qr_code_id' => $this->selectedApplication->qrCode->id ?? null, // Simpler access
             ]);
-            
+
             // 1. Associate selected Item to the report 
             StoredItem::whereIn('id', collect($this->form->items)->pluck('id'))
                 ->update(['missing_report_id' => $report->id]);
@@ -199,6 +200,12 @@ class MissingReport extends Component
             ]);
             $this->dispatch('show_toast', message: "Something went wrong! Please try again later.", type: 'fail');
         }
+    }
+
+    #[Computed]
+    public function isReportEnabled()
+    {
+        return Setting::get('missing_report_enabled', true);
     }
 
     #[Computed()]

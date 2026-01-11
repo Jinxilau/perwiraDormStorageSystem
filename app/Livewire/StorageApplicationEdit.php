@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\StorageApplication;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Lazy;
@@ -15,6 +16,13 @@ use Livewire\Attributes\Title;
 class StorageApplicationEdit extends Component
 {
     public StorageApplication $application;
+
+    #[Computed()]
+    public function isApplicationEnabled()
+    {
+        return Setting::get('storage_application_enabled', true);
+    }
+
 
     public function mount(StorageApplication $application) // Route Model Binding
     {

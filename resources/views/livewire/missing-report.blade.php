@@ -1,10 +1,6 @@
 <div>
     {{-- If your happiness depends on money, you will never be happy with yourself. --}}
-    @php
-        $enabled = \App\Models\Setting::get('missing_report_enabled', true);
-    @endphp
-
-    @if (!$enabled)
+    @if (!$this->isReportEnabled())
         <div class="text-center py-5">
             <div class="card shadow-sm border-0 bg-white d-inline-block p-4" style="max-width: 550px;">
                 <div class="card-body">
