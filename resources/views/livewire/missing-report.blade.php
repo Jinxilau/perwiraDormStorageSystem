@@ -141,6 +141,3 @@
         @endif
     @endif
 </div>
-@assets('styles')
-    @vite('resources\css\progress_bar.css')
-@endassets

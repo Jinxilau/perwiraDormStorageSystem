@@ -1362,10 +1362,6 @@
     </form>
 </div>
 
-@assets
-    @vite('resources\css\progress_bar.css')
-@endassets
-
 {{-- @assets
     <style>
         input[type='radio']:checked+#estimated {
