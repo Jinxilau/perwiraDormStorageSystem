@@ -26,10 +26,6 @@ return new class extends Migration
             // $table->date('end_date');
             $table->timestamps();
         });
-        
-        DB::statement('ALTER TABLE storage_applications ADD CONSTRAINT check_storage_type 
-        CHECK ((locker_id IS NOT NULL AND open_area_id IS NULL) 
-        OR (locker_id IS NULL AND open_area_id IS NOT NULL))');
     }
 
     /**
