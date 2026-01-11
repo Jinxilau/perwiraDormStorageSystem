@@ -1362,22 +1362,66 @@
     </form>
 </div>
 
-{{-- @assets
+@assets
     <style>
-        input[type='radio']:checked+#estimated {
-            border: 1px solid #0d6efd;
-            /* bootstrap primary */
-            background: rgba(13, 110, 253, 0.1);
-            box-shadow: 0 0.5rem 1rem rgba(13, 110, 253, 0.2);
+        .stepper-head-icon {
+            width: 2rem;
+            height: 2rem;
+            background-color: #dee2e6;
+            color: rgb(255, 255, 255);
+            transition: all 0.3s ease;
+            z-index: 2;
         }
 
-        input[type='radio']:checked+#estimated div#estimated div {
-            background-color: rgba(13, 110, 253, 0.25) !important;
+        .stepper.actived .stepper-head-icon {
+            background-color: #0d6efd;
+            color: white;
+            transform: scale(1.15) rotate(-2deg);
         }
 
-        input[type='radio']:checked+#estimated div#estimated h3,
-        input[type='radio']:checked+#estimated div#estimated p {
-            color: #0d6efd !important;
+        .stepper.completed .stepper-head-icon {
+            background-color: #1c9a00 !important;
+            color: white;
+        }
+
+        .stepper.completed .stepper-head-icon::after {
+            content: '✓';
+            font-size: 20px;
+        }
+
+        .stepper-content {
+            /* margin-left: 3rem; */
+            /* margin-top: -0.2rem; */
+            width: 100%;
+            height: 1rem;
+        }
+
+        .stepper-head-line {
+            position: absolute;
+            top: 1rem;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            z-index: 1;
+            background-color: #dee2e6;
+            /* margin-right: 1rem; */
+        }
+
+        /* .stepper.actived .stepper-head-line:not(:last-child) {
+        background-color: #0d6efd;
+    } */
+        .stepper.completed .stepper-head-line {
+            background-image: linear-gradient(90deg, #1c9a00 20%, #5675ff 100%);
+        }
+
+        /* SIZE INPUT */
+        .hover-border-primary:hover {
+            border-color: var(--bs-primary) !important;
+            cursor: pointer;
+        }
+
+        .transition-all {
+            transition: all 0.2s ease;
         }
     </style>
-@endassets --}}
+@endassets

@@ -141,3 +141,66 @@
         @endif
     @endif
 </div>
+@assets
+    <style>
+        .stepper-head-icon {
+            width: 2rem;
+            height: 2rem;
+            background-color: #dee2e6;
+            color: rgb(255, 255, 255);
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .stepper.actived .stepper-head-icon {
+            background-color: #0d6efd;
+            color: white;
+            transform: scale(1.15) rotate(-2deg);
+        }
+
+        .stepper.completed .stepper-head-icon {
+            background-color: #1c9a00 !important;
+            color: white;
+        }
+
+        .stepper.completed .stepper-head-icon::after {
+            content: '✓';
+            font-size: 20px;
+        }
+
+        .stepper-content {
+            /* margin-left: 3rem; */
+            /* margin-top: -0.2rem; */
+            width: 100%;
+            height: 1rem;
+        }
+
+        .stepper-head-line {
+            position: absolute;
+            top: 1rem;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            z-index: 1;
+            background-color: #dee2e6;
+            /* margin-right: 1rem; */
+        }
+
+        /* .stepper.actived .stepper-head-line:not(:last-child) {
+        background-color: #0d6efd;
+    } */
+        .stepper.completed .stepper-head-line {
+            background-image: linear-gradient(90deg, #1c9a00 20%, #5675ff 100%);
+        }
+
+        /* SIZE INPUT */
+        .hover-border-primary:hover {
+            border-color: var(--bs-primary) !important;
+            cursor: pointer;
+        }
+
+        .transition-all {
+            transition: all 0.2s ease;
+        }
+    </style>
+@endassets

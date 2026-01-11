@@ -4,7 +4,6 @@
 @import "./notification.css";
 @import "./modal.css";
 @import "./placeholder.css";
-@import "./progress_bar.css";
 
 * {
     margin: 0;
