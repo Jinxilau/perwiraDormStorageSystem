@@ -6,6 +6,7 @@
 
 import "./echo";
 import '../images/icons/perwira_logo.png';
+import '../images/favicon.jpg';
 
 Echo.private(`App.Models.User.${window.userId}`).notification(
     (notification) => {
