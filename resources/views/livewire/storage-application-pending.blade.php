@@ -114,7 +114,7 @@
             {{-- Room --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Room</label>
-                <select class="form-select bg-light border-0" wire:model="room">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="room">
                     <option value="">All Rooms</option>
                     @foreach ($this->rooms as $room)
                         <option value="{{ $room->id }}">{{ $room->room_name }}</option>
@@ -125,7 +125,7 @@
             {{-- Semester Filter --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Year & Semester</label>
-                <select class="form-select bg-light border-0" wire:model.live="semester">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="semester">
                     <option value="">All Semesters</option>
                     @foreach ($this->semesters as $sem)
                         {{-- Adjust 'name' below to whatever your Semester column is called (e.g., semester_name, label) --}}
@@ -141,7 +141,7 @@
             {{-- Conflict Filter --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Conflicts</label>
-                <select class="form-select bg-light border-0" wire:model.live="conflictOnly">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="conflictOnly">
                     <option value="0">All</option>
                     <option value="1">Conflicted Only</option>
                 </select>
@@ -150,7 +150,7 @@
             {{-- Stale Filter --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Waiting Time</label>
-                <select class="form-select bg-light border-0" wire:model="staleOnly">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="staleOnly">
                     <option value="0">All</option>
                     <option value="1">Waiting > 7 Days</option>
                 </select>
@@ -159,7 +159,7 @@
             {{-- Storage Type --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Type</label>
-                <select class="form-select bg-light border-0" wire:model="storageType">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="storageType">
                     <option value="">All Types</option>
                     <option value="locker">Locker</option>
                     <option value="openArea">Open Area</option>
@@ -173,14 +173,14 @@
 
                 <div class="input-group">
                     {{-- Start Date --}}
-                    <input type="date" wire:model.live="fromRange" class="form-control bg-light border-0"
+                    <input type="date" wire:model.live.debounce.300ms="fromRange" class="form-control bg-light border-0"
                         placeholder="Start Date" aria-label="Start Date">
 
                     {{-- Separator --}}
                     <span class="input-group-text bg-light border-0 text-secondary">to</span>
 
                     {{-- End Date --}}
-                    <input type="date" wire:model.live="toRange" class="form-control bg-light border-0"
+                    <input type="date" wire:model.live.debounce.300ms="toRange" class="form-control bg-light border-0"
                         placeholder="End Date" aria-label="End Date">
                 </div>
             </div>
@@ -188,7 +188,7 @@
             {{-- Sort Options --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Sort: Date</label>
-                <select class="form-select bg-light border-0" wire:model="sortDate">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="sortDate">
                     <option value="">Default (No Sorting)</option>
                     <option value="latest">Latest First</option>
                     <option value="oldest">Oldest First</option>
@@ -197,7 +197,7 @@
 
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Sort: Name</label>
-                <select class="form-select bg-light border-0" wire:model="sortName">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="sortName">
                     <option value="">Default (No Sorting)</option>
                     <option value="asc">A-Z</option>
                     <option value="desc">Z-A</option>
@@ -238,7 +238,7 @@
             {{-- Pagination --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Per Page</label>
-                <select class="form-select bg-light border-0" wire:model="paginationInt">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="paginationInt">
                     <option value="10">10 Rows</option>
                     <option value="25">25 Rows</option>
                     <option value="50">50 Rows</option>

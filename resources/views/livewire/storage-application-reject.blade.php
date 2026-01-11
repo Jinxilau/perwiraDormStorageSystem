@@ -65,7 +65,7 @@
             {{-- Room --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Room</label>
-                <select class="form-select bg-light border-0" wire:model="room">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="room">
                     <option value="">All Room</option>
                     @foreach ($this->rooms as $room)
                         <option value="{{ $room->id }}">{{ $room->room_name }}</option>
@@ -76,7 +76,7 @@
             {{-- Semester Filter --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Year & Semester</label>
-                <select class="form-select bg-light border-0" wire:model.live="semester">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="semester">
                     <option value="">All Semesters</option>
                     @foreach ($this->semesters as $sem)
                         {{-- Adjust 'name' below to whatever your Semester column is called (e.g., semester_name, label) --}}
@@ -92,7 +92,7 @@
             {{-- Storage Type --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Type</label>
-                <select class="form-select bg-light border-0" wire:model="storageType">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="storageType">
                     <option value="">All Types</option>
                     <option value="locker">Locker</option>
                     <option value="openArea">Open Area</option>
@@ -104,7 +104,7 @@
                 <label class="form-label small text-muted fw-bold">
                     Sort By Application Date
                 </label>
-                <select class="form-select bg-light border-0" wire:model="sortApplicationDate">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="sortApplicationDate">
                     <option value="latest">Latest</option>
                     <option value="oldest">Oldest</option>
                 </select>
@@ -115,7 +115,7 @@
                 <label class="form-label small text-muted fw-bold">
                     Sort By Rejected Date
                 </label>
-                <select class="form-select bg-light border-0" wire:model="rejectedDate">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="rejectedDate">
                     <option value="">Default (No Sorting)</option>
                     <option value="latest">Latest</option>
                     <option value="oldest">Oldest</option>
@@ -127,7 +127,7 @@
                 <label class="form-label small text-muted fw-bold">
                     Sort By Applicant Name
                 </label>
-                <select class="form-select bg-light border-0" wire:model="sortName">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="sortName">
                     <option value="">Default (No Sorting)</option>
                     <option value="asc">Ascending</option>
                     <option value="desc">Descending</option>
@@ -167,7 +167,7 @@
             {{-- Pagination --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Per Page</label>
-                <select class="form-select bg-light border-0" wire:model="paginationInt">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="paginationInt">
                     <option value="10">10 Rows</option>
                     <option value="25">25 Rows</option>
                     <option value="50">50 Rows</option>

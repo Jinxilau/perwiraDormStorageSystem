@@ -12,6 +12,27 @@ class StorageRoom extends Model
         'room_status',
     ];
 
+    /**
+     * Determine if the room can be safely deleted.
+     */
+    public function canDelete(): bool
+    {
+        $activeStatuses = ['pending', 'approved'];
+
+        // Optimization: Use 'orHas' logic or check sequentially
+        $hasActiveLockerApps = $this->lockers()
+            ->whereHas('storageApplications', fn($q) => $q->whereIn('storage_application_status', $activeStatuses))
+            ->exists();
+
+        if ($hasActiveLockerApps) return false;
+
+        $hasActiveOpenAreaApps = $this->openArea()
+            ->whereHas('storageApplications', fn($q) => $q->whereIn('storage_application_status', $activeStatuses))
+            ->exists();
+
+        return !$hasActiveOpenAreaApps;
+    }
+
     // Eloquent Relationship Model
     public function openAreas()
     {

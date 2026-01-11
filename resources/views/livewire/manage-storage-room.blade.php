@@ -7,24 +7,52 @@
 
     <div class="container">
         {{-- Tabs --}}
-        <div class="btn-group w-100" role="group" aria-label="Basic radio toggle button group">
-            @foreach ($this->rooms as $room)
-                <input type="radio" class="btn-check" name="btnradio" id="btnradio{{ $room->id }}" autocomplete="off"
-                    {{ $roomId == $room->id ? 'checked' : '' }} wire:key="btnradio{{ $room->id }}"
-                    wire:model.live="roomId" value="{{ $room->id }}"
-                    @click='window.location.href="{{ route('storage_room', ['room' => $room->id]) }}"'>
-                <label class="btn btn-outline-primary" for="btnradio{{ $room->id }}"
-                    wire:key="btnradio{{ $room->id }}">Room {{ $loop->iteration }}:
-                    {{ $room->room_name }}</label>
-            @endforeach
+        <div class="d-flex gap-2 align-items-center mb-3">
+            <div class="btn-group flex-grow-1" role="group" aria-label="Basic radio toggle button group">
+                @foreach ($this->rooms as $room)
+                    <input type="radio" class="btn-check" name="btnradio" id="btnradio{{ $room->id }}"
+                        autocomplete="off" {{ $roomId == $room->id ? 'checked' : '' }}
+                        wire:key="btnradio{{ $room->id }}" wire:model.live="roomId" value="{{ $room->id }}"
+                        @click='window.location.href="{{ route('storage_room', ['room' => $room->id]) }}"'>
+                    <label class="btn btn-outline-primary d-flex align-items-center justify-content-center p-2"
+                        for="btnradio{{ $room->id }}" wire:key="btnradio{{ $room->id }}">
+
+                        <span>Room {{ $loop->iteration }}: {{ $room->room_name }}</span>
+
+                        <span
+                            class="badge rounded-pill m-0 ms-2
+                                {{ $room->room_status === 'open' ? 'bg-success' : '' }}
+                                {{ $room->room_status === 'closed' ? 'bg-danger' : '' }}
+                                {{ $room->room_status === 'under_maintenance' ? 'bg-warning text-dark' : '' }}">
+
+                            {{ str_replace('_', ' ', ucfirst($room->room_status)) }}
+                        </span>
+                    </label>
+                @endforeach
+            </div>
+
+            {{-- Add Room Button --}}
+            @if (auth()->user()->role_id === 1)
+                <button type="button" class="btn btn-outline-success" wire:click="$dispatch('display_modal3');"
+                    title="Add New Storage Room">
+                    <i class="bi bi-plus-circle"></i> Add Room
+                </button>
+            @endif
         </div>
-        <button type="button" class="btn w-100 mt-4 {{ $this->roomStatus ? 'btn-secondary' : 'btn-success' }}"
-            wire:click='toggleRoomStatus' wire:loading.attr="disabled">
-            {{ $this->roomStatus ? 'Close' : 'Open' }} the Storage Room
-        </button>
-        {{-- Matrix Card --}}
-        <section>
-        </section>
+
+        <div class="d-flex justify-content-between align-items-center mb-3 gap-2">
+            <button type="button" class="btn w-100  {{ $this->roomStatus ? 'btn-secondary' : 'btn-success' }}"
+                wire:click='toggleRoomStatus' wire:loading.attr="disabled">
+                {{ $this->roomStatus ? 'Close' : 'Open' }} the Storage Room
+            </button>
+            @if (auth()->user()->role_id === 1)
+                <button type="button" class="btn w-100 btn-outline-danger"
+                    wire:click="$dispatch('display_delete_room_modal')" title="Delete Current Storage Room">
+                    <i class="bi bi-trash"></i> Delete Room
+                </button>
+            @endif
+        </div>
+
         {{-- Open Area Section --}}
         @php
             $status = $this->storageRoom->openAreas->area_status;
@@ -91,12 +119,25 @@
                 </section>
             </div>
         </div>
+
         {{-- Locker --}}
         <div class="row">
             <div class="col-md-12 mx-auto mt-3">
-                <section class="bg-white p-2 rounded-2 border border-dark border-3">
+                <section class="bg-white p-2 rounded-2 border border-dark border-3 position-relative">
+                    {{-- Add Locker --}}
+                    @if (auth()->user()->role_id === 1)
+                        <button type="button" class="btn btn-success btn-sm ms-auto position-absolute end-0 me-3 mt-2"
+                            wire:click="$dispatch('display_modal2');" title="Add New Locker">
+                            <i class="bi bi-plus-circle"></i> Add Locker
+                        </button>
+                    @endif
+
+                    {{-- Title --}}
                     <div class="d-flex flex-column">
-                        <h3 style="text-align: center">Locker</h3>
+                        <div class="d-flex justify-content-center align-items-center mb-2">
+                            <h3 class="m-0">Locker</h3>
+                        </div>
+
                         <div class="d-flex">
                             <div class="card text-bg-primary mb-3 mx-auto" style="width: clamp(10rem, 50%,15rem);">
                                 <div class="card-body">
@@ -113,6 +154,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="progress width-100" role="progressbar" aria-label="Animated striped example"
                             aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
                             @if ($this->lockerStats['total'] !== 0)
@@ -130,12 +172,14 @@
                                 </div>
                             @endif
                         </div>
+
                         <div class="d-flex justify-content-between">
                             <p class="text-body-tertiary text-opacity-75">Current Usage:
                                 {{ $this->lockerStats['occupied'] + $this->lockerStats['reserved'] }} Units</p>
                             <p class="text-body-tertiary text-opacity-75">Max Capacity:
                                 {{ $this->lockerStats['total'] }} Units</p>
                         </div>
+
                         <div class="d-flex gap-3">
                             <div>
                                 <div class="rounded-circle bg-success d-inline-block"
@@ -150,7 +194,8 @@
                                 <span>Reserved</span>
                             </div>
                             <div>
-                                <div class="rounded-circle bg-danger d-inline-block" style="width: 10px; height: 10px;">
+                                <div class="rounded-circle bg-danger d-inline-block"
+                                    style="width: 10px; height: 10px;">
                                 </div>
                                 <span>Occupied</span>
                             </div>
@@ -161,6 +206,7 @@
                                 <span>In Maintenance</span>
                             </div>
                         </div>
+
                         <div id='grid'>
                             @foreach ($this->storageRoom->lockers as $locker)
                                 @php
@@ -179,7 +225,7 @@
                                     style="border-style: inset; aspect-ratio: 1/1;"
                                     wire:click="$set('modalData', {{ $locker->id }}); $dispatch('display_modal');"
                                     @disabled($locker->status === 'occupied' && $locker->canBeMarkedAvailable() === true)>
-                                    
+
                                     <span class="fw-bold fs-5">{{ $locker->code }}</span>
                                     {{-- Small Indicator Icon --}}
                                 </button>
@@ -191,6 +237,7 @@
         </div>
     </div>
 
+    {{-- Edit Locker Modal --}}
     <x-custom-modal>
         <x-slot:title>
             <div class="d-flex justify-content-between align-items-center w-100">
@@ -301,9 +348,240 @@
                         Save Changes
                     </button>
                 </form>
+
+                {{-- Delete Locker Section --}}
+                <hr class="my-4">
+                <div class="mt-3">
+                    <h6 class="fw-bold text-danger">Danger Zone</h6>
+                    <p class="text-muted small">Delete this locker permanently. This action cannot be undone.</p>
+
+                    @if ($this->locker->canBeDeleted())
+                        <button type="button" class="btn btn-outline-danger w-100" wire:click="deleteLocker"
+                            wire:confirm="Are you sure you want to delete locker {{ $this->locker->code }}? This action cannot be undone.">
+                            <i class="bi bi-trash"></i> Delete Locker
+                        </button>
+                    @else
+                        <button type="button" class="btn btn-outline-secondary w-100" disabled>
+                            <i class="bi bi-lock"></i> Cannot Delete (Locker In Use)
+                        </button>
+                        <small class="text-danger d-block mt-2">
+                            This locker cannot be deleted because it has active storage applications.
+                        </small>
+                    @endif
+                </div>
             @endif
         </div>
     </x-custom-modal>
+
+    {{-- Add Room Modal --}}
+    <div x-data="{
+        show: false,
+        openModal() {
+            this.show = true;
+            document.body.style.overflow = 'hidden';
+        },
+        closeModal() {
+            this.show = false;
+            document.body.style.overflow = '';
+        },
+    }" @display_modal3.window="openModal();" @close-modal.window="closeModal()"
+        @keydown.escape.window="closeModal()" x-show='show' tabindex="-1" id="modal2"
+        :class="{ 'display': show }" style="display: none;" x-transition.scale>
+
+        {{-- Background Overlay --}}
+        <div id="overlay2" @click="closeModal()" x-show="show" x-transition.opacity></div>
+
+        {{-- Modal --}}
+        <div id="modal-content2" class="card" x-transition>
+            {{-- Title --}}
+            <div class="card-header d-flex justify-content-between align-items-center ps-3 pe-3">
+                <h5 class="modal-title mb-0">Add New Storage Room</h5>
+                {{-- Bootstrap Native Close Button --}}
+                <button type="button" class="btn-close" @click="closeModal()" aria-label="Close"></button>
+            </div>
+
+            {{-- Body --}}
+            <div class="card-body" style="min-width: 50vw; max-height: 80vh; overflow-y: auto;">
+
+                <form wire:submit="addRoom">
+                    <div class="mb-3">
+                        <label for="newRoomName" class="form-label">Room Name</label>
+                        <input type="text" class="form-control" id="newRoomName" wire:model="newRoomName"
+                            placeholder="e.g. E1-09" required>
+                        @error('newRoomName')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Room Status</label>
+                        <div class="d-flex gap-2">
+                            <input type="radio" class="btn-check" id="room-status-open" wire:model="newRoomStatus"
+                                value="open" checked>
+                            <label class="btn btn-outline-success" for="room-status-open">
+                                Open
+                            </label>
+
+                            <input type="radio" class="btn-check" id="room-status-closed"
+                                wire:model="newRoomStatus" value="closed">
+                            <label class="btn btn-outline-secondary" for="room-status-closed">
+                                Closed
+                            </label>
+
+                            <input type="radio" class="btn-check" id="room-status-maintenance"
+                                wire:model="newRoomStatus" value="under_maintenance">
+                            <label class="btn btn-outline-warning" for="room-status-maintenance">
+                                Under Maintenance
+                            </label>
+                        </div>
+                        @error('newRoomStatus')
+                            <div class="text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="bi bi-plus-circle"></i> Create Room
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- Add Locker Modal --}}
+    <x-custom-modal2 modal-id="addLockerModal" event-name="display_add_locker_modal">
+        <x-slot:title>
+            <strong>Add New Locker</strong>
+            <div class="small text-muted">Room: {{ $this->storageRoom->room_name }}</div>
+        </x-slot:title>
+
+        <form wire:submit="addLocker">
+            <div class="mb-3">
+                <label for="newLockerCode" class="form-label">Locker Code</label>
+                <input type="text" class="form-control" id="newLockerCode" wire:model="newLockerCode"
+                    placeholder="e.g. A01" required>
+                <small class="text-muted">Must be unique within this room</small>
+                @error('newLockerCode')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="mb-3">
+                <label for="newLockerSize" class="form-label">Locker Size</label>
+                <input type="text" class="form-control" id="newLockerSize" wire:model="newLockerSize"
+                    placeholder="e.g. 30x40x50" required>
+                @error('newLockerSize')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Initial Status</label>
+                <div class="d-flex flex-wrap gap-2">
+                    <input type="radio" class="btn-check" id="locker-status-available"
+                        wire:model="newLockerStatus" value="available" checked>
+                    <label class="btn btn-outline-success" for="locker-status-available">
+                        Available
+                    </label>
+
+                    <input type="radio" class="btn-check" id="locker-status-maintenance"
+                        wire:model="newLockerStatus" value="under_maintenance">
+                    <label class="btn btn-outline-secondary" for="locker-status-maintenance">
+                        Under Maintenance
+                    </label>
+                </div>
+                @error('newLockerStatus')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">
+                <i class="bi bi-plus-circle"></i> Create Locker
+            </button>
+        </form>
+    </x-custom-modal2>
+
+    {{-- Delete Room Modal --}}
+    <div x-data="{
+        show: false,
+        openModal() {
+            this.show = true;
+            document.body.style.overflow = 'hidden';
+        },
+        closeModal() {
+            this.show = false;
+            document.body.style.overflow = '';
+        },
+    }" @display_delete_room_modal.window="openModal();" @close-modal.window="closeModal()"
+        @keydown.escape.window="closeModal()" x-show='show' tabindex="-1" id="modal2"
+        :class="{ 'display': show }" style="display: none;" x-transition.scale>
+
+        {{-- Background Overlay --}}
+        <div id="overlay2" @click="closeModal()" x-show="show" x-transition.opacity></div>
+
+        {{-- Modal --}}
+        <div id="modal-content2" class="card" x-transition>
+            {{-- Title --}}
+            <div class="card-header d-flex justify-content-between align-items-center ps-3 pe-3">
+                <h5>
+                    <strong class="text-danger">Delete Storage Room</strong>
+                </h5>
+                <button type="button" class="btn-close" @click="closeModal()" aria-label="Close"></button>
+
+            </div>
+
+            {{-- Body --}}
+            <div class="card-body" style="min-width: 50vw; max-height: 80vh; overflow-y: auto;">
+
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Warning!</strong> This action cannot be undone.
+                </div>
+
+                <div class="mb-3">
+                    <h6>Room Details:</h6>
+                    <ul class="list-unstyled">
+                        <li><strong>Name:</strong> {{ $this->storageRoom->room_name }}</li>
+                        <li><strong>Total Lockers:</strong> {{ $this->storageRoom->lockers->count() }}</li>
+                        <li><strong>Open Area Status:</strong>
+                            {{ ucfirst($this->storageRoom->openAreas->area_status ?? 'N/A') }}</li>
+                    </ul>
+                </div>
+
+                @if ($this->storageRoom->canDelete())
+                    <p class="text-muted">
+                        This room has no active storage applications and can be safely deleted.
+                    </p>
+                    <button type="button" class="btn btn-danger w-100" wire:click="deleteRoom"
+                        wire:confirm="Are you absolutely sure? This will permanently delete '{{ $this->storageRoom->room_name }}' and all its lockers.">
+                        <i class="bi bi-trash"></i> Yes, Delete This Room
+                    </button>
+                @else
+                    <div class="alert alert-warning">
+                        <i class="bi bi-lock-fill me-2"></i>
+                        <strong>Cannot Delete Room</strong>
+                        <p class="mb-0 mt-2">This storage room cannot be deleted because it contains:</p>
+                        <ul class="mb-0">
+                            @if (
+                                $this->storageRoom->lockers()->whereHas('storageApplications', function ($q) {
+                                        $q->whereIn('storage_application_status', ['pending', 'approved']);
+                                    })->exists())
+                                <li>Lockers with active storage applications</li>
+                            @endif
+                            @if (
+                                $this->storageRoom->openAreas()->whereHas('storageApplications', function ($q) {
+                                        $q->whereIn('storage_application_status', ['pending', 'approved']);
+                                    })->exists())
+                                <li>Open area with active storage applications</li>
+                            @endif
+                        </ul>
+                    </div>
+                    <button type="button" class="btn btn-secondary w-100" disabled>
+                        <i class="bi bi-lock"></i> Room Cannot Be Deleted
+                    </button>
+                @endif
+            </div>
+        </div>
+    </div>
 </div>
 @assets
     <style>

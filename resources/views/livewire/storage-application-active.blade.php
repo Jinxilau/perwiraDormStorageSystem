@@ -81,7 +81,7 @@
             {{-- Room --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Room</label>
-                <select class="form-select bg-light border-0" wire:model="room">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="room">
                     <option value="">All Room</option>
                     @foreach ($this->rooms as $room)
                         <option value="{{ $room->id }}">{{ $room->room_name }}</option>
@@ -92,7 +92,7 @@
             {{-- Semester Filter --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Year & Semester</label>
-                <select class="form-select bg-light border-0" wire:model.live="semester">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="semester">
                     <option value="">All Semesters</option>
                     @foreach ($this->semesters as $sem)
                         {{-- Adjust 'name' below to whatever your Semester column is called (e.g., semester_name, label) --}}
@@ -108,7 +108,7 @@
             {{-- Storage Type --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Type</label>
-                <select class="form-select bg-light border-0" wire:model.live="storageType">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="storageType">
                     <option value="">All Types</option>
                     <option value="locker">Locker</option>
                     <option value="openArea">Open Area</option>
@@ -118,7 +118,7 @@
             {{-- Unclaimed --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Show Unclaimed</label>
-                <select class="form-select bg-light border-0" wire:model="unclaimedOnly">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="unclaimedOnly">
                     <option value="0">All</option>
                     <option value="1">Unclaimed Only</option>
                 </select>
@@ -127,7 +127,7 @@
             {{-- QR Code Status --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">QR Status</label>
-                <select class="form-select bg-light border-0" wire:model.live="qrStatus">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="qrStatus">
                     <option value="">All Status</option>
                     <option value="not_scanned">Not Checked In</option>
                     <option value="checked_in">Checked In</option>
@@ -141,7 +141,7 @@
                 <label class="form-label small text-muted fw-bold">
                     Sort By Check-In Date
                 </label>
-                <select class="form-select bg-light border-0" wire:model.live="sortCheckIn">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="sortCheckIn">
                     <option value="">Default (No Sorting)</option>
                     <option value="latest">Latest</option>
                     <option value="oldest">Oldest</option>
@@ -153,7 +153,7 @@
                 <label class="form-label small text-muted fw-bold">
                     Sort By Check-Out Date
                 </label>
-                <select class="form-select bg-light border-0" wire:model.live="sortCheckOut">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="sortCheckOut">
                     <option value="">Default (No Sorting)</option>
                     <option value="latest">Latest</option>
                     <option value="oldest">Oldest</option>
@@ -165,7 +165,7 @@
                 <label class="form-label small text-muted fw-bold">
                     Sort By Application Date
                 </label>
-                <select class="form-select bg-light border-0" wire:model.live="sortDate">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="sortDate">
                     <option value="">Default (No Sorting)</option>
                     <option value="latest">Latest</option>
                     <option value="oldest">Oldest</option>
@@ -177,7 +177,7 @@
                 <label class="form-label small text-muted fw-bold">
                     Sort By Applicant Name
                 </label>
-                <select class="form-select bg-light border-0" wire:model.live="sortName">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="sortName">
                     <option value="">Default (No Sorting)</option>
                     <option value="asc">Ascending</option>
                     <option value="desc">Descending</option>
@@ -218,7 +218,7 @@
             {{-- Pagination --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Per Page</label>
-                <select class="form-select bg-light border-0" wire:model="paginationInt">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="paginationInt">
                     <option value="10">10 Rows</option>
                     <option value="25">25 Rows</option>
                     <option value="50">50 Rows</option>

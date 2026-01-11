@@ -22,6 +22,13 @@ class Locker extends Model
         })->exists();
     }
 
+    public function canBeDeleted(): bool
+    {
+        return !$this->storageApplications()
+            ->whereIn('storage_application_status', ['pending', 'approved'])
+            ->exists();
+    }
+
     // Eloquent Model Relationship
     public function storageRoom()
     {
@@ -31,5 +38,8 @@ class Locker extends Model
     {
         return $this->hasMany(StorageApplication::class, 'locker_id');
     }
-
+    public function activityLogs()
+    {
+        return $this->morphMany(ActivityLog::class, 'subject');
+    }
 }

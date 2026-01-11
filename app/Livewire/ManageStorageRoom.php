@@ -11,8 +11,10 @@ use App\Models\User;
 use App\Notifications\StorageRoomStatusNotification;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Lazy;
@@ -34,6 +36,15 @@ class ManageStorageRoom extends Component
     public $lockerSize;
 
     public $modalData; # Locker Id
+
+    // Add Room Properties
+    public $newRoomName;
+    public $newRoomStatus = 'open';
+
+    // Add Locker Properties
+    public $newLockerCode;
+    public $newLockerSize;
+    public $newLockerStatus = 'available';
 
     public function mount()
     {
@@ -85,11 +96,11 @@ class ManageStorageRoom extends Component
         } catch (Exception $e) {
             $this->dispatch(
                 'show_toast',
-                message: "Something went wrong. Please try again.",
+                message: "Something went wrong. Please try again. {$e->getMessage()}",
                 type: 'fail'
             );
 
-            Log::error($e);
+            Log::error("Error updating room status: " . $e->getMessage());
         }
     }
 
@@ -132,7 +143,7 @@ class ManageStorageRoom extends Component
     public function editLocker()
     {
         $this->validate([
-            'lockerStatus' => 'required|in:available,occupied,reserved',
+            'lockerStatus' => 'required|in:available,occupied,reserved,under_maintenance',
             'lockerSize'   => 'required|regex:/^\d+x\d+x\d+$/'
         ]);
 
@@ -153,12 +164,181 @@ class ManageStorageRoom extends Component
         $this->dispatch('close-modal');
     }
 
+    public function addRoom()
+    {
+        $this->validate([
+            'newRoomName' => 'required|string|max:100|unique:storage_rooms,room_name',
+            'newRoomStatus' => 'required|in:open,closed,under_maintenance'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Create the storage room
+            $room = StorageRoom::create([
+                'room_name' => $this->newRoomName,
+                'room_status' => $this->newRoomStatus,
+            ]);
+
+            // Create associated open area
+            $room->openAreas()->create([
+                'area_status' => 'available',
+            ]);
+
+            // Log activity
+            $room->activityLogs()->create([
+                'user_id' => Auth::id(),
+                'action' => 'created',
+                'description' => "Storage room \"{$room->room_name}\" was created with open area.",
+                'ip_address' => request()->ip(),
+            ]);
+
+            DB::commit();
+
+            $this->dispatch('show_toast', message: "Storage room '{$this->newRoomName}' created successfully.", type: "success");
+            $this->dispatch('close-modal', modalId: 'addRoomModal');
+
+            // Reset form and redirect to new room
+            $this->reset(['newRoomName', 'newRoomStatus']);
+            $this->roomId = $room->id;
+            $this->redirect(route('storage_room', ['room' => $room->id]), navigate: true);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error("Error creating storage room: " . $e->getMessage());
+            $this->dispatch('show_toast', message: "Failed to create storage room. Please try again.", type: "fail");
+        }
+    }
+
+    public function addLocker()
+    {
+        $this->validate([
+            'newLockerCode' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('lockers', 'code')->where(function ($query) {
+                    return $query->where('storage_room_id', $this->roomId);
+                })
+            ],
+            'newLockerSize' => 'required|regex:/^\d+x\d+x\d+$/',
+            'newLockerStatus' => 'required|in:available,under_maintenance'
+        ], [
+            'newLockerCode.unique' => 'This locker code already exists in this room.',
+        ]);
+
+        try {
+            $locker = Locker::create([
+                'storage_room_id' => $this->roomId,
+                'code' => $this->newLockerCode,
+                'size' => $this->newLockerSize,
+                'status' => $this->newLockerStatus,
+            ]);
+
+            // Optional: Log activity
+            $locker->activityLogs()->create([
+                'user_id' => Auth::id(),
+                'action' => 'created',
+                'description' => "Locker '{$locker->code}' was added to room '{$this->storageRoom->room_name}'.",
+                'ip_address' => request()->ip(),
+            ]);
+
+            $this->dispatch('show_toast', message: "Locker '{$this->newLockerCode}' created successfully.", type: "success");
+            $this->dispatch('close-modal', modalId: 'addLockerModal');
+
+            // Reset form
+            $this->reset(['newLockerCode', 'newLockerSize', 'newLockerStatus']);
+        } catch (Exception $e) {
+            Log::error("Error creating locker: " . $e->getMessage());
+            $this->dispatch('show_toast', message: "Failed to create locker. Please try again.", type: "fail");
+        }
+    }
+
+    public function deleteLocker()
+    {
+        try {
+            $locker = $this->locker;
+
+            // Check if locker can be deleted
+            if (!$locker->canBeDeleted()) {
+                $this->dispatch('show_toast', message: "This locker cannot be deleted because it has active storage applications.", type: "fail");
+                return;
+            }
+
+            $lockerCode = $locker->code;
+            $roomName = $locker->storageRoom->room_name;
+
+            // Delete the locker
+            $locker->delete();
+
+            // Log activity
+            $locker->activityLogs()->create([
+                'user_id' => Auth::id(),
+                'action' => 'deleted',
+                'description' => "Locker '{$lockerCode}' was deleted from room '{$roomName}'.",
+                'ip_address' => request()->ip(),
+            ]);
+
+            $this->dispatch('show_toast', message: "Locker '{$lockerCode}' deleted successfully.", type: "success");
+            $this->dispatch('close-modal');
+            $this->reset('modalData');
+        } catch (Exception $e) {
+            Log::error("Error deleting locker: " . $e->getMessage());
+            $this->dispatch('show_toast', message: "Failed to delete locker. Please try again.", type: "fail");
+        }
+    }
+
+    public function deleteRoom()
+    {
+        try {
+            // Check if room can be deleted
+            if (!$this->storageRoom->canDelete()) {
+                $this->dispatch('show_toast', message: "This room cannot be deleted because it has active storage applications.", type: "fail");
+                return;
+            }
+
+            $room = $this->storageRoom;
+            $roomName = $room->room_name;
+
+            // Get the next available room to redirect to
+            $nextRoom = StorageRoom::where('id', '!=', $room->id)->first();
+
+            if (!$nextRoom) {
+                $this->dispatch('show_toast', message: "Cannot delete the last remaining storage room.", type: "fail");
+                return;
+            }
+
+            DB::beginTransaction();
+
+            // Delete the room (cascade will handle lockers and open areas)
+            $room->delete();
+
+            // Log activity
+            $room->activityLogs()->create([
+                'user_id' => Auth::id(),
+                'action' => 'deleted',
+                'description' => "Storage room '{$roomName}' was deleted.",
+                'ip_address' => request()->ip(),
+            ]);
+
+            DB::commit();
+
+            $this->dispatch('show_toast', message: "Storage room '{$roomName}' deleted successfully.", type: "success");
+            $this->dispatch('close-modal', modalId: 'deleteRoomModal');
+
+            // Redirect to the next available room
+            $this->redirect(route('storage_room', ['room' => $nextRoom->id]), navigate: true);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error("Error deleting storage room: " . $e->getMessage());
+            $this->dispatch('show_toast', message: "Failed to delete storage room. Please try again.", type: "fail");
+        }
+    }
+
     #[Computed]
     public function rooms()
     {
         return StorageRoom::select('id', 'room_name', 'room_status')->get();
     }
-
 
     #[Computed]
     public function storageRoom()
@@ -182,6 +362,7 @@ class ManageStorageRoom extends Component
         return Locker::with(['storageRoom'])
             ->find($this->modalData);
     }
+
     #[Computed]
     public function lockerApplication()
     {
@@ -202,6 +383,7 @@ class ManageStorageRoom extends Component
     {
         return $this->storageRoom->lockers->count();
     }
+
     #[Computed]
     public function lockerStats()
     {
@@ -214,6 +396,7 @@ class ManageStorageRoom extends Component
             'reserved'  => $lockers->where('status', 'reserved')->count(),
         ];
     }
+
     #[Computed()]
     public function openAreaStoredItems()
     {
