@@ -96,7 +96,7 @@ class CheckInApplication extends Component
             $this->reset('checkin_item_photo');
             session()->flash('success', 'Page refreshed and filters cleared.');
 
-            return $this->redirectRoute('check_in_application', navigate: true);
+            return $this->redirectRoute('check_in_application', ['application' => $this->application->id], navigate: true);
         } catch (\Throwable $e) {
             Log::error('Check-in failed', [
                 'application_id' => $this->application->id,
