@@ -156,7 +156,7 @@ class AdminDashboard extends Component
             'semester'
         ])
             ->latest()
-            ->take(15)
+            ->take(5)
             ->get();
     }
 
@@ -165,7 +165,7 @@ class AdminDashboard extends Component
     {
         return ActivityLog::with(['user', 'semester', 'subject'])
             ->latest()
-            ->take(10)
+            ->take(5)
             ->get();
     }
 

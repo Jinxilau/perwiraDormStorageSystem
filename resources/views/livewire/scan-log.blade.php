@@ -9,18 +9,11 @@
         {{-- Scan Logs Metrics --}}
         <x-card-matrix :items="[
             [
-                'title' => $this->logs->count(),
-                'subtitle' => 'Total Logs',
+                'title' => $this->totalLogs,
+                'subtitle' => 'Total Logs (Current Semester)',
                 'icon' => 'bi-journal-text',
                 'color' => 'text-primary',
                 'bg' => 'bg-primary bg-opacity-10',
-            ],
-            [
-                'title' => $this->thisSemester,
-                'subtitle' => 'Scans (Current Semester)',
-                'icon' => 'bi-calendar-range-fill',
-                'color' => 'text-info',
-                'bg' => 'bg-info bg-opacity-10',
             ],
             [
                 'title' => $this->todayScans,
@@ -48,7 +41,7 @@
         <x-filter-options>
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Check In/Check Out</label>
-                <select class="form-select bg-light border-0" wire:model.live="event_type">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="event_type">
                     <option value="">All Type</option>
                     <option value="check_in">Check In</option>
                     <option value="check_out">Check Out</option>
@@ -57,7 +50,7 @@
 
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Storage Room</label>
-                <select class="form-select bg-light border-0" wire:model.live="storage_room">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="storage_room">
                     <option value="">All Room</option>
                     @foreach ($this->rooms as $room)
                         <option value="{{ $room->id }}">{{ $room->room_name }}</option>
@@ -68,7 +61,7 @@
             {{-- Semester Filter --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Semester</label>
-                <select class="form-select bg-light border-0" wire:model.live="semester">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="semester">
                     <option value="">All Semesters</option>
                     @foreach ($this->semesters as $sem)
                         {{-- Adjust 'name' below to whatever your Semester column is called (e.g., semester_name, label) --}}
@@ -86,14 +79,14 @@
 
                 <div class="input-group">
                     {{-- Start Date --}}
-                    <input type="date" wire:model.live="fromRange" class="form-control bg-light border-0"
+                    <input type="date" wire:model.live.debounce.300ms="fromRange" class="form-control bg-light border-0"
                         placeholder="Start Date" aria-label="Start Date">
 
                     {{-- Separator --}}
                     <span class="input-group-text bg-light border-0 text-secondary">to</span>
 
                     {{-- End Date --}}
-                    <input type="date" wire:model.live="toRange" class="form-control bg-light border-0"
+                    <input type="date" wire:model.live.debounce.300ms="toRange" class="form-control bg-light border-0"
                         placeholder="End Date" aria-label="End Date">
                 </div>
             </div>
@@ -102,7 +95,8 @@
                 <label class="form-label small text-muted fw-bold">
                     Sort By Scan Date
                 </label>
-                <select class="form-select bg-light border-0" wire:model.live="sortDate">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="sortDate">
+                    <option value="">Default (No Sorting)</option>
                     <option value="latest">Latest</option>
                     <option value="oldest">Oldest</option>
                 </select>
@@ -110,7 +104,8 @@
 
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Sort By User Name</label>
-                <select class="form-select bg-light border-0" wire:model.live="sortName">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="sortName">
+                    <option value="">Default (No Sorting)</option>
                     <option value="asc">Ascending</option>
                     <option value="desc">Descending</option>
                 </select>
@@ -119,7 +114,7 @@
             {{-- Pagination --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Per Page</label>
-                <select class="form-select bg-light border-0" wire:model="paginationInt">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="paginationInt">
                     <option value="10">10 Rows</option>
                     <option value="25">25 Rows</option>
                     <option value="50">50 Rows</option>

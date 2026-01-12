@@ -30,7 +30,7 @@ class ScanLog extends Component
     public $fromRange = '';
     #[Url(except: '')]
     public $toRange = '';
-    #[Url(except: 'latest')]
+    #[Url(except: '')]
     public $sortDate = 'latest';
     #[Url(except: '')]
     public $sortName = '';
@@ -137,6 +137,14 @@ class ScanLog extends Component
     }
 
     #[Computed()]
+    public function totalLogs()
+    {
+        $currentSemesterId = Semester::where('is_current', true)->value('id');
+        
+        return ModelsScanLog::where('semester_id', $currentSemesterId)->count();
+    }
+    
+    #[Computed()]
     public function qrHistoryLogs()
     {
         if (!$this->modalData) return null;
@@ -152,15 +160,6 @@ class ScanLog extends Component
     public function todayScans()
     {
         return ModelsScanLog::whereDate('created_at', now())->count();
-    }
-    #[Computed()]
-    public function thisSemester()
-    {
-        $currentSemesterId = Semester::where('is_current', true)->value('id');
-
-        return StorageApplication::where('storage_application_status', 'pending')
-            ->where('semester_id', $currentSemesterId)
-            ->count();
     }
 
     // Populate the filter dropdowns

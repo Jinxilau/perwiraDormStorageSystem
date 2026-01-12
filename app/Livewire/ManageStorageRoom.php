@@ -108,7 +108,7 @@ class ManageStorageRoom extends Component
     {
         $room->activityLogs()->create([
             'user_id' => Auth::id(),
-            'action' => $status === 'open' ? 'opened' : 'closed',
+            'action' => 'updated',
             'description' => "Storage room \"{$room->room_name}\" was {$status}.",
             'ip_address' => request()->ip(),
         ]);

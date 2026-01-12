@@ -11,34 +11,6 @@
         {{-- Report Cases Metrics --}}
         <x-card-matrix :items="[
             [
-                'title' => $this->reportCounts['under_investigation'],
-                'subtitle' => 'Under Investigation',
-                'icon' => 'bi-search',
-                'color' => 'text-warning',
-                'bg' => 'bg-warning bg-opacity-10',
-            ],
-            [
-                'title' => $this->reportCounts['resolved'],
-                'subtitle' => 'Resolved Cases',
-                'icon' => 'bi-check-circle-fill',
-                'color' => 'text-success',
-                'bg' => 'bg-success bg-opacity-10',
-            ],
-            [
-                'title' => $this->reportCounts['pending'],
-                'subtitle' => 'Pending Cases',
-                'icon' => 'bi-hourglass-split',
-                'color' => 'text-info',
-                'bg' => 'bg-info bg-opacity-10',
-            ],
-            [
-                'title' => $this->reportCounts['dismissed'],
-                'subtitle' => 'Dismissed Cases',
-                'icon' => 'bi-x-octagon-fill',
-                'color' => 'text-secondary',
-                'bg' => 'bg-secondary bg-opacity-10',
-            ],
-            [
                 'title' => $this->thisSemester,
                 'subtitle' => 'Total (Current Semester)',
                 'icon' => 'bi-file-earmark-text-fill',
@@ -46,20 +18,40 @@
                 'bg' => 'bg-primary bg-opacity-10',
             ],
             [
-                'title' => $this->pendingThisSemester,
-                'subtitle' => 'Pending (Current Semester)',
-                'icon' => 'bi-clock-fill',
-                'color' => 'text-danger',
-                'bg' => 'bg-danger bg-opacity-10',
+                'title' => $this->reportCounts['under_investigation'] ?? 0,
+                'subtitle' => 'Under Investigation',
+                'icon' => 'bi-search',
+                'color' => 'text-warning',
+                'bg' => 'bg-warning bg-opacity-10',
+            ],
+            [
+                'title' => $this->reportCounts['resolved'] ?? 0,
+                'subtitle' => 'Resolved Cases',
+                'icon' => 'bi-check-circle-fill',
+                'color' => 'text-success',
+                'bg' => 'bg-success bg-opacity-10',
+            ],
+            [
+                'title' => $this->reportCounts['pending'] ?? 0,
+                'subtitle' => 'Pending Cases',
+                'icon' => 'bi-hourglass-split',
+                'color' => 'text-info',
+                'bg' => 'bg-info bg-opacity-10',
+            ],
+            [
+                'title' => $this->reportCounts['dismissed'] ?? 0,
+                'subtitle' => 'Dismissed Cases',
+                'icon' => 'bi-x-octagon-fill',
+                'color' => 'text-secondary',
+                'bg' => 'bg-secondary bg-opacity-10',
             ],
         ]" />
-
 
         <x-filter-options>
             {{-- Room --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Room</label>
-                <select class="form-select bg-light border-0" wire:model="room">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="room">
                     <option value="">All Rooms</option>
                     @foreach ($this->rooms as $room)
                         <option value="{{ $room->id }}">{{ $room->room_name }}</option>
@@ -70,7 +62,7 @@
             {{-- Semester Filter --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Semester</label>
-                <select class="form-select bg-light border-0" wire:model.live="semester">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="semester">
                     <option value="">All Semesters</option>
                     @foreach ($this->semesters as $sem)
                         {{-- Adjust 'name' below to whatever your Semester column is called (e.g., semester_name, label) --}}
@@ -86,7 +78,7 @@
             {{-- Status --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Status</label>
-                <select class="form-select bg-light border-0" wire:model="statusFilter">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="statusFilter">
                     <option value="">All</option>
                     <option value="pending">Pending</option>
                     <option value="investigating">Investigating</option>
@@ -101,14 +93,14 @@
 
                 <div class="input-group">
                     {{-- Start Date --}}
-                    <input type="date" wire:model.live="fromRange" class="form-control bg-light border-0"
+                    <input type="date" wire:model.live.debounce.300ms="fromRange" class="form-control bg-light border-0"
                         placeholder="Start Date" aria-label="Start Date">
 
                     {{-- Separator --}}
                     <span class="input-group-text bg-light border-0 text-secondary">to</span>
 
                     {{-- End Date --}}
-                    <input type="date" wire:model.live="toRange" class="form-control bg-light border-0"
+                    <input type="date" wire:model.live.debounce.300ms="toRange" class="form-control bg-light border-0"
                         placeholder="End Date" aria-label="End Date">
                 </div>
             </div>
@@ -116,7 +108,7 @@
             {{-- Sort Options --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Sort: Date</label>
-                <select class="form-select bg-light border-0" wire:model="sortDate">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="sortDate">
                     <option value="latest">Latest First</option>
                     <option value="oldest">Oldest First</option>
                 </select>
@@ -125,7 +117,7 @@
             {{-- Pagination --}}
             <div class="col-md-4 col-lg-3">
                 <label class="form-label small text-muted fw-bold">Per Page</label>
-                <select class="form-select bg-light border-0" wire:model="paginationInt">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="paginationInt">
                     <option value="10">10 Rows</option>
                     <option value="25">25 Rows</option>
                     <option value="50">50 Rows</option>
@@ -399,8 +391,8 @@
                         <div class="d-flex align-items-center gap-1">
 
                             {{-- 1. View Details (Existing) --}}
-                            <a href="{{ route('missing_report_detail', $report->id) }}"
-                                title="View Report Details" class="btn btn-sm btn-outline-secondary" style="padding: 0 2px">
+                            <a href="{{ route('missing_report_detail', $report->id) }}" title="View Report Details"
+                                class="btn btn-sm btn-outline-secondary" style="padding: 0 2px">
                                 <i class="bi bi-eye-fill"></i>
                             </a>
 

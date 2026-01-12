@@ -525,26 +525,26 @@
 
                                 // Determine icon and color based on action
                                 if (str_contains(strtolower($activity->action), 'create')) {
-                                    $iconClass = 'bg-success';
+                                    $iconClass = 'bg-success text-white';
                                     $icon = 'bi-plus-circle-fill';
                                 } elseif (str_contains(strtolower($activity->action), 'update')) {
                                     $iconClass = 'bg-info';
                                     $icon = 'bi-pencil-fill';
                                 } elseif (str_contains(strtolower($activity->action), 'delete')) {
-                                    $iconClass = 'bg-danger';
+                                    $iconClass = 'bg-danger text-white';
                                     $icon = 'bi-trash-fill';
                                 } elseif (str_contains(strtolower($activity->action), 'approve')) {
-                                    $iconClass = 'bg-success';
+                                    $iconClass = 'bg-success text-white';
                                     $icon = 'bi-check-circle-fill';
                                 } elseif (str_contains(strtolower($activity->action), 'reject')) {
-                                    $iconClass = 'bg-danger';
+                                    $iconClass = 'bg-danger text-white';
                                     $icon = 'bi-x-circle-fill';
-                                } elseif (str_contains(strtolower($activity->action), 'check_in')) {
-                                    $iconClass = 'bg-success';
-                                    $icon = 'bi-box-arrow-in-right';
-                                } elseif (str_contains(strtolower($activity->action), 'check_out')) {
+                                } elseif (str_contains(strtolower($activity->action), 'opened')) {
+                                    $iconClass = 'bg-success text-white';
+                                    $icon = 'bi-door-open';
+                                } elseif (str_contains(strtolower($activity->action), 'closed')) {
                                     $iconClass = 'bg-warning';
-                                    $icon = 'bi-box-arrow-left';
+                                    $icon = 'bi-door-closed';
                                 }
                             @endphp
 

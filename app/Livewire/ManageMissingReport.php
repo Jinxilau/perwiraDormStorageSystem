@@ -210,25 +210,29 @@ class ManageMissingReport extends Component
     #[Computed]
     public function reportCounts()
     {
-        return MissingReport::selectRaw("
-            COUNT(*) as total,
-            COALESCE(SUM(status = 'under_investigation'), 0) as under_investigation,
-            COALESCE(SUM(status = 'resolved'), 0) as resolved,
-            COALESCE(SUM(status = 'pending'), 0) as pending,
-            COALESCE(SUM(status = 'dismissed'), 0) as dismissed
-        ")->first();
+        $currentSemesterId = Semester::where('is_current', true)->value('id');
+
+        if (! $currentSemesterId) {
+            return (object) [
+                'total' => 0,
+                'under_investigation' => 0,
+                'resolved' => 0,
+                'pending' => 0,
+                'dismissed' => 0,
+            ];
+        }
+
+        return MissingReport::where('semester_id', $currentSemesterId)
+            ->selectRaw("
+                COUNT(*) as total,
+                SUM(CASE WHEN status = 'under_investigation' THEN 1 ELSE 0 END) as under_investigation,
+                SUM(CASE WHEN status = 'resolved' THEN 1 ELSE 0 END) as resolved,
+                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN status = 'dismissed' THEN 1 ELSE 0 END) as dismissed
+            ")->first();
     }
     #[Computed()]
     public function thisSemester()
-    {
-        $currentSemesterId = Semester::where('is_current', true)->value('id');
-
-        return MissingReport::where('status', 'pending')
-            ->where('semester_id', $currentSemesterId)
-            ->count();
-    }
-    #[Computed()]
-    public function pendingThisSemester()
     {
         $currentSemesterId = Semester::where('is_current', true)->value('id');
 

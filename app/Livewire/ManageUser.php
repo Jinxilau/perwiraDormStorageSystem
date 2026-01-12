@@ -43,7 +43,7 @@ class ManageUser extends Component
     public $fromRange = '';
     #[Url(except: '')]
     public $toRange = '';
-    #[Url(except: 'latest')]
+    #[Url(except: '')]
     public $sortDate = 'latest';
     #[Url(except: '')]
     public $sortName = '';

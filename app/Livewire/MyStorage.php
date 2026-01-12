@@ -63,7 +63,7 @@ class MyStorage extends Component
     #[Computed()]
     public function studentStorageApplications()
     {
-        return StorageApplication::where('applicant_id', Auth::user()->id)->with(['storedItems', 'locker.storageRoom', 'openArea.storageRoom', 'qrCode.scanLogs', 'semester'])->get();
+        return StorageApplication::where('applicant_id', Auth::user()->id)->with(['storedItems', 'locker.storageRoom', 'openArea.storageRoom', 'qrCode.scanLogs', 'semester'])->latest()->get();
     }
 
     public function render()

@@ -81,7 +81,7 @@
                 <label class="form-label small text-muted fw-bold">
                     User Role
                 </label>
-                <select class="form-select bg-light border-0" wire:model.live="role">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="role">
                     <option value="">All Type</option>
                     <option value="1">Administrator</option>
                     <option value="2">Staff</option>
@@ -93,7 +93,7 @@
                 <label class="form-label small text-muted fw-bold">
                     User Status
                 </label>
-                <select class="form-select bg-light border-0" wire:model.live="accStatus">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="accStatus">
                     <option value="">All Type</option>
                     <option value="approved">Approved</option>
                     <option value="pending">Pending</option>
@@ -105,7 +105,7 @@
                 <label class="form-label small text-muted fw-bold">
                     Gender
                 </label>
-                <select class="form-select bg-light border-0" wire:model.live="userGender">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="userGender">
                     <option value="">All Gender</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
@@ -117,14 +117,14 @@
 
                 <div class="input-group">
                     {{-- Start Date --}}
-                    <input type="date" wire:model.live="fromRange" class="form-control bg-light border-0"
+                    <input type="date" wire:model.live.debounce.300ms="fromRange" class="form-control bg-light border-0"
                         placeholder="Start Date" aria-label="Start Date">
 
                     {{-- Separator --}}
                     <span class="input-group-text bg-light border-0 text-secondary">to</span>
 
                     {{-- End Date --}}
-                    <input type="date" wire:model.live="toRange" class="form-control bg-light border-0"
+                    <input type="date" wire:model.live.debounce.300ms="toRange" class="form-control bg-light border-0"
                         placeholder="End Date" aria-label="End Date">
                 </div>
             </div>
@@ -133,7 +133,7 @@
                 <label class="form-label small text-muted fw-bold">
                     Sort By Application Date
                 </label>
-                <select class="form-select bg-light border-0" wire:model.live="sortDate">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="sortDate">
                     <option value="latest">Latest</option>
                     <option value="oldest">Oldest</option>
                 </select>
@@ -143,7 +143,7 @@
                 <label class="form-label small text-muted fw-bold">
                     Sort By User Name
                 </label>
-                <select class="form-select bg-light border-0" wire:model.live="sortName">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="sortName">
                     <option value="asc">Ascending</option>
                     <option value="desc">Descending</option>
                 </select>
@@ -153,7 +153,7 @@
                 <label class="form-label small text-muted fw-bold">
                     Application Per Page <span class="text-muted small">(Pagination)</span>
                 </label>
-                <select class="form-select bg-light border-0" wire:model.live="paginationInt">
+                <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="paginationInt">
                     <option value="10">10</option>
                     <option value="25">25</option>
                     <option value="50">50</option>

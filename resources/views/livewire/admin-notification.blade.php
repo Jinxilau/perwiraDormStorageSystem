@@ -10,14 +10,14 @@
             {{-- Filters Section --}}
             <div class="d-flex gap-3">
                 {{-- Status Filter --}}
-                <select wire:model.live="filterStatus" class="form-select rounded-pill shadow-sm" style="width: 150px;">
+                <select wire:model.live.debounce.300ms="filterStatus" class="form-select rounded-pill shadow-sm" style="width: 150px;">
                     <option value="all">All Status</option>
                     <option value="unread">Unread</option>
                     <option value="read">Read</option>
                 </select>
 
                 {{-- Type Filter --}}
-                <select wire:model.live="filterType" class="form-select rounded-pill shadow-sm" style="width: 160px;">
+                <select wire:model.live.debounce.300ms="filterType" class="form-select rounded-pill shadow-sm" style="width: 160px;">
                     <option value="all">All Types</option>
                     <option value="general">General</option>
                     <option value="success">Success</option>
