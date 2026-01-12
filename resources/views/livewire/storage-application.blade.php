@@ -485,15 +485,16 @@
                                                     <hr class="my-3">
                                                     <p class="mb-2">
                                                         <strong class="text-dark">Lockers Available:</strong>
-                                                        <span
-                                                            class="text-muted">{{ $room['available_lockers'] }}</span>
+                                                        <span class="text-muted">
+                                                            {{ $room['available_lockers'] }}
+                                                        </span>
                                                     </p>
-                                                    <p class="mb-2"><strong class="text-dark">Operating
-                                                            Hours:</strong>
+                                                    <p class="mb-2">
+                                                        <strong class="text-dark">Open Area:</strong>
+                                                        <span class="text-muted">
+                                                            {{ $room['hasOpenAreaSpace'] ? 'Available' : 'Full' }}
+                                                        </span>
                                                     </p>
-                                                    @foreach ($this->operatingHour as $key => $value)
-                                                        <p class="mb-1 text-muted small">{{ $value }}</p>
-                                                    @endforeach
                                                 </div>
                                             </div>
                                         </div>
@@ -541,7 +542,7 @@
                                                                 type="radio" name="storageType" value="open_area"
                                                                 wire:model.live="roomForm.selectedStorageType">
                                                             <label for="openAreaOption" class="form-check-label">
-                                                                Use open space for general storage (non-locker items)
+                                                                Use the floor space for general storage.
                                                             </label>
                                                         </div>
                                                     </div>
@@ -1062,39 +1063,29 @@
                                     <h2 class="h5 fw-semibold text-dark mb-0">Storage Selection</h2>
                                 </div>
                                 <div class="row g-4">
-                                    <div class="col-md-6">
-                                        <div class="d-flex flex-column mb-3">
+                                    <div class="d-flex flex-column mb-3 col-md-6">
+                                        <small class="text-muted text-uppercase mb-1"
+                                            style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                                            Selected Room
+                                        </small>
+                                        <span class="fw-medium">{{ $this->roomForm->room->room_name }}</span>
+                                    </div>
+                                    @if ('locker' === $this->roomForm->selectedStorageType)
+                                        <div class="d-flex flex-column col-md-6">
                                             <small class="text-muted text-uppercase mb-1"
-                                                style="font-size: 0.75rem; letter-spacing: 0.5px;">Selected
-                                                Room</small>
-                                            <span class="fw-medium">{{ $this->roomForm->selectedRoom }}</span>
+                                                style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                                                Selected Locker
+                                            </small>
+                                            <span class="fw-medium">{{ $this->roomForm->locker->code }}</span>
                                         </div>
-                                        @if ('locker' === $this->roomForm->selectedStorageType)
-                                            <div class="d-flex flex-column">
-                                                <small class="text-muted text-uppercase mb-1"
-                                                    style="font-size: 0.75rem; letter-spacing: 0.5px;">Selected
-                                                    Locker</small>
-                                                <span class="fw-medium">{{ $this->roomForm->selectedLockerId }}</span>
-                                            </div>
-                                        @endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <small class="text-muted text-uppercase mb-2 d-block"
-                                            style="font-size: 0.75rem; letter-spacing: 0.5px;">Operating Hours for
-                                            Access</small>
-                                        @foreach ($this->operatingHour as $key => $value)
-                                            <div class="d-flex align-items-center mb-1">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                    fill="currentColor" class="text-muted me-2" viewBox="0 0 16 16">
-                                                    <path
-                                                        d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
-                                                    <path
-                                                        d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
-                                                </svg>
-                                                <span class="text-muted">{{ $value }}</span>
-                                            </div>
-                                        @endforeach
-                                    </div>
+                                    @endif
+                                    @if ('open_area' === $this->roomForm->selectedStorageType)
+                                        <div class="d-flex flex-column col-md-6">
+                                            <span class="text-uppercase mb-1 fw-medium">
+                                                Open Area
+                                            </span>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -1408,8 +1399,8 @@
         }
 
         /* .stepper.actived .stepper-head-line:not(:last-child) {
-        background-color: #0d6efd;
-    } */
+                                background-color: #0d6efd;
+                            } */
         .stepper.completed .stepper-head-line {
             background-image: linear-gradient(90deg, #1c9a00 20%, #5675ff 100%);
         }

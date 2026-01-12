@@ -13,6 +13,10 @@ class StorageApplicationRoom extends Form
     public $selectedStorageType = null; // 'open_area' / 'locker'
     public $selectedLockerId = null;
 
+    // Models
+    public $locker = null;
+    public $room = null;
+    
     public $availableLockers = [];
     public $openArea = null;
 

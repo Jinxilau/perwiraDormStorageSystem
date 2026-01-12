@@ -213,6 +213,7 @@ class StorageApplication extends Component
     public function selectRoom($roomId)
     {
         $this->roomForm->selectedRoom = $roomId;
+        $this->roomForm->room = StorageRoom::find($roomId);
         $this->roomForm->selectedStorageType = null;
         $this->roomForm->selectedLockerId = null;
         $this->roomForm->loadRoomDetails();
@@ -222,6 +223,7 @@ class StorageApplication extends Component
     {
         $this->roomForm->selectedLockerId = $lockerId;
         $this->roomForm->selectedStorageType = 'locker';
+        $this->roomForm->locker = Locker::find($lockerId);
     }
 
     private function resetAllForms() # Reset Item Form
@@ -448,7 +450,7 @@ class StorageApplication extends Component
     #[Computed()]
     public function storageRooms()
     {
-        return StorageRoom::with(['lockers', 'openAreas'])->where('room_status', 'open')->get()->map(function ($room) {
+        return StorageRoom::with(['lockers', 'openAreas'])->get()->map(function ($room) {
             $availableLockers = $room->lockers->where('status', 'available')->count();
             $totalLockers = $room->lockers->count();
 
@@ -461,7 +463,8 @@ class StorageApplication extends Component
                 'storage_location' => $room->storage_location,
                 'available_lockers' => $availableLockers, # Amount of Available Lockers
                 'total_lockers' => $totalLockers, # Amount of locker
-                'is_full' => $availableLockers === 0 && !$hasOpenAreaSpace # Check if the storage room is full or not
+                'is_full' => $availableLockers === 0 && !$hasOpenAreaSpace, # Check if the storage room is full or not
+                'hasOpenAreaSpace' => $hasOpenAreaSpace,
             ];
         })->toArray();
     }
