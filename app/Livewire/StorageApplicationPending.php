@@ -383,7 +383,7 @@ class StorageApplicationPending extends Component
             ->unique();
 
         if ($lockerIds->isEmpty()) {
-            return;
+            return [];
         }
 
         $conflicts = StorageApplication::select('locker_id')
