@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\MissingReport;
 use App\Notifications\MissingReportStatusNotification;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Lazy;
 use Livewire\Attributes\Title;
@@ -179,6 +180,30 @@ class MissingDetails extends Component
         } else {
             return ucwords(str_replace('_', ' ', $this->report->discovered_missing_range));
         }
+    }
+
+    public function exportPdf()
+    {
+        if (class_exists('\Debugbar')) {
+            debugbar()->disable();
+        }
+
+        $data = [
+            'report' => $this->report->load(['semester', 'storedItems']),
+            'statusColor' => $this->statusColor,
+            'lastSeenText' => $this->lastSeenText,
+            'discoveredMissingText' => $this->discoveredMissingText,
+        ];
+
+        $pdf = Pdf::loadView('reports.missing-report-pdf', $data)
+            ->setPaper('a4', 'portrait');
+
+        return response()->streamDownload(
+            function () use ($pdf) {
+                echo $pdf->output();
+            },
+            'missing-report-' . $this->report->id . '-' . now()->format('Y-m-d') . '.pdf'
+        );
     }
 
     public function render()

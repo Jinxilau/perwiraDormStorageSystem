@@ -20,8 +20,8 @@
             </ol>
         </nav>
         <div>
-            <button class="btn btn-outline-secondary me-2" onclick="window.print()">
-                <i class="bi bi-printer"></i> Print
+            <button wire:click="exportPdf" class="btn btn-danger">
+                <i class="bi bi-file-pdf me-2"></i>Export PDF
             </button>
             <button class="btn btn-primary" wire:click="openStatusModal">
                 <i class="bi bi-pencil"></i> Update Status

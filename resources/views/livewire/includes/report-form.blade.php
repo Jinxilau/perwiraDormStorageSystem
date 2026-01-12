@@ -185,7 +185,10 @@
 
                                 @php
                                     // We use collect() to make it easy to pluck the 'id' column
-                                    $takenIds = collect($this->form->items)->pluck('id')->toArray();
+                                    $takenIds = collect($this->form->items)
+                                        ->pluck('id')
+                                        ->filter() // removes null values
+                                        ->toArray();
                                 @endphp
 
                                 @foreach ($this->selectedApplication->storedItems as $item)
