@@ -167,7 +167,7 @@ class ManageUser extends Component
         }
 
         if (!empty($this->accStatus)) {
-            $query->where('account_status', $this->accStatus);
+            $query->where('application_status', $this->accStatus);
         }
 
         if (!empty($this->userGender)) {
