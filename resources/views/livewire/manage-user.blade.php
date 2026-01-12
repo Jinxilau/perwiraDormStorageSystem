@@ -134,6 +134,7 @@
                     Sort By Application Date
                 </label>
                 <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="sortDate">
+                    <option value="">Default (No Sorting)</option>
                     <option value="latest">Latest</option>
                     <option value="oldest">Oldest</option>
                 </select>
@@ -144,6 +145,7 @@
                     Sort By User Name
                 </label>
                 <select class="form-select bg-light border-0" wire:model.live.debounce.300ms="sortName">
+                    <option value="">Default (No Sorting)</option>
                     <option value="asc">Ascending</option>
                     <option value="desc">Descending</option>
                 </select>
