@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class StorageRoomStatusNotification extends Notification implements ShouldQueue
+class StorageRoomStatusNotification extends Notification
 {
     use Queueable;
 

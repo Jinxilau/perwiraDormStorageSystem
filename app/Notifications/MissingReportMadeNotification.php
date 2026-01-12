@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class MissingReportMadeNotification extends Notification implements ShouldQueue
+class MissingReportMadeNotification extends Notification
 {
     use Queueable;
 

@@ -8,7 +8,7 @@ use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class StorageApplicationMadeNotification extends Notification implements ShouldQueue
+class StorageApplicationMadeNotification extends Notification
 {
     use Queueable;
 
