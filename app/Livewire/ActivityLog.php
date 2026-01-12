@@ -32,6 +32,18 @@ class ActivityLog extends Component
 
     public $paginationInt = 10;
 
+    protected function resetsPage()
+    {
+        // If any of these properties change, go back to page 1
+        return ['search', 'semester', 'role', 'fromRange', 'toRange'];
+    }
+
+    public function updatedPaginationInt()
+    {
+        $this->resetPage();
+    }
+
+
     public function mount()
     {
         // Assuming your Semester model has a way to identify the active one, 

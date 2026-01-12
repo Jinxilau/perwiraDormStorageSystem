@@ -53,6 +53,12 @@ class ManageMissingReport extends Component
     #[Validate('nullable|max:2000')]
     public $adminNote;
 
+    protected function resetsPage()
+    {
+        // If any of these properties change, go back to page 1
+        return ['search', 'room', 'semester', 'statusFilter', 'fromRange', 'toRange'];
+    }
+
     public function mount()
     {
         // Assuming your Semester model has a way to identify the active one, 
@@ -76,6 +82,7 @@ class ManageMissingReport extends Component
     public function updatedPaginationInt()
     {
         $this->reset(['selectAll', 'selectedReports']);
+        $this->resetPage();
     }
 
 

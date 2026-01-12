@@ -39,6 +39,18 @@ class ScanLog extends Component
 
     public $modalData; // For passing data to modal
 
+    protected function resetsPage()
+    {
+        // If any of these properties change, go back to page 1
+        return ['search', 'event_type', 'storage_room', 'semester', 'fromRange', 'toRange'];
+    }
+
+    public function updatedPaginationInt()
+    {
+        $this->resetPage();
+    }
+
+
     public function mount()
     {
         // Assuming your Semester model has a way to identify the active one, 
@@ -140,10 +152,10 @@ class ScanLog extends Component
     public function totalLogs()
     {
         $currentSemesterId = Semester::where('is_current', true)->value('id');
-        
+
         return ModelsScanLog::where('semester_id', $currentSemesterId)->count();
     }
-    
+
     #[Computed()]
     public function qrHistoryLogs()
     {
