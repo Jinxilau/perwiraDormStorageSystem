@@ -27,7 +27,7 @@ class ScanLog extends Model
     
     public function qrCode()
     {
-        return $this->belongsTo(QrCode::class, 'qr_code_id');
+        return $this->belongsTo(QRCode::class, 'qr_code_id');
     }
     
     public function semester()
