@@ -1,4 +1,16 @@
 <div>
+    <style>
+        .view-all-btn {
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .view-all-btn:hover {
+            transform: translateX(3px);
+        }
+    </style>
+
     @php
         $id = $report->id;
     @endphp
@@ -178,8 +190,15 @@
 
                 <!-- Storage Allocation -->
                 <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-info text-white">
-                        <h5 class="mb-0"><i class="bi bi-box"></i> Storage Allocation</h5>
+                    <div class="card-header text-dark bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="bi bi-box text-warning"></i> Storage Allocation</h5>
+                            <a href="{{ route('storage_application_detail', $application->id) }}"
+                                class="view-all-btn text-white">
+                                View Storage Application <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+
+                        </div>
                     </div>
                     <div class="card-body">
                         @if ($application->locker_id)
@@ -221,82 +240,6 @@
                                     </div>
                                 </div>
                             </div>
-                            @php
-                                $competingApplications = $this->getCompetingApplications();
-                            @endphp
-                            @if ($competingApplications->count() > 1 && $application->storage_application_status === 'pending')
-                                <div class="card border-warning shadow-sm mb-4">
-                                    <div class="card-header bg-warning bg-opacity-10 border-warning">
-                                        <h5 class="card-title mb-0 text-warning-emphasis">
-                                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                            Conflict Detected: {{ $competingApplications->count() }} Applicants
-                                            for one locker
-                                        </h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table class="table table-hover align-middle">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th>Priority</th>
-                                                        <th>Applicant Details</th>
-                                                        <th>Matric No</th>
-                                                        <th>Applied At</th>
-                                                        <th class="text-end">Actions</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach ($competingApplications as $index => $competing)
-                                                        <tr
-                                                            class="{{ $competing->id === $application->id ? 'table-primary' : '' }}">
-                                                            <td>
-                                                                @if ($index === 0)
-                                                                    <span class="badge bg-success rounded-pill">1st
-                                                                        Priority</span>
-                                                                @else
-                                                                    <span
-                                                                        class="badge bg-light text-dark border rounded-pill">{{ $index + 1 }}</span>
-                                                                @endif
-                                                            </td>
-                                                            <td>
-                                                                <div class="fw-bold">{{ $competing->applicant->name }}
-                                                                </div>
-                                                                <small class="text-muted">App ID:
-                                                                    #{{ $competing->id }}</small>
-                                                                @if ($competing->id === $application->id)
-                                                                    <span class="badge bg-primary ms-1">Currently
-                                                                        Viewing</span>
-                                                                @endif
-                                                            </td>
-                                                            <td>{{ $competing->applicant->matric_no }}</td>
-                                                            <td>
-                                                                {{ $competing->created_at->format('d M Y, h:i A') }}
-                                                                <div class="small text-muted text-nowrap">
-                                                                    ({{ $competing->created_at->diffForHumans() }})
-                                                                </div>
-                                                            </td>
-                                                            <td class="text-end">
-                                                                <button wire:click="approve({{ $competing->id }})"
-                                                                    wire:confirm="Approving this will make the locker occupied. Proceed?"
-                                                                    class="btn btn-sm btn-primary">
-                                                                    Approve
-                                                                </button>
-                                                                <button
-                                                                    class="btn btn-sm btn-outline-danger">Reject</button>
-                                                            </td>
-                                                        </tr>
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            @else
-                                <div class="alert alert-info">
-                                    <i class="bi bi-info-circle me-2"></i> No competing applications found for this
-                                    locker.
-                                </div>
-                            @endif
                         @elseif($application->open_area_id)
                             {{-- Open Area --}}
                             <div class="alert alert-success">
