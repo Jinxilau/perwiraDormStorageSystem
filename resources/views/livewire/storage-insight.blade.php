@@ -376,7 +376,7 @@
 
     <div class="container-fluid py-4">
         {{-- Export and Print Buttons --}}
-        <div class="d-flex justify-content-end align-items-center gap-2">
+        <div class="d-flex justify-content-end align-items-center gap-2 mb-3">
             <button wire:click="exportExcel" class="btn btn-success">
                 <i class="bi bi-file-earmark-excel me-2"></i>Export Excel
             </button>
@@ -386,7 +386,7 @@
         </div>
 
         {{-- Filters Section --}}
-        <div class="card shadow-sm mb-5">
+        <div class="card shadow-sm mb-4">
             <div class="card-header bg-light">
                 <h5 class="card-title mb-0">
                     <i class="bi bi-funnel-fill me-2"></i>Filters
