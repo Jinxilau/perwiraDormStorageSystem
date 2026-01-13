@@ -128,9 +128,6 @@
 
         <x-table>
             <x-slot:header>
-                <th class="text-uppercase align-middle">
-                    <input type="checkbox" wire:model.live="selectAll">
-                </th>
                 <th class="align-middle py-2">
                     ID
                 </th>
