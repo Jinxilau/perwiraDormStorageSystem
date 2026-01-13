@@ -181,6 +181,14 @@ class ActivityLog extends Component
     }
 
     #[Computed()]
+    public function deleteCount()
+    {
+        return $this->baseActionQuery()
+            ->whereIn('action', ['deleted', 'destroy'])
+            ->count();
+    }
+
+    #[Computed()]
     public function rejectCount()
     {
         return $this->baseActionQuery()
