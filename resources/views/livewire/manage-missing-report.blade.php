@@ -126,29 +126,6 @@
             </div>
         </x-filter-options>
 
-        <!-- Bulk Actions Bar -->
-        <div class="bg-primary-subtle border-bottom border-primary rounded-top px-3 py-2">
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="flex items-center space-x-2">
-                    <span class="text-sm font-medium text-blue-700">
-                        {{ count($this->selectedReports) }} report(s) selected
-                    </span>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button type="button" wire:click="bulkApprove"
-                        @empty($this->selectedReports) disabled @endempty
-                        wire:confirm="Are you sure you want to approve the selected reports?" class="btn btn-success">
-                        Approve Selected
-                    </button>
-                    <button type="button" wire:click="$dispatch('display_modal3');"
-                        wire:confirm="Are you sure you want to reject the selected reports?"
-                        @empty($this->selectedReports) disabled @endempty class="btn btn-danger">
-                        Reject Selected
-                    </button>
-                </div>
-            </div>
-        </div>
-
         <x-table>
             <x-slot:header>
                 <th class="text-uppercase align-middle">
