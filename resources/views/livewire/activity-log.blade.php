@@ -28,13 +28,6 @@
                 'bg' => 'bg-info bg-opacity-10',
             ],
             [
-                'title' => $this->topAction,
-                'subtitle' => 'Top Action',
-                'icon' => 'bi-lightning-charge-fill',
-                'color' => 'text-warning',
-                'bg' => 'bg-warning bg-opacity-10',
-            ],
-            [
                 'title' => $this->createCount,
                 'subtitle' => 'Created',
                 'icon' => 'bi-plus-lg',
