@@ -194,7 +194,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="mb-0"><i class="bi bi-box text-warning"></i> Storage Allocation</h5>
                             <a href="{{ route('storage_application_detail', $application->id) }}"
-                                class="view-all-btn text-white">
+                                class="view-all-btn">
                                 View Storage Application <i class="bi bi-arrow-right ms-1"></i>
                             </a>
 
