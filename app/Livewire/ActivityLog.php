@@ -151,17 +151,57 @@ class ActivityLog extends Component
             ->count('user_id');
     }
     // New: Finds the most frequent action type (e.g., 'Update', 'Create')
-    #[Computed()]
-    public function topAction()
+    protected function baseActionQuery()
     {
-        $top = ModelsActivityLog::select('action')
-            ->groupBy('action')
-            ->orderByRaw('COUNT(*) DESC')
-            ->limit(1)
-            ->value('action');
+        return ModelsActivityLog::whereDate('created_at', now())->query();
+    }
 
-        // Capitalize specific words or return 'N/A' if empty
-        return $top ? ucfirst($top) : 'N/A';
+    #[Computed()]
+    public function createCount()
+    {
+        return $this->baseActionQuery()
+            ->whereIn('action', ['created', 'store'])
+            ->count();
+    }
+
+    #[Computed()]
+    public function updateCount()
+    {
+        return $this->baseActionQuery()
+            ->whereIn('action', ['updated', 'edit'])
+            ->count();
+    }
+
+    #[Computed()]
+    public function approveCount()
+    {
+        return $this->baseActionQuery()
+            ->whereIn('action', ['approved', 'approve'])
+            ->count();
+    }
+
+    #[Computed()]
+    public function rejectCount()
+    {
+        return $this->baseActionQuery()
+            ->whereIn('action', ['rejected', 'reject'])
+            ->count();
+    }
+
+    #[Computed()]
+    public function openCount()
+    {
+        return $this->baseActionQuery()
+            ->where('action', 'opened')
+            ->count();
+    }
+
+    #[Computed()]
+    public function closeCount()
+    {
+        return $this->baseActionQuery()
+            ->where('action', 'closed')
+            ->count();
     }
 
     // Populate the filter dropdowns

@@ -34,6 +34,34 @@
                 'color' => 'text-warning',
                 'bg' => 'bg-warning bg-opacity-10',
             ],
+            [
+                'title' => $this->createCount,
+                'subtitle' => 'Created',
+                'icon' => 'bi-plus-lg',
+                'color' => 'text-success',
+                'bg' => 'bg-success bg-opacity-10',
+            ],
+            [
+                'title' => $this->updateCount,
+                'subtitle' => 'Updated',
+                'icon' => 'bi-pencil',
+                'color' => 'text-primary',
+                'bg' => 'bg-primary bg-opacity-10',
+            ],
+            [
+                'title' => $this->deleteCount,
+                'subtitle' => 'Deleted',
+                'icon' => 'bi-trash',
+                'color' => 'text-danger',
+                'bg' => 'bg-danger bg-opacity-10',
+            ],
+            [
+                'title' => $this->approveCount,
+                'subtitle' => 'Approved',
+                'icon' => 'bi-check-lg',
+                'color' => 'text-info',
+                'bg' => 'bg-info bg-opacity-10',
+            ],
         ]" />
 
         {{-- Filter Options --}}
@@ -73,15 +101,15 @@
 
                 <div class="input-group">
                     {{-- Start Date --}}
-                    <input type="date" wire:model.live.debounce.300ms="fromRange" class="form-control bg-light border-0"
-                        placeholder="Start Date" aria-label="Start Date">
+                    <input type="date" wire:model.live.debounce.300ms="fromRange"
+                        class="form-control bg-light border-0" placeholder="Start Date" aria-label="Start Date">
 
                     {{-- Separator --}}
                     <span class="input-group-text bg-light border-0 text-secondary">to</span>
 
                     {{-- End Date --}}
-                    <input type="date" wire:model.live.debounce.300ms="toRange" class="form-control bg-light border-0"
-                        placeholder="End Date" aria-label="End Date">
+                    <input type="date" wire:model.live.debounce.300ms="toRange"
+                        class="form-control bg-light border-0" placeholder="End Date" aria-label="End Date">
                 </div>
             </div>
 
