@@ -1,4 +1,9 @@
-<x-layouts.student title="Profile">
+@php
+    // Determine the layout name based on the authenticated user's role
+$layout = auth()->user()->role_id == 1 ? 'layouts.admin' : (auth()->user()->role_id == 2 ? 'layouts.staff' : 'layouts.student');
+@endphp
+
+<x-dynamic-component :component="$layout" title="Scan Logs">
     @include('livewire.includes.student-title2', [
         'title' => 'Profile',
         'subtitle' => 'Manage and view your personal information.',
@@ -43,4 +48,4 @@
             </div>
         </div>
     </div>
-</x-layouts.student>
+</x-dynamic-component>
