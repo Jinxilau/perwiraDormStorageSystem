@@ -153,7 +153,7 @@ class ActivityLog extends Component
     // New: Finds the most frequent action type (e.g., 'Update', 'Create')
     protected function baseActionQuery()
     {
-        return ModelsActivityLog::whereDate('created_at', now())->query();
+        return ModelsActivityLog::whereNotNull('id');
     }
 
     #[Computed()]
