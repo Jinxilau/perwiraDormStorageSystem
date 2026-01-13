@@ -64,6 +64,12 @@ class ManageUser extends Component
         $this->selectAll = count($this->selectedUsers) === $this->users->count();
     }
 
+    public function updatedPaginationInt()
+    {
+        $this->reset(['selectAll', 'selectedReports']);
+        $this->resetPage();
+    }
+
     public function clearFilters()
     {
         $this->search = '';

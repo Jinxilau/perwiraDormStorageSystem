@@ -64,6 +64,7 @@ class StorageApplicationPending extends Component
 
     public function updatedPaginationInt()
     {
+        $this->reset(['selectAll', 'selectedReports']);
         $this->resetPage();
     }
 

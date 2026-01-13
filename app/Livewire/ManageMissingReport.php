@@ -39,10 +39,6 @@ class ManageMissingReport extends Component
 
     public $paginationInt = 10;
 
-    // Selection
-    public $selectedReports = []; # arr report id
-    public $selectAll = false;
-
     // Modal Data
     public $modalData; # report id for modal
     public $modalData2; # report id for modal status 
@@ -70,25 +66,9 @@ class ManageMissingReport extends Component
         }
     }
 
-    public function updatedSelectAll($value)
-    {
-        if ($value) {
-            $this->selectedReports = $this->missingReports->pluck('id')->toArray();
-        } else {
-            $this->selectedReports = [];
-        }
-    }
-
     public function updatedPaginationInt()
     {
-        $this->reset(['selectAll', 'selectedReports']);
         $this->resetPage();
-    }
-
-
-    public function updatedSelectedReports()
-    {
-        $this->selectAll = count($this->selectedReports) === $this->missingReports->count();
     }
 
     public function clearFilters()
