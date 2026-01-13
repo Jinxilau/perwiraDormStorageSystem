@@ -290,9 +290,9 @@
                         <div class="d-flex flex-column align-items-center">
                             {{-- ID Badge --}}
                             <div>
-                                <span class="badge bg-secondary">
+                                <a href="{{ route('storage_application_detail', $application->id) }}" class="badge bg-secondary">
                                     Application ID: {{ $application->id }}
-                                </span>
+                                </a>
                             </div>
 
                             {{-- Storage Room Name and Type Badges --}}
