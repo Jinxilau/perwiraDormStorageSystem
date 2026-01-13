@@ -176,6 +176,11 @@
                     </div>
                 </div>
 
+                <a href="{{ route('storage_application_detail', $application->id) }}" title="View Details"
+                    class="btn btn-sm btn-outline-secondary" style="padding: 0 2px;">
+                    <i class="bi bi-eye-fill"></i>
+                </a>
+
                 <!-- Quick Actions Card -->
                 <div class="card">
                     <div class="card-header bg-white">

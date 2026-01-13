@@ -217,6 +217,9 @@ class MissingReport extends Component
             ->whereHas('semester', function ($query) {
                 $query->where('is_current', true);
             })
+            ->whereHas('qrCode', function ($query) {
+                $query->where('status', 'checked_in');
+            })
             ->get();
     }
 
