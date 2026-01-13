@@ -32,7 +32,7 @@
     <div class="container-fluid py-4">
         <div class="row">
             <!-- Main Content -->
-            <div class="col-lg-8">
+            <div class="col-lg-6">
                 <!-- Report Status Card -->
                 <div class="card mb-4">
                     <div class="card-header bg-white">
@@ -136,7 +136,7 @@
             </div>
 
             <!-- Sidebar -->
-            <div class="col-lg-4">
+            <div class="col-lg-6">
                 <!-- Related Items Card -->
                 <div class="card mb-4">
                     <div class="card-header bg-white">
@@ -176,10 +176,153 @@
                     </div>
                 </div>
 
-                <a href="{{ route('storage_application_detail', $application->id) }}" title="View Details"
-                    class="btn btn-sm btn-outline-secondary" style="padding: 0 2px;">
-                    <i class="bi bi-eye-fill"></i>
-                </a>
+                <!-- Storage Allocation -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="bi bi-box"></i> Storage Allocation</h5>
+                    </div>
+                    <div class="card-body">
+                        @if ($application->locker_id)
+                            {{-- Locker --}}
+                            <div class="alert alert-success">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="alert-heading"><i class="bi bi-lock"></i> Locker Assigned</h6>
+                                    <span
+                                        class="badge {{ match (true) {
+                                            // If the application is approved, show as success regardless of locker state
+                                            $this->application->storage_application_status === 'approved' => 'bg-success',
+                                        
+                                            $application->locker->status === 'available' => 'bg-success',
+                                            $application->locker->status === 'occupied' => 'bg-danger',
+                                            $application->locker->status === 'reserved' => 'bg-warning text-dark',
+                                            default => 'bg-secondary',
+                                        } }}">
+                                        {{ $this->application->locker->status === 'reserved' &&
+                                        $this->application->storage_application_status === 'approved'
+                                            ? 'Allocated'
+                                            : ucfirst($this->application->locker->status) }}
+                                    </span>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <small class="text-muted">Locker Code</small>
+                                        <p class="mb-0 fw-bold">{{ $application->locker->code }}</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <small class="text-muted">Size</small>
+                                        <p class="mb-0 fw-bold">{{ $application->locker->size }}</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <small class="text-muted">Room</small>
+                                        <p class="mb-0 fw-bold">
+                                            {{ $application->storageRoom->room_name ?? 'N/A' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            @php
+                                $competingApplications = $this->getCompetingApplications();
+                            @endphp
+                            @if ($competingApplications->count() > 1 && $application->storage_application_status === 'pending')
+                                <div class="card border-warning shadow-sm mb-4">
+                                    <div class="card-header bg-warning bg-opacity-10 border-warning">
+                                        <h5 class="card-title mb-0 text-warning-emphasis">
+                                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                            Conflict Detected: {{ $competingApplications->count() }} Applicants
+                                            for one locker
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover align-middle">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Priority</th>
+                                                        <th>Applicant Details</th>
+                                                        <th>Matric No</th>
+                                                        <th>Applied At</th>
+                                                        <th class="text-end">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach ($competingApplications as $index => $competing)
+                                                        <tr
+                                                            class="{{ $competing->id === $application->id ? 'table-primary' : '' }}">
+                                                            <td>
+                                                                @if ($index === 0)
+                                                                    <span class="badge bg-success rounded-pill">1st
+                                                                        Priority</span>
+                                                                @else
+                                                                    <span
+                                                                        class="badge bg-light text-dark border rounded-pill">{{ $index + 1 }}</span>
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                <div class="fw-bold">{{ $competing->applicant->name }}
+                                                                </div>
+                                                                <small class="text-muted">App ID:
+                                                                    #{{ $competing->id }}</small>
+                                                                @if ($competing->id === $application->id)
+                                                                    <span class="badge bg-primary ms-1">Currently
+                                                                        Viewing</span>
+                                                                @endif
+                                                            </td>
+                                                            <td>{{ $competing->applicant->matric_no }}</td>
+                                                            <td>
+                                                                {{ $competing->created_at->format('d M Y, h:i A') }}
+                                                                <div class="small text-muted text-nowrap">
+                                                                    ({{ $competing->created_at->diffForHumans() }})
+                                                                </div>
+                                                            </td>
+                                                            <td class="text-end">
+                                                                <button wire:click="approve({{ $competing->id }})"
+                                                                    wire:confirm="Approving this will make the locker occupied. Proceed?"
+                                                                    class="btn btn-sm btn-primary">
+                                                                    Approve
+                                                                </button>
+                                                                <button
+                                                                    class="btn btn-sm btn-outline-danger">Reject</button>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle me-2"></i> No competing applications found for this
+                                    locker.
+                                </div>
+                            @endif
+                        @elseif($application->open_area_id)
+                            {{-- Open Area --}}
+                            <div class="alert alert-success">
+                                <h6 class="alert-heading"><i class="bi bi-grid-3x3"></i> Open Area Assigned</h6>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <small class="text-muted">Area ID</small>
+                                        <p class="mb-0 fw-bold">#{{ $application->openArea->id ?? 'N/A' }}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <small class="text-muted">Room</small>
+                                        <p class="mb-0 fw-bold">
+                                            {{ $application->storageRoom->room_name ?? 'N/A' }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            {{-- No Storage Allocation --}}
+                            <div class="alert alert-warning mb-0">
+                                <i class="bi bi-exclamation-triangle"></i> No storage allocation yet
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
 
                 <!-- Quick Actions Card -->
                 <div class="card">

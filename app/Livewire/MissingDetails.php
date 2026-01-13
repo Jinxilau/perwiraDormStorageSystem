@@ -15,6 +15,7 @@ use Livewire\Component;
 #[Lazy()]
 class MissingDetails extends Component
 {
+    public $application;
     public $report;
     public $status;
     public $adminNote;
@@ -38,6 +39,10 @@ class MissingDetails extends Component
 
         $this->status = $this->report->status;
         $this->adminNote = $this->report->admin_note;
+        $this->application = $this->report
+            ->storedItems
+            ->first()
+            ?->storageApplication;
     }
 
     public function openStatusModal()
