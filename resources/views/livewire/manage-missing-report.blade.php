@@ -162,11 +162,7 @@
                     $applicant = $report->storedItems->first()?->storageApplication->applicant;
                     $application = $report->storedItems->first()?->storageApplication;
                 @endphp
-                <tr wire:key="row-{{ $report->id }}"
-                    class="{{ in_array($report->id, $this->selectedReports) ? 'table-active' : '' }}">
-                    <td class="align-middle"> {{-- Select --}}
-                        <input type="checkbox" value="{{ $report->id }}" wire:model.live="selectedReports">
-                    </td>
+                <tr wire:key="row-{{ $report->id }}">
                     <td class="align-middle"> {{-- Report Id --}}
                         <span class="text-secondary small user-select-none">#</span>
                         <span class="fw-bold text-dark">{{ $report->id }}</span>
