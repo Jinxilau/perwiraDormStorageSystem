@@ -385,59 +385,8 @@
             </button>
         </div>
 
-        {{-- Key Metrics Section --}}
-        <div class="row g-4 mb-4">
-            <div class="col-md-3">
-                <div class="card metric-card shadow-sm text-center h-100">
-                    <div class="card-body">
-                        <div class="metric-icon bg-primary-light mb-3">
-                            <i class="bi bi-file-earmark-text text-primary"></i>
-                        </div>
-                        <h6 class="metric-label text-muted mb-2">Total Applications</h6>
-                        <h3 class="metric-value text-primary mb-0">{{ $metrics['totalApplications'] }}</h3>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card metric-card shadow-sm text-center h-100">
-                    <div class="card-body">
-                        <div class="metric-icon bg-success-light mb-3">
-                            <i class="bi bi-box-seam text-success"></i>
-                        </div>
-                        <h6 class="metric-label text-muted mb-2">Active Stored Items</h6>
-                        <h3 class="metric-value text-success mb-0">{{ $metrics['activeItems'] }}</h3>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card metric-card shadow-sm text-center h-100">
-                    <div class="card-body">
-                        <div class="metric-icon bg-info-light mb-3">
-                            <i class="bi bi-door-closed text-info"></i>
-                        </div>
-                        <h6 class="metric-label text-muted mb-2">Locker Occupancy</h6>
-                        <h3 class="metric-value text-info mb-0">{{ $metrics['lockerOccupancyRate'] }}%</h3>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card metric-card shadow-sm text-center h-100">
-                    <div class="card-body">
-                        <div class="metric-icon bg-warning-light mb-3">
-                            <i class="bi bi-exclamation-triangle text-warning"></i>
-                        </div>
-                        <h6 class="metric-label text-muted mb-2">Unclaimed Items</h6>
-                        <h3 class="metric-value text-warning mb-0">{{ $metrics['unclaimedItems'] }}</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         {{-- Filters Section --}}
-        <div class="card shadow-sm mb-4">
+        <div class="card shadow-sm mb-5">
             <div class="card-header bg-light">
                 <h5 class="card-title mb-0">
                     <i class="bi bi-funnel-fill me-2"></i>Filters
@@ -499,6 +448,57 @@
                     <span class="visually-hidden">Loading...</span>
                 </div>
                 Updating charts...
+            </div>
+        </div>
+        
+        {{-- Key Metrics Section --}}
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="card metric-card shadow-sm text-center h-100">
+                    <div class="card-body">
+                        <div class="metric-icon bg-primary-light mb-3">
+                            <i class="bi bi-file-earmark-text text-primary"></i>
+                        </div>
+                        <h6 class="metric-label text-muted mb-2">Total Applications</h6>
+                        <h3 class="metric-value text-primary mb-0">{{ $metrics['totalApplications'] }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card metric-card shadow-sm text-center h-100">
+                    <div class="card-body">
+                        <div class="metric-icon bg-success-light mb-3">
+                            <i class="bi bi-box-seam text-success"></i>
+                        </div>
+                        <h6 class="metric-label text-muted mb-2">Active Stored Items</h6>
+                        <h3 class="metric-value text-success mb-0">{{ $metrics['activeItems'] }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card metric-card shadow-sm text-center h-100">
+                    <div class="card-body">
+                        <div class="metric-icon bg-info-light mb-3">
+                            <i class="bi bi-door-closed text-info"></i>
+                        </div>
+                        <h6 class="metric-label text-muted mb-2">Locker Occupancy</h6>
+                        <h3 class="metric-value text-info mb-0">{{ $metrics['lockerOccupancyRate'] }}%</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card metric-card shadow-sm text-center h-100">
+                    <div class="card-body">
+                        <div class="metric-icon bg-warning-light mb-3">
+                            <i class="bi bi-exclamation-triangle text-warning"></i>
+                        </div>
+                        <h6 class="metric-label text-muted mb-2">Unclaimed Items</h6>
+                        <h3 class="metric-value text-warning mb-0">{{ $metrics['unclaimedItems'] }}</h3>
+                    </div>
+                </div>
             </div>
         </div>
 

@@ -76,21 +76,25 @@ class StorageInsight extends Component
     public function updatedSelectedSemester()
     {
         $this->loadChartData();
+        $this->loadMetrics();
     }
 
     public function updatedDateFrom()
     {
         $this->loadChartData();
+        $this->loadMetrics();
     }
 
     public function updatedDateTo()
     {
         $this->loadChartData();
+        $this->loadMetrics();
     }
 
     public function updatedSelectedRoom()
     {
         $this->loadChartData();
+        $this->loadMetrics();
     }
 
     public function loadFilterOptions()
@@ -112,32 +116,7 @@ class StorageInsight extends Component
         $this->dateTo = null;
         $this->selectedRoom = 'all';
         $this->loadChartData();
-    }
-    protected function applyFilters($query)
-    {
-        if ($this->selectedSemester !== 'all') {
-            $query->where('semester_id', $this->selectedSemester);
-        }
-
-        if ($this->dateFrom) {
-            $query->whereDate('created_at', '>=', $this->dateFrom);
-        }
-
-        if ($this->dateTo) {
-            $query->whereDate('created_at', '<=', $this->dateTo);
-        }
-
-        if ($this->selectedRoom !== 'all') {
-            $query->where(function ($q) {
-                $q->whereHas('locker', function ($lockerQuery) {
-                    $lockerQuery->where('storage_room_id', $this->selectedRoom);
-                })->orWhereHas('openArea', function ($openAreaQuery) {
-                    $openAreaQuery->where('storage_room_id', $this->selectedRoom);
-                });
-            });
-        }
-
-        return $query;
+        $this->loadMetrics();
     }
 
     public function loadChartData()
@@ -150,6 +129,7 @@ class StorageInsight extends Component
         $this->loadLockerVsOpenSpaceData();
         $this->loadLockerOccupancyRates();
     }
+
     private function loadStorageDemandData()
     {
         $query = DB::table('semesters')
@@ -158,17 +138,37 @@ class StorageInsight extends Component
                 DB::raw("CONCAT(semesters.academic_year, ' S', semesters.semester_no) as semester_label"),
                 DB::raw('COUNT(storage_applications.id) as total')
             )
-            ->groupBy(
-                'semesters.id',
-                'semesters.academic_year',
-                'semesters.semester_no'
-            )
+            ->groupBy('semesters.id', 'semesters.academic_year', 'semesters.semester_no')
             ->orderBy('semesters.academic_year')
             ->orderBy('semesters.semester_no');
 
-        // Semester filter
+        // Apply filters
         if ($this->selectedSemester !== 'all') {
             $query->where('semesters.id', $this->selectedSemester);
+        }
+
+        if ($this->dateFrom) {
+            $query->whereDate('storage_applications.created_at', '>=', $this->dateFrom);
+        }
+
+        if ($this->dateTo) {
+            $query->whereDate('storage_applications.created_at', '<=', $this->dateTo);
+        }
+
+        if ($this->selectedRoom !== 'all') {
+            $query->where(function ($q) {
+                $q->whereExists(function ($subQuery) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('lockers')
+                        ->whereColumn('lockers.id', 'storage_applications.locker_id')
+                        ->where('lockers.storage_room_id', $this->selectedRoom);
+                })->orWhereExists(function ($subQuery) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('open_areas')
+                        ->whereColumn('open_areas.id', 'storage_applications.open_area_id')
+                        ->where('open_areas.storage_room_id', $this->selectedRoom);
+                });
+            });
         }
 
         $results = $query->get();
@@ -184,7 +184,7 @@ class StorageInsight extends Component
             ->select('stored_items.estimated_size', DB::raw('COUNT(*) as count'))
             ->groupBy('stored_items.estimated_size');
 
-        // Apply filters through storage_applications
+        // Apply filters
         if ($this->selectedSemester !== 'all') {
             $query->where('storage_applications.semester_id', $this->selectedSemester);
         }
@@ -199,10 +199,16 @@ class StorageInsight extends Component
 
         if ($this->selectedRoom !== 'all') {
             $query->where(function ($q) {
-                $q->whereHas('storageApplication.locker', function ($lockerQuery) {
-                    $lockerQuery->where('storage_room_id', $this->selectedRoom);
-                })->orWhereHas('storageApplication.openArea', function ($openAreaQuery) {
-                    $openAreaQuery->where('storage_room_id', $this->selectedRoom);
+                $q->whereExists(function ($subQuery) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('lockers')
+                        ->whereColumn('lockers.id', 'storage_applications.locker_id')
+                        ->where('lockers.storage_room_id', $this->selectedRoom);
+                })->orWhereExists(function ($subQuery) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('open_areas')
+                        ->whereColumn('open_areas.id', 'storage_applications.open_area_id')
+                        ->where('open_areas.storage_room_id', $this->selectedRoom);
                 });
             });
         }
@@ -233,6 +239,22 @@ class StorageInsight extends Component
             $query->whereDate('storage_applications.created_at', '<=', $this->dateTo);
         }
 
+        if ($this->selectedRoom !== 'all') {
+            $query->where(function ($q) {
+                $q->whereExists(function ($subQuery) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('lockers')
+                        ->whereColumn('lockers.id', 'storage_applications.locker_id')
+                        ->where('lockers.storage_room_id', $this->selectedRoom);
+                })->orWhereExists(function ($subQuery) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('open_areas')
+                        ->whereColumn('open_areas.id', 'storage_applications.open_area_id')
+                        ->where('open_areas.storage_room_id', $this->selectedRoom);
+                });
+            });
+        }
+
         $results = $query->get();
 
         $this->typeLabels = $results->pluck('item_type')->map(fn($type) => ucfirst(str_replace('_', ' ', $type)))->toArray();
@@ -259,6 +281,22 @@ class StorageInsight extends Component
             $query->whereDate('storage_applications.created_at', '<=', $this->dateTo);
         }
 
+        if ($this->selectedRoom !== 'all') {
+            $query->where(function ($q) {
+                $q->whereExists(function ($subQuery) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('lockers')
+                        ->whereColumn('lockers.id', 'storage_applications.locker_id')
+                        ->where('lockers.storage_room_id', $this->selectedRoom);
+                })->orWhereExists(function ($subQuery) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('open_areas')
+                        ->whereColumn('open_areas.id', 'storage_applications.open_area_id')
+                        ->where('open_areas.storage_room_id', $this->selectedRoom);
+                });
+            });
+        }
+
         $results = $query->get();
 
         $this->conditionLabels = $results->pluck('item_condition')->map(fn($cond) => ucfirst($cond))->toArray();
@@ -268,26 +306,17 @@ class StorageInsight extends Component
     private function loadCheckInCheckOutData()
     {
         $query = DB::table('semesters')
-            ->leftJoin(
-                'scan_logs',
-                'semesters.id',
-                '=',
-                'scan_logs.semester_id'
-            )
+            ->leftJoin('scan_logs', 'semesters.id', '=', 'scan_logs.semester_id')
             ->select(
                 DB::raw("CONCAT(semesters.academic_year, ' S', semesters.semester_no) as semester_label"),
                 DB::raw("SUM(CASE WHEN scan_logs.event_type = 'check_in' THEN 1 ELSE 0 END) as check_in_count"),
                 DB::raw("SUM(CASE WHEN scan_logs.event_type = 'check_out' THEN 1 ELSE 0 END) as check_out_count")
             )
-            ->groupBy(
-                'semesters.id',
-                'semesters.academic_year',
-                'semesters.semester_no'
-            )
+            ->groupBy('semesters.id', 'semesters.academic_year', 'semesters.semester_no')
             ->orderBy('semesters.academic_year')
             ->orderBy('semesters.semester_no');
 
-        // Filters
+        // Apply filters
         if ($this->selectedSemester !== 'all') {
             $query->where('semesters.id', $this->selectedSemester);
         }
@@ -300,6 +329,27 @@ class StorageInsight extends Component
             $query->whereDate('scan_logs.created_at', '<=', $this->dateTo);
         }
 
+        if ($this->selectedRoom !== 'all') {
+            $query->whereExists(function ($subQuery) {
+                $subQuery->select(DB::raw(1))
+                    ->from('storage_applications')
+                    ->whereColumn('storage_applications.semester_id', 'scan_logs.semester_id')
+                    ->where(function ($q) {
+                        $q->whereExists(function ($lockerQuery) {
+                            $lockerQuery->select(DB::raw(1))
+                                ->from('lockers')
+                                ->whereColumn('lockers.id', 'storage_applications.locker_id')
+                                ->where('lockers.storage_room_id', $this->selectedRoom);
+                        })->orWhereExists(function ($openQuery) {
+                            $openQuery->select(DB::raw(1))
+                                ->from('open_areas')
+                                ->whereColumn('open_areas.id', 'storage_applications.open_area_id')
+                                ->where('open_areas.storage_room_id', $this->selectedRoom);
+                        });
+                    });
+            });
+        }
+
         $results = $query->get();
 
         $this->checkLabels = $results->pluck('semester_label')->toArray();
@@ -310,27 +360,43 @@ class StorageInsight extends Component
     private function loadLockerVsOpenSpaceData()
     {
         $query = DB::table('semesters')
-            ->leftJoin(
-                'storage_applications',
-                'semesters.id',
-                '=',
-                'storage_applications.semester_id'
-            )
+            ->leftJoin('storage_applications', 'semesters.id', '=', 'storage_applications.semester_id')
             ->select(
                 DB::raw("CONCAT(semesters.academic_year, ' S', semesters.semester_no) as semester_label"),
                 DB::raw('SUM(CASE WHEN storage_applications.locker_id IS NOT NULL THEN 1 ELSE 0 END) as locker_count'),
                 DB::raw('SUM(CASE WHEN storage_applications.open_area_id IS NOT NULL THEN 1 ELSE 0 END) as open_space_count')
             )
-            ->groupBy(
-                'semesters.id',
-                'semesters.academic_year',
-                'semesters.semester_no'
-            )
+            ->groupBy('semesters.id', 'semesters.academic_year', 'semesters.semester_no')
             ->orderBy('semesters.academic_year')
             ->orderBy('semesters.semester_no');
 
+        // Apply filters
         if ($this->selectedSemester !== 'all') {
             $query->where('semesters.id', $this->selectedSemester);
+        }
+
+        if ($this->dateFrom) {
+            $query->whereDate('storage_applications.created_at', '>=', $this->dateFrom);
+        }
+
+        if ($this->dateTo) {
+            $query->whereDate('storage_applications.created_at', '<=', $this->dateTo);
+        }
+
+        if ($this->selectedRoom !== 'all') {
+            $query->where(function ($q) {
+                $q->whereExists(function ($subQuery) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('lockers')
+                        ->whereColumn('lockers.id', 'storage_applications.locker_id')
+                        ->where('lockers.storage_room_id', $this->selectedRoom);
+                })->orWhereExists(function ($subQuery) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('open_areas')
+                        ->whereColumn('open_areas.id', 'storage_applications.open_area_id')
+                        ->where('open_areas.storage_room_id', $this->selectedRoom);
+                });
+            });
         }
 
         $results = $query->get();
@@ -343,32 +409,27 @@ class StorageInsight extends Component
     private function loadLockerOccupancyRates()
     {
         $query = DB::table('semesters')
-            ->leftJoin(
-                'storage_applications',
-                'semesters.id',
-                '=',
-                'storage_applications.semester_id'
-            )
-            ->leftJoin(
-                'lockers',
-                'storage_applications.locker_id',
-                '=',
-                'lockers.id'
-            )
+            ->leftJoin('storage_applications', 'semesters.id', '=', 'storage_applications.semester_id')
+            ->leftJoin('lockers', 'storage_applications.locker_id', '=', 'lockers.id')
             ->select(
                 DB::raw("CONCAT(semesters.academic_year, ' S', semesters.semester_no) as semester_label"),
                 DB::raw('COUNT(DISTINCT lockers.id) as occupied')
             )
-            ->groupBy(
-                'semesters.id',
-                'semesters.academic_year',
-                'semesters.semester_no'
-            )
+            ->groupBy('semesters.id', 'semesters.academic_year', 'semesters.semester_no')
             ->orderBy('semesters.academic_year')
             ->orderBy('semesters.semester_no');
 
+        // Apply filters
         if ($this->selectedSemester !== 'all') {
             $query->where('semesters.id', $this->selectedSemester);
+        }
+
+        if ($this->dateFrom) {
+            $query->whereDate('storage_applications.created_at', '>=', $this->dateFrom);
+        }
+
+        if ($this->dateTo) {
+            $query->whereDate('storage_applications.created_at', '<=', $this->dateTo);
         }
 
         if ($this->selectedRoom !== 'all') {
@@ -399,18 +460,52 @@ class StorageInsight extends Component
 
     private function loadMetrics()
     {
-        $unclaimedCount = StorageApplication::unclaimed()->count();
+        // Base query for applications
+        $applicationsQuery = StorageApplication::query();
+        
+        // Apply filters to metrics
+        if ($this->selectedSemester !== 'all') {
+            $applicationsQuery->where('semester_id', $this->selectedSemester);
+        }
+
+        if ($this->dateFrom) {
+            $applicationsQuery->whereDate('created_at', '>=', $this->dateFrom);
+        }
+
+        if ($this->dateTo) {
+            $applicationsQuery->whereDate('created_at', '<=', $this->dateTo);
+        }
+
+        if ($this->selectedRoom !== 'all') {
+            $applicationsQuery->where(function ($q) {
+                $q->whereHas('locker', function ($lockerQuery) {
+                    $lockerQuery->where('storage_room_id', $this->selectedRoom);
+                })->orWhereHas('openArea', function ($openAreaQuery) {
+                    $openAreaQuery->where('storage_room_id', $this->selectedRoom);
+                });
+            });
+        }
+
+        $totalApplications = (clone $applicationsQuery)->count();
+        $activeItems = (clone $applicationsQuery)->where('storage_application_status', 'checked_in')->count();
+        $unclaimedCount = (clone $applicationsQuery)->unclaimed()->count();
+
+        // Locker occupancy calculation
+        $lockerQuery = Locker::where('status', 'occupied');
+        $totalLockerQuery = Locker::query();
+
+        if ($this->selectedRoom !== 'all') {
+            $lockerQuery->where('storage_room_id', $this->selectedRoom);
+            $totalLockerQuery->where('storage_room_id', $this->selectedRoom);
+        }
+
+        $occupiedLockers = $lockerQuery->count();
+        $totalLockers = $totalLockerQuery->count();
 
         $this->metrics = [
-            'totalApplications' => StorageApplication::count(),
-
-            'activeItems' => StorageApplication::where('storage_application_status', 'checked_in')->count(),
-
-            'lockerOccupancyRate' => round(
-                (Locker::where('status', 'occupied')->count() / max(Locker::count(), 1)) * 100,
-                1
-            ),
-
+            'totalApplications' => $totalApplications,
+            'activeItems' => $activeItems,
+            'lockerOccupancyRate' => $totalLockers > 0 ? round(($occupiedLockers / $totalLockers) * 100, 1) : 0,
             'unclaimedItems' => $unclaimedCount,
         ];
     }
@@ -463,7 +558,6 @@ class StorageInsight extends Component
         $pdf = Pdf::loadView('reports.dashboard-pdf', $data)
             ->setPaper('a4', 'portrait');
 
-        // 2. Use streamDownload for Livewire compatibility
         return response()->streamDownload(
             function () use ($pdf) {
                 echo $pdf->output();
@@ -471,7 +565,6 @@ class StorageInsight extends Component
             'storage-insight-report-' . now()->format('Y-m-d') . '.pdf'
         );
     }
-
 
     public function render()
     {
