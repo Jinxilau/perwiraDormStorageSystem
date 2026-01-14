@@ -99,6 +99,8 @@ class StorageApplication extends Component
         if ($application !== null) {
             $this->application = $application;
             // Prevent editing other's application
+            dd($application->applicant_id, Auth::id());
+            
             if ($application->applicant_id !== Auth::id()) {
                 abort(403, 'Unauthorized');
             }
