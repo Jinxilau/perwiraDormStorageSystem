@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Setting;
 use App\Models\StorageApplication;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
