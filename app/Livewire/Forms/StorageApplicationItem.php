@@ -138,6 +138,8 @@ class StorageApplicationItem extends Form
             ];
         }
 
+        dd($this->items);
+
         // Load the first item into the form
         if (!empty($this->items)) {
             $this->item_name        = $this->items[0]['item_name'];

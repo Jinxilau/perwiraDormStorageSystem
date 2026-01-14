@@ -56,7 +56,6 @@ class StorageApplication extends Component
 
     public function mount(?ModelsStorageApplication $application = null)
     {
-        dd($this->application);
         $this->categories = [
             'electronic' => 'Electronic',
             'furniture' => 'Furniture',
