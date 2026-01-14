@@ -100,7 +100,6 @@ class StorageApplication extends Component
             $this->application = ModelsStorageApplication::find($applicationId);
 
             // Prevent editing other's application
-
             if ($this->application->applicant_id !== Auth::id()) {
                 abort(403, 'Unauthorized');
             }

@@ -72,7 +72,7 @@
             </div>
         @else
             <div class="px-3">
-                <livewire:storage-application :application="$application" />
+                <livewire:storage-application :applicationId="$application->id" />
             </div>
         @endif
     @endif
