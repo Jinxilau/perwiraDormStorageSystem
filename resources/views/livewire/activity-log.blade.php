@@ -22,7 +22,7 @@
             ],
             [
                 'title' => $this->activeUsersToday,
-                'subtitle' => 'Active Users',
+                'subtitle' => 'Users (Today)',
                 'icon' => 'bi-people-fill',
                 'color' => 'text-info',
                 'bg' => 'bg-info bg-opacity-10',

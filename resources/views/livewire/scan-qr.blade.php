@@ -545,35 +545,6 @@
                                     {{ ucfirst(str_replace('_', ' ', $log->event_type)) }}
                                 </span>
                             </div>
-
-                            <div class="col-lg-4 col-md-2 text-end">
-                                <div class="dropdown">
-                                    <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" type="button"
-                                        data-bs-toggle="dropdown">
-                                        <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
-                                        <li>
-                                            <a class="dropdown-item py-2" href="#">
-                                                <i class="fas fa-eye me-2 text-primary"></i>View Details
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item py-2" href="#">
-                                                <i class="fas fa-download me-2 text-success"></i>Download
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <hr class="dropdown-divider">
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item py-2 text-danger" href="#">
-                                                <i class="fas fa-trash me-2"></i>Delete
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 @empty

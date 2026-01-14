@@ -31,7 +31,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
-    
+
     {{-- Main Content --}}
     <div class="container-fluid py-4">
         <div class="row">
@@ -179,7 +179,7 @@
                                     <div class="col-md-4">
                                         <small class="text-muted">Room</small>
                                         <p class="mb-0 fw-bold">
-                                            {{ $application->storageRoom->room_name ?? 'N/A' }}
+                                            {{ $application->locker->storageRoom->room_name ?? 'N/A' }}
                                         </p>
                                     </div>
                                 </div>
@@ -197,7 +197,7 @@
                                     <div class="col-md-6">
                                         <small class="text-muted">Room</small>
                                         <p class="mb-0 fw-bold">
-                                            {{ $application->storageRoom->room_name ?? 'N/A' }}</p>
+                                            {{ $application->openArea->storageRoom->room_name ?? 'N/A' }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -210,7 +210,7 @@
                     </div>
                 </div>
 
-                {{-- Stored Items --}}
+                {{-- Stored Items with Edit Functionality --}}
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-secondary text-white">
                         <h5 class="mb-0">
@@ -238,6 +238,7 @@
                                             <th>Condition</th>
                                             <th>Description</th>
                                             <th>Photos</th>
+                                            <th class="text-center">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -292,7 +293,23 @@
                                                             target="_blank" class="btn btn-sm btn-outline-primary">
                                                             <i class="bi bi-image"></i>
                                                         </a>
+                                                    @else
+                                                        <span class="text-muted">—</span>
                                                     @endif
+                                                </td>
+
+                                                <td class="text-center">
+                                                    <div class="btn-group btn-group-sm" role="group">
+                                                        <button wire:click="editItem({{ $item->id }})"
+                                                            class="btn btn-outline-primary" title="Edit Item">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </button>
+                                                        <button wire:click="deleteItem({{ $item->id }})"
+                                                            wire:confirm="Are you sure you want to delete this item? This action cannot be undone."
+                                                            class="btn btn-outline-danger" title="Delete Item">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -471,4 +488,168 @@
 
         </div>
     </div>
+
+
+    <!-- Edit Item Modal -->
+    <x-custom-modal>
+        <x-slot:title>
+            <div class="d-flex justify-content-between align-items-center gap-1 w-100">
+                <span><i class="bi bi-pencil-square me-2"></i>Edit Stored Item</span>
+            </div>
+        </x-slot:title>
+
+        <div class="d-flex justify-content-center">
+            <div wire:loading="editingItemId">
+                <div class="spinner-border my-3" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <div wire:loading.remove="editingItemId" class="pb-3">
+            <form wire:submit.prevent="updateItem">
+                <div class="row">
+                    <!-- Item Name -->
+                    <div class="col-md-12 mb-3">
+                        <label for="editItemName" class="form-label fw-semibold">
+                            <i class="bi bi-tag me-1"></i>Item Name <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" wire:model="editItemName" id="editItemName"
+                            class="form-control @error('editItemName') is-invalid @enderror"
+                            placeholder="e.g., Laptop, Study Desk">
+                        @error('editItemName')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Item Type -->
+                    <div class="col-md-6 mb-3">
+                        <label for="editItemType" class="form-label fw-semibold">
+                            <i class="bi bi-grid-3x3 me-1"></i>Item Type <span class="text-danger">*</span>
+                        </label>
+                        <select wire:model="editItemType" id="editItemType"
+                            class="form-select @error('editItemType') is-invalid @enderror">
+                            <option value="">Select Type</option>
+                            <option value="electronic">Electronic</option>
+                            <option value="furniture">Furniture</option>
+                            <option value="container">Container</option>
+                            <option value="luggage">Luggage</option>
+                            <option value="clothing">Clothing</option>
+                            <option value="home_appliance">Home Appliance</option>
+                            <option value="other">Other</option>
+                        </select>
+                        @error('editItemType')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Estimated Size -->
+                    <div class="col-md-6 mb-3">
+                        <label for="editEstimatedSize" class="form-label fw-semibold">
+                            <i class="bi bi-arrows-angle-expand me-1"></i>Size <span class="text-danger">*</span>
+                        </label>
+                        <select wire:model="editEstimatedSize" id="editEstimatedSize"
+                            class="form-select @error('editEstimatedSize') is-invalid @enderror">
+                            <option value="">Select Size</option>
+                            <option value="small">Small</option>
+                            <option value="medium">Medium</option>
+                            <option value="large">Large</option>
+                        </select>
+                        @error('editEstimatedSize')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Item Condition -->
+                    <div class="col-md-12 mb-3">
+                        <label for="editItemCondition" class="form-label fw-semibold">
+                            <i class="bi bi-clipboard-check me-1"></i>Condition <span class="text-danger">*</span>
+                        </label>
+                        <select wire:model="editItemCondition" id="editItemCondition"
+                            class="form-select @error('editItemCondition') is-invalid @enderror">
+                            <option value="">Select Condition</option>
+                            <option value="fragile">Fragile - Requires special handling</option>
+                            <option value="bulky">Bulky - Large volume or unusual shape</option>
+                            <option value="boxed">Boxed - Easy to stack and store</option>
+                            <option value="misc">Miscellaneous - Standard item</option>
+                        </select>
+                        @error('editItemCondition')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-md-12 mb-3">
+                        <label for="editItemDescription" class="form-label fw-semibold">
+                            <i class="bi bi-card-text me-1"></i>Description
+                        </label>
+                        <textarea wire:model="editItemDescription" id="editItemDescription"
+                            class="form-control @error('editItemDescription') is-invalid @enderror" rows="3"
+                            placeholder="Additional details about the item..."></textarea>
+                        @error('editItemDescription')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- Photo Upload -->
+                    <div class="col-md-12 mb-3">
+                        <label for="editItemPhoto" class="form-label fw-semibold">
+                            <i class="bi bi-camera me-1"></i>Item Photo
+                        </label>
+
+                        @if ($currentItemPhotoPath && !$editItemPhoto)
+                            <div class="mb-2">
+                                <img src="{{ Storage::disk('public')->url($currentItemPhotoPath) }}"
+                                    alt="Current item photo" class="img-thumbnail" style="max-height: 150px;">
+                                <p class="small text-muted mt-1">Current photo</p>
+                            </div>
+                        @endif
+
+                        @if ($editItemPhoto)
+                            <div class="mb-2">
+                                <img src="{{ $editItemPhoto->temporaryUrl() }}" alt="New item photo"
+                                    class="img-thumbnail" style="max-height: 150px;">
+                                <p class="small text-success mt-1">New photo preview</p>
+                            </div>
+                        @endif
+
+                        <input type="file" wire:model="editItemPhoto" id="editItemPhoto"
+                            class="form-control @error('editItemPhoto') is-invalid @enderror" accept="image/*">
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Max file size: 2MB. Leave empty to keep current photo.
+                        </div>
+                        @error('editItemPhoto')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+
+                        <div wire:loading wire:target="editItemPhoto" class="text-primary mt-2">
+                            <i class="bi bi-hourglass-split"></i> Uploading...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 justify-content-end mt-4">
+                    <button type="button" wire:click="cancelEdit" class="btn btn-secondary">
+                        <i class="bi bi-x-circle me-1"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
+                        <i class="bi bi-save me-1"></i>
+                        <span wire:loading.remove wire:target="updateItem">Save Changes</span>
+                        <span wire:loading wire:target="updateItem">Saving...</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </x-custom-modal>
+
+    @push('styles')
+        <style>
+            .btn-group-sm>.btn {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.875rem;
+            }
+        </style>
+    @endpush
+
 </div>

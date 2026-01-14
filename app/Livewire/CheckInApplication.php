@@ -5,9 +5,11 @@ namespace App\Livewire;
 use App\Models\QRCode;
 use App\Models\ScanLog;
 use App\Models\StorageApplication;
+use App\Models\StoredItem;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 
@@ -20,6 +22,25 @@ class CheckInApplication extends Component
     public $checkin_item_photo; # The uploaded check-in photo
     public $storage_zone; # The storage zone input
 
+    // Edit Item Properties
+    public $editingItemId;
+    public $editItemName;
+    public $editEstimatedSize;
+    public $editItemType;
+    public $editItemCondition;
+    public $editItemDescription;
+    public $editItemPhoto;
+    public $currentItemPhotoPath;
+
+    protected $rules = [
+        'editItemName' => 'required|string|max:100',
+        'editEstimatedSize' => 'required|in:small,medium,large',
+        'editItemType' => 'required|in:electronic,furniture,container,luggage,clothing,home_appliance,other',
+        'editItemCondition' => 'required|in:fragile,bulky,boxed,misc',
+        'editItemDescription' => 'nullable|string|max:500',
+        'editItemPhoto' => 'nullable|image|max:2048', // 2MB max
+    ];
+
     public function mount(StorageApplication $application)
     {
         $this->application = $application->load(['applicant', 'storedItems', 'locker.storageRoom', 'openArea.storageRoom', 'qrCode.scanLogs', 'semester',]);
@@ -27,6 +48,139 @@ class CheckInApplication extends Component
         if ($application->qrCode) {
             $this->storage_zone = $application->qrCode->storage_zone;
         }
+    }
+
+    public function editItem($itemId)
+    {
+        $item = StoredItem::findOrFail($itemId);
+
+        // Security check: ensure item belongs to this application
+        if ($item->storage_application_id !== $this->application->id) {
+            $this->dispatch('show_toast', message: 'Unauthorized action.', type: 'fail');
+            return;
+        }
+
+        $this->editingItemId = $item->id;
+        $this->editItemName = $item->item_name;
+        $this->editEstimatedSize = $item->estimated_size;
+        $this->editItemType = $item->item_type;
+        $this->editItemCondition = $item->item_condition;
+        $this->editItemDescription = $item->item_description;
+        $this->currentItemPhotoPath = $item->item_photo_path;
+        $this->editItemPhoto = null;
+
+        $this->dispatch('display_modal');
+    }
+
+    public function updateItem()
+    {
+        $this->validate();
+
+        try {
+            DB::transaction(function () {
+                $item = StoredItem::findOrFail($this->editingItemId);
+
+                // Handle photo upload
+                $photoPath = $this->currentItemPhotoPath;
+                if ($this->editItemPhoto) {
+                    // Delete old photo if exists
+                    if ($this->currentItemPhotoPath) {
+                        Storage::disk('public')->delete($this->currentItemPhotoPath);
+                    }
+
+                    // Store new photo
+                    $photoPath = $this->editItemPhoto->store('stored_items', 'public');
+                }
+
+                // Update item
+                $item->update([
+                    'item_name' => $this->editItemName,
+                    'estimated_size' => $this->editEstimatedSize,
+                    'item_type' => $this->editItemType,
+                    'item_condition' => $this->editItemCondition,
+                    'item_description' => $this->editItemDescription,
+                    'item_photo_path' => $photoPath,
+                ]);
+
+                // Activity Log
+                $this->application->activityLogs()->create([
+                    'user_id' => Auth::id(),
+                    'action' => 'updated',
+                    'description' => "Updated stored item: {$item->item_name} (ID: {$item->id})",
+                    'ip_address' => request()->ip(),
+                ]);
+
+                // Refresh application data
+                $this->application->refresh();
+            });
+
+            $this->dispatch('close-modal');
+            $this->dispatch('show_toast', message: 'Item updated successfully!', type: 'success');
+            $this->resetEditForm();
+        } catch (\Exception $e) {
+            Log::error('Update Item Error: ' . $e->getMessage());
+            $this->dispatch('show_toast', message: 'Failed to update item. Please try again.', type: 'fail');
+        }
+    }
+
+    public function deleteItem($itemId)
+    {
+        try {
+            DB::transaction(function () use ($itemId) {
+                $item = StoredItem::findOrFail($itemId);
+
+                // Security check
+                if ($item->storage_application_id !== $this->application->id) {
+                    throw new \Exception('Unauthorized action.');
+                }
+
+                $itemName = $item->item_name;
+
+                // Delete photo if exists
+                if ($item->item_photo_path) {
+                    Storage::disk('public')->delete($item->item_photo_path);
+                }
+
+                $item->delete();
+
+                // Activity Log
+                $this->application->activityLogs()->create([
+                    'user_id' => Auth::id(),
+                    'action' => 'deleted',
+                    'description' => "Deleted stored item: {$itemName} (ID: {$itemId})",
+                    'ip_address' => request()->ip(),
+                ]);
+
+                // Refresh application data
+                $this->application->refresh();
+            });
+
+            $this->dispatch('show_toast', message: 'Item deleted successfully!', type: 'success');
+        } catch (\Exception $e) {
+            Log::error('Delete Item Error: ' . $e->getMessage());
+            $this->dispatch('show_toast', message: 'Failed to delete item. Please try again.', type: 'fail');
+        }
+    }
+
+    public function cancelEdit()
+    {
+        $this->resetEditForm();
+        $this->dispatch('close-modal');
+    }
+
+    private function resetEditForm()
+    {
+        $this->reset([
+            'editingItemId',
+            'editItemName',
+            'editEstimatedSize',
+            'editItemType',
+            'editItemCondition',
+            'editItemDescription',
+            'editItemPhoto',
+            'currentItemPhotoPath'
+        ]);
+        $this->resetValidation();
     }
 
     public function confirmCheckIn()
