@@ -95,9 +95,9 @@ class StorageApplication extends Component
         //     'end' => 'Evening: 9:00 PM - 11:00 PM'
         // ];
 
-        dd($application->isNotEmpty(), $application);
+        dd($application->exists(), $application);
         // Edit Mode
-        if ($application->isNotEmpty) {
+        if ($application->exists()) {
             $this->application = $application;
             // Prevent editing other's application
             if ($application->applicant_id !== Auth::id()) {
