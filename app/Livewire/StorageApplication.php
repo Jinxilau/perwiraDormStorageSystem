@@ -95,9 +95,8 @@ class StorageApplication extends Component
         //     'end' => 'Evening: 9:00 PM - 11:00 PM'
         // ];
 
-        dd($application->exists(), $application);
         // Edit Mode
-        if ($application->exists()) {
+        if ($application !== null) {
             $this->application = $application;
             // Prevent editing other's application
             if ($application->applicant_id !== Auth::id()) {
@@ -109,7 +108,6 @@ class StorageApplication extends Component
                 abort(403, 'You cannot edit this application.');
             }
 
-            dd($application);
             
             $this->itemForm->loadExistingItems($application);
             $this->roomForm->loadExistingRoom($application);
