@@ -95,6 +95,7 @@ class StorageApplication extends Component
         //     'end' => 'Evening: 9:00 PM - 11:00 PM'
         // ];
 
+        dd($application->isNotEmpty);
         // Edit Mode
         if ($application->isNotEmpty) {
             $this->application = $application;
