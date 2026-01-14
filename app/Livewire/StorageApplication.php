@@ -108,6 +108,8 @@ class StorageApplication extends Component
                 abort(403, 'You cannot edit this application.');
             }
 
+            dd($application);
+            
             $this->itemForm->loadExistingItems($application);
             $this->roomForm->loadExistingRoom($application);
         } else {
