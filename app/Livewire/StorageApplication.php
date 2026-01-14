@@ -54,7 +54,7 @@ class StorageApplication extends Component
         'expected_check_in.after' => 'Check-in date must be in the future.',
     ];
 
-    public function mount(?ModelsStorageApplication $application = null)
+    public function mount($applicationId = null)
     {
         $this->categories = [
             'electronic' => 'Electronic',
@@ -96,23 +96,23 @@ class StorageApplication extends Component
         // ];
 
         // Edit Mode
-        if ($application !== null) {
-            $this->application = $application;
+        if ($applicationId !== null) {
+            $this->application = ModelsStorageApplication::find($applicationId);
+
             // Prevent editing other's application
-            dd($application->applicant_id, Auth::id(), $application, $this->application);
-            
-            if ($application->applicant_id !== Auth::id()) {
+
+            if ($this->application->applicant_id !== Auth::id()) {
                 abort(403, 'Unauthorized');
             }
 
             // Optional: prevent editing non-pending entries
-            if ($application->storage_application_status !== 'pending') {
+            if ($this->application->storage_application_status !== 'pending') {
                 abort(403, 'You cannot edit this application.');
             }
 
-            
-            $this->itemForm->loadExistingItems($application);
-            $this->roomForm->loadExistingRoom($application);
+
+            $this->itemForm->loadExistingItems($this->application);
+            $this->roomForm->loadExistingRoom($this->application);
         } else {
             // Step 1: Item Details
             $this->itemForm->items = [
